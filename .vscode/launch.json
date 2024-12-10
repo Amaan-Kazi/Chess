@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Next.js: Dev",
+        "type": "node",
+        "request": "launch",
+        "skipFiles": ["<node_internals>/**"],
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "env": {
+          "NEXT_PUBLIC_VERCEL": "true"
+        },
+        "console": "integratedTerminal",
+        "outputCapture": "std"
+      }
+    ]
+  }
+  
