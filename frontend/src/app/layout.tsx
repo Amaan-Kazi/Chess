@@ -1,9 +1,6 @@
-// "use client"
-
 import "./globals.css";
 import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
-// import { useEffect, useState } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,21 +15,8 @@ const geistMono = localFont({
 });
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
-  // // ThemeProvider detects system theme and applies it dynamically
-  // const [mounted, setMounted] = useState(false);
-
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
-
-  // if (!mounted) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // console.log("Mounted")
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>Chess</title>
         <meta name="description" content="Chess, play online, locally or with bot, created by Amaan Kazi" />
