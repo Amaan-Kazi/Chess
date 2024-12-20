@@ -12,7 +12,7 @@ export default function Navbar({ activePage }: { activePage: string }) {
   const links = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
-    { href: "https://github.com/Amaan-Kazi/Chess", label: "Github" },
+    { href: "https://github.com/Amaan-Kazi/Chess", label: "GitHub" },
   ];
 
   return (
@@ -29,7 +29,10 @@ export default function Navbar({ activePage }: { activePage: string }) {
 
       <nav className="flex navbar-background shadow-md">
         <div className="w-full flex justify-between items-center">
-          <div className="text-3xl font-academiaM54 p-3">Chess</div>
+          <div className="flex items-center pl-2 pr-5">
+            <img src="favicon.ico" className="w-10 h-10" />
+            <p className="text-3xl font-academiaM54 py-3">Chess</p>
+          </div>
 
           {/* Button for expanding navbar vertically on small devices */}
           <button
@@ -56,7 +59,11 @@ export default function Navbar({ activePage }: { activePage: string }) {
                 {link.label}
                 {/* Underline effect */}
                 <span
-                  className={`absolute left-1/2 bottom-0 h-[2px] w-0 ${activePage !== link.label ? 'bg-primary' : theme === 'light' ? 'bg-black' : 'bg-white'} transition-all duration-300 ease-out group-hover:w-full group-hover:left-0`}
+                  className={`
+                    absolute left-1/2 bottom-0 h-[2px] w-0
+                    ${activePage !== link.label ? 'bg-primary' : theme === 'light' ? 'bg-black' : 'bg-white'}
+                    transition-all duration-300 ease-out group-hover:w-full group-hover:left-0`
+                  }
                 ></span>
               </a>
             ))}
