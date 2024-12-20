@@ -49,11 +49,15 @@ export default function Navbar({ activePage }: { activePage: string }) {
               <a
                 key={index}
                 href={link.href}
-                className={`block px-4 py-2 md:py-0 ${
+                className={`block mx-4 my-2 md:py-0 relative group ${
                   activePage === link.label && "text-primary font-bold"
                 }`}
               >
                 {link.label}
+                {/* Underline effect */}
+                <span
+                  className={`absolute left-1/2 bottom-0 h-[2px] w-0 ${activePage !== link.label ? 'bg-primary' : theme === 'light' ? 'bg-black' : 'bg-white'} transition-all duration-300 ease-out group-hover:w-full group-hover:left-0`}
+                ></span>
               </a>
             ))}
           </div>
