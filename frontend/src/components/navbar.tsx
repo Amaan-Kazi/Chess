@@ -8,8 +8,12 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 export default function Navbar({ activePage }: { activePage: string }) {
   const { theme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
-  
-  console.log(activePage);
+
+  const links = [
+    { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "https://github.com/Amaan-Kazi/Chess", label: "Github" },
+  ];
 
   return (
     <>
@@ -41,15 +45,17 @@ export default function Navbar({ activePage }: { activePage: string }) {
               menuOpen ? "block" : "hidden"
             }`}
           >
-            <a href="#" className="block px-4 py-2 md:py-0">
-              Home
-            </a>
-            <a href="#" className="block px-4 py-2 md:py-0">
-              About
-            </a>
-            <a href="#" className="block px-4 py-2 md:py-0">
-              Contact
-            </a>
+            {links.map((link, index) => (
+              <a
+                key={index}
+                href={link.href}
+                className={`block px-4 py-2 md:py-0 ${
+                  activePage === link.label && "text-primary font-bold"
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
         </div>
 
