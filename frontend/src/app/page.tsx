@@ -1,5 +1,9 @@
-import {Button} from "@/components/ui/button"
+"use client";
+import { useState } from "react";
+
 import Navbar from "@/components/navbar"
+import {Button} from "@/components/ui/button"
+
 import {
   Drawer,
   DrawerClose,
@@ -10,6 +14,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
+
 import {
   Card,
   CardContent,
@@ -26,6 +31,12 @@ function Settings() {
 }
 
 export default function Home() {
+  const [selection, setSelection] = useState("null");
+
+  const selectionChange = () => {
+    if (selection !== "null") setSelection("null");
+  }
+
   return (
     <>
       <Navbar activePage="Home"/>
@@ -37,22 +48,31 @@ export default function Home() {
             </CardHeader>
 
             <CardContent>
-              <div className="flex flex-col justify-evenly">
-                <Card>
+              <div className="flex flex-col gap-10">
+                <Card
+                  className="cursor-pointer"
+                  onClick={() => setSelection("PlayOnline")}
+                >
                   <CardHeader>
                     <CardTitle>Play Online</CardTitle>
                     <CardDescription>Play against other players online</CardDescription>
                   </CardHeader>
                 </Card>
 
-                <Card>
+                <Card
+                  className="cursor-pointer"
+                  onClick={() => setSelection("PlayWithBot")}
+                >
                   <CardHeader>
                     <CardTitle>Play with Bot</CardTitle>
                     <CardDescription>Play against a bot with customizable difficulty</CardDescription>
                   </CardHeader>
                 </Card>
 
-                <Card>
+                <Card
+                  className="cursor-pointer"
+                  onClick={() => setSelection("PassAndPlay")}
+                >
                   <CardHeader>
                     <CardTitle>Pass and Play</CardTitle>
                     <CardDescription>Play against another player locally</CardDescription>
@@ -83,23 +103,14 @@ export default function Home() {
           </Card>
         </div>
 
-        {/* <Drawer>
-          <DrawerTrigger>Open</DrawerTrigger>
+        <Drawer open={selection !== "null"} onOpenChange={selectionChange}>
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-              <DrawerDescription>This action cannot be undone.</DrawerDescription>
+              <DrawerTitle>This is the drawer title</DrawerTitle>
+              <DrawerDescription>This is the drawer description</DrawerDescription>
             </DrawerHeader>
-
-            <DrawerFooter>
-              <Button>Submit</Button>
-
-              <DrawerClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DrawerClose>
-            </DrawerFooter>
           </DrawerContent>
-        </Drawer> */}
+        </Drawer>
       </div>
     </>
   );
