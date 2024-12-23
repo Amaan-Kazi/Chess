@@ -19,25 +19,47 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+function Settings() {
+  return (
+    <>Hello World</>
+  );
+}
+
 export default function Home() {
   return (
     <>
       <Navbar activePage="Home"/>
       <div className="container mx-auto flex justify-evenly">
         <div>
-          <Card>
+          <Card className="m-10 min-h-96">
             <CardHeader>
-              <CardTitle><p className="text-4xl">Game Mode</p></CardTitle>
-              <CardDescription>Card Description</CardDescription>
+              <CardTitle><p className="text-4xl md:text-6xl">Game Mode</p></CardTitle>
             </CardHeader>
 
             <CardContent>
-              <p>Card Content</p>
-            </CardContent>
+              <div className="flex flex-col justify-evenly">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Play Online</CardTitle>
+                    <CardDescription>Play against other players online</CardDescription>
+                  </CardHeader>
+                </Card>
 
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Play with Bot</CardTitle>
+                    <CardDescription>Play against a bot with customizable difficulty</CardDescription>
+                  </CardHeader>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Pass and Play</CardTitle>
+                    <CardDescription>Play against another player locally</CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
@@ -60,21 +82,24 @@ export default function Home() {
             </CardFooter>
           </Card>
         </div>
-        <Drawer>
+
+        {/* <Drawer>
           <DrawerTrigger>Open</DrawerTrigger>
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Are you absolutely sure?</DrawerTitle>
               <DrawerDescription>This action cannot be undone.</DrawerDescription>
             </DrawerHeader>
+
             <DrawerFooter>
               <Button>Submit</Button>
-              <DrawerClose>
+
+              <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DrawerClose>
             </DrawerFooter>
           </DrawerContent>
-        </Drawer>
+        </Drawer> */}
       </div>
     </>
   );
