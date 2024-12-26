@@ -21,12 +21,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+import { PassAndPlayForm } from "@/components/forms"
+
 export default function Home() {
   const [selection, setSelection] = useState("null");
-
-  const selectionChange = () => {
-    if (selection !== "null") setSelection("null");
-  }
 
   return (
     <>
@@ -41,7 +39,7 @@ export default function Home() {
             <div className="flex flex-col gap-10">
               <Card
                 className="cursor-pointer"
-                onClick={() => setSelection("PlayOnline")}
+                onClick={() => setSelection("Play Online")}
               >
                 <CardHeader>
                   <CardTitle>Play Online</CardTitle>
@@ -51,7 +49,7 @@ export default function Home() {
 
               <Card
                 className="cursor-pointer"
-                onClick={() => setSelection("PlayWithBot")}
+                onClick={() => setSelection("Play With Bot")}
               >
                 <CardHeader>
                   <CardTitle>Play with Bot</CardTitle>
@@ -61,7 +59,7 @@ export default function Home() {
 
               <Card
                 className="cursor-pointer"
-                onClick={() => setSelection("PassAndPlay")}
+                onClick={() => setSelection("Pass And Play")}
               >
                 <CardHeader>
                   <CardTitle>Pass and Play</CardTitle>
@@ -89,12 +87,14 @@ export default function Home() {
           </CardFooter>
         </Card>
 
-        <Drawer open={selection !== "null"} onOpenChange={selectionChange}>
+        <Drawer open={selection !== "null"} onOpenChange={() => {if (selection !== "null") setSelection("null");}}>
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>This is the drawer title</DrawerTitle>
+              <DrawerTitle>{selection} - Game Settings</DrawerTitle>
               <DrawerDescription>This is the drawer description</DrawerDescription>
             </DrawerHeader>
+
+            <PassAndPlayForm />
           </DrawerContent>
         </Drawer>
       </div>
