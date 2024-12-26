@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useMediaQuery } from 'react-responsive';
 
 import Navbar from "@/components/navbar"
 // import {Button} from "@/components/ui/button"
@@ -16,7 +17,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -25,6 +25,7 @@ import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
   const [selection, setSelection] = useState("null");
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   return (
     <>
@@ -72,29 +73,29 @@ export default function Home() {
 
         {/* Game Settings */}
         {/* Hidden on small screen and replaced by drawer */}
-        <Card className="hidden md:block">
+        <Card className="hidden md:block w-6/12">
           <CardHeader>
             <CardTitle><p className="text-4xl">Settings</p></CardTitle>
             <CardDescription>Card Description</CardDescription>
           </CardHeader>
 
           <CardContent>
-            <p>Card Content</p>
+            {selection === "Pass And Play" && <PassAndPlayForm />}
           </CardContent>
-
-          <CardFooter>
-            <p>Card Footer</p>
-          </CardFooter>
         </Card>
 
-        <Drawer open={selection !== "null"} onOpenChange={() => {if (selection !== "null") setSelection("null");}}>
+        <Drawer open={(selection !== "null") && (isSmallScreen == true)} onOpenChange={() => {if (selection !== "null") setSelection("null");}}>
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>{selection} - Game Settings</DrawerTitle>
               <DrawerDescription>This is the drawer description</DrawerDescription>
             </DrawerHeader>
 
-            <PassAndPlayForm />
+            <div className="flex justify-center mb-4">
+              <div className="w-4/5">
+                {selection === "Pass And Play" && <PassAndPlayForm />}
+              </div>
+            </div>
           </DrawerContent>
         </Drawer>
       </div>
