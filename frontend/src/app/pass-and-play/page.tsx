@@ -8,21 +8,6 @@ import Game from "@/chess/game"
 export default function PassAndPlay() {
   const [game, setGame] = useState(new Game());
 
-  const piece = {
-    p: "bp",
-    n: "bn",
-    b: "bb",
-    r: "br",
-    q: "bq",
-    k: "bk",
-    P: "wp",
-    N: "wn",
-    B: "wb",
-    R: "wr",
-    Q: "wq",
-    K: "wk",
-  };
-
   const click = (row: number, col: number) => {
     setGame(game);
     console.log(`Square clicked: Row ${row}, Col ${col}`);
@@ -48,6 +33,24 @@ export default function PassAndPlay() {
             const col = index % 8;
             const isDarkSquare = (row + col) % 2 === 1;
             let pieceName = "";
+
+            const piece = {
+              p: "bp",
+              n: "bn",
+              b: "bb",
+              r: "br",
+              q: "bq",
+              k: "bk",
+              P: "wp",
+              N: "wn",
+              B: "wb",
+              R: "wr",
+              Q: "wq",
+              K: "wk",
+            };
+
+            const rows = [8, 7, 6, 5, 4, 3, 2, 1];
+            const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
             
             const pieceKey = game.board.grid[row][col];
             if (pieceKey) {
@@ -59,10 +62,12 @@ export default function PassAndPlay() {
               <div
                 key={`${row}-${col}`}
                 onClick={() => click(row, col)}
-                className={`flex justify-center items-center ${
-                  isDarkSquare ? "bg-gray-700" : "bg-gray-300"
-                }`}
-                style={{ width: "100%", height: "100%" }}
+                className="relative flex justify-center items-center"
+                style={{
+                  backgroundColor: isDarkSquare ? "#658a3f" : "#EBECD0",
+                  width: "100%",
+                  height: "100%"
+                }}
               >
                 {game.board.grid[row][col] && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -72,6 +77,9 @@ export default function PassAndPlay() {
                     className="w-full h-full"
                   />
                 )}
+
+                {row == 7 && <div className="absolute -bottom-px right-px text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{cols[col]}</div>}
+                {col == 0 && <div className="absolute -top-px    left-px  text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{rows[row]}</div>}
               </div>
             );
           })}
