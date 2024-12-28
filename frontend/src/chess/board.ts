@@ -1,4 +1,4 @@
-class Board {
+export default class Board {
   grid: (string | null)[][];
   castlingRights: { white: { kingSide: boolean; queenSide: boolean }, black: { kingSide: boolean; queenSide: boolean } };
   enPassant: string | null; // e.g., "e3" if black just moved a pawn two squares forward.
@@ -21,10 +21,10 @@ class Board {
         black: { kingSide: true, queenSide: true },
       };
 
-      this.enPassant = null;
-      this.halfMoveClock = 0;
+      this.enPassant      = null;
+      this.halfMoveClock  = 0;
       this.fullMoveNumber = 1;
-      this.gameState = "ongoing";
+      this.gameState      = "ongoing";
     }
     else {
       this.grid = JSON.parse(JSON.stringify(copyBoard.grid)); // Deep copy of the grid
@@ -34,12 +34,10 @@ class Board {
         black: { kingSide: copyBoard.castlingRights.black.kingSide, queenSide: copyBoard.castlingRights.black.queenSide },
       };
 
-      this.enPassant = copyBoard.enPassant;
-      this.halfMoveClock = copyBoard.halfMoveClock;
+      this.enPassant      = copyBoard.enPassant;
+      this.halfMoveClock  = copyBoard.halfMoveClock;
       this.fullMoveNumber = copyBoard.fullMoveNumber;
-      this.gameState = copyBoard.gameState;
+      this.gameState      = copyBoard.gameState;
     }
   }
 }
-
-export { Board };

@@ -28,7 +28,7 @@ export default function Home() {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen justify-between">
       <Navbar activePage="Home"/>
       <div className="container mx-auto flex justify-evenly">
         <Card className="m-10 min-h-96">
@@ -99,7 +99,7 @@ export default function Home() {
           </DrawerContent>
         </Drawer>
       </div>
-    </>
+    </div>
   );
 }
 
