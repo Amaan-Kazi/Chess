@@ -30,7 +30,12 @@ export default function Navbar({ activePage }: { activePage: string }) {
       <nav className="flex navbar-background shadow-md">
         <div className="w-full flex justify-between items-center">
           <div className="flex items-center pl-2 pr-5">
-            <img src="favicon.ico" className="w-10 h-10" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="favicon.ico"
+              alt="Favicon"
+              className="w-10 h-10"
+            />
             <p className="text-3xl font-academiaM54 py-3">Chess</p>
           </div>
 
