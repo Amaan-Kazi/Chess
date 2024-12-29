@@ -10,6 +10,7 @@ export default function PassAndPlay() {
 
   const click = (row: number, col: number) => {
     setGame(game);
+    console.log(game.board.FEN());
     console.log(`Square clicked: Row ${row}, Col ${col}`);
   };
 

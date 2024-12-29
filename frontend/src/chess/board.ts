@@ -40,4 +40,47 @@ export default class Board {
       this.gameState      = copyBoard.gameState;
     }
   }
+
+
+  FEN(): string {
+    // 1. Piece Placement
+    const piecePlacement = this.grid.map(row => {
+      let rowString = '';
+      let emptyCount = 0;
+
+      for (const square of row) {
+        if (square === null) emptyCount++;
+        else {
+          if (emptyCount > 0) {
+            rowString += String(emptyCount);
+            emptyCount = 0;
+          }
+          rowString += square;
+        }
+      }
+
+      if (emptyCount > 0) rowString += String(emptyCount); // trailing empty squares
+      return rowString;
+    }).join('/');
+
+    // 2. Active color
+    const activeColor = this.fullMoveNumber % 2 === 1 ? 'w' : 'b';
+
+    // 3. Castling rights
+    const castlingRights = [];
+    if (this.castlingRights.white.kingSide)  castlingRights.push('K');
+    if (this.castlingRights.white.queenSide) castlingRights.push('Q');
+    if (this.castlingRights.black.kingSide)  castlingRights.push('k');
+    if (this.castlingRights.black.queenSide) castlingRights.push('q');
+    const castlingRightsString = castlingRights.length > 0 ? castlingRights.join('') : '-';
+
+    return [
+      piecePlacement,
+      activeColor,
+      castlingRightsString,
+      this.enPassant || '-',
+      String(this.halfMoveClock),
+      String(this.fullMoveNumber),
+    ].join(' ');
+  }
 }
