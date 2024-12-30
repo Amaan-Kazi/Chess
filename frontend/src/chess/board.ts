@@ -1,5 +1,6 @@
 export default class Board {
   grid: (string | null)[][];
+  turn: 'w' | 'b';
   castlingRights: { white: { kingSide: boolean; queenSide: boolean }, black: { kingSide: boolean; queenSide: boolean } };
   enPassant: string | null; // e.g., "e3" if black just moved a pawn two squares forward.
   halfMoveClock: number;
@@ -8,13 +9,14 @@ export default class Board {
 
   constructor(copyBoard?: Board, FEN?: string) {
     if (copyBoard) {
-      this.grid = JSON.parse(JSON.stringify(copyBoard.grid)); // Deep copy of the grid
+      this.grid = JSON.parse(JSON.stringify(copyBoard.grid)); // Deep copy of the grids
 
       this.castlingRights = {
         white: { kingSide: copyBoard.castlingRights.white.kingSide, queenSide: copyBoard.castlingRights.white.queenSide },
         black: { kingSide: copyBoard.castlingRights.black.kingSide, queenSide: copyBoard.castlingRights.black.queenSide },
       };
 
+      this.turn           = copyBoard.turn;
       this.enPassant      = copyBoard.enPassant;
       this.halfMoveClock  = copyBoard.halfMoveClock;
       this.fullMoveNumber = copyBoard.fullMoveNumber;
@@ -30,7 +32,7 @@ export default class Board {
         fullMoveNumber,
       ]: string[] = FEN.split(' ');
 
-      console.log(activeColor); // currently activeColor has no use
+      this.turn = activeColor === 'w' ? 'w' : 'b' ;
 
       const rows: string[] = piecePlacement.split('/');
       this.grid = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -86,11 +88,66 @@ export default class Board {
         black: { kingSide: true, queenSide: true },
       };
 
+      this.turn           = 'w';
       this.enPassant      = null;
       this.halfMoveClock  = 0;
       this.fullMoveNumber = 1;
       this.gameState      = "ongoing";
     }
+  }
+
+
+  rookMoves(pos: number[]): number[][] {
+    const [row, col] = pos;
+    const validMoves: number[][] = [];
+    const color = this.pieceColor(pos);
+
+    // Down
+    for (let i = row + 1; i < 8; i++) {
+      console.log(this.grid[i][col])
+      if      (this.grid[i][col] === null)            validMoves.push([i, col]);          // empty square
+      else if (this.pieceColor([i, col]) !== color) { validMoves.push([i, col]); break; } // enemy piece
+      else break;
+    }
+
+    // Up
+    for (let i = row - 1; i >= 0; i--) {
+      if      (this.grid[i][col] === null)            validMoves.push([i, col]);          // empty square
+      else if (this.pieceColor([i, col]) !== color) { validMoves.push([i, col]); break; } // enemy piece
+      else break;
+    }
+    
+    // Right
+    for (let i = col + 1; i < 8; i++) {
+      if      (this.grid[row][i] === null)            validMoves.push([row, i]);          // empty square
+      else if (this.pieceColor([row, i]) !== color) { validMoves.push([row, i]); break; } // enemy piece
+      else break;
+    }
+    
+    // Left
+    for (let i = col - 1; i >= 0; i--) {
+      if      (this.grid[row][i] === null)            validMoves.push([row, i]);          // empty square
+      else if (this.pieceColor([row, i]) !== color) { validMoves.push([row, i]); break; } // enemy piece
+      else break;
+    }
+
+    return validMoves;
+  }
+
+
+  pieceColor(pos: number[]): 'w' | 'b' | null {
+    const piece = this.grid[pos[0]][pos[1]];
+    if (!piece) return null;
+
+    if (piece === piece.toLowerCase() && piece !== piece.toUpperCase()) return 'w';
+    if (piece === piece.toUpperCase() && piece !== piece.toLowerCase()) return 'b';
+
+    return null;
+  }
+  
+  isCheck(): boolean {
+    // pending implementation
+    return false;
   }
 
 

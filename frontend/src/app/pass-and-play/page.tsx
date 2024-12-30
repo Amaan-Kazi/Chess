@@ -11,6 +11,7 @@ export default function PassAndPlay() {
   const click = (row: number, col: number) => {
     setGame(game);
     console.log(game.board.FEN());
+    console.log(game.board.rookMoves([3, 4]));
     console.log(`Square clicked: Row ${row}, Col ${col}`);
   };
 
