@@ -6,6 +6,7 @@ export default class Board {
   halfMoveClock: number;
   fullMoveNumber: number;
   gameState: "ongoing" | "checkmate" | "stalemate" | "draw";
+  prevMove: number[][];
 
   constructor(copyBoard?: Board, FEN?: string) {
     if (copyBoard) {
@@ -21,6 +22,7 @@ export default class Board {
       this.halfMoveClock  = copyBoard.halfMoveClock;
       this.fullMoveNumber = copyBoard.fullMoveNumber;
       this.gameState      = copyBoard.gameState;
+      this.prevMove       = [];
     }
     else if (FEN) {
       const [
@@ -73,6 +75,8 @@ export default class Board {
 
       // Set game state to ongoing by default
       this.gameState = "ongoing";
+
+      this.prevMove = [];
     }
     else {      
       this.grid = [
@@ -93,6 +97,7 @@ export default class Board {
       this.halfMoveClock  = 0;
       this.fullMoveNumber = 1;
       this.gameState      = "ongoing";
+      this.prevMove       = [];
     }
   }
 

@@ -65,6 +65,26 @@ export default function PassAndPlay() {
 
             // Check if the current square is a valid move
             const isValidMove = game.validMoves.some(([r, c]) => r === row && c === col);
+            let isSelected = false;
+            let isPrevMove = false;
+
+            if (game.selection) {
+              const [r, c] = game.selection;
+              isSelected = (r === row) && (c === col);
+            }
+
+            if (game.board.prevMove.length !== 0) {
+              const [from, to]     = game.board.prevMove;
+              const [rFrom, cFrom] = from;
+              const [rTo, cTo]     = to;
+              isPrevMove = (rFrom === row && cFrom === col) || (rTo === row && cTo === col);
+            }
+
+            let backgroundColor = "";
+            if      (isDarkSquare  && !(isSelected || isPrevMove)) backgroundColor = "#739552"; // Dark Square
+            else if (!isDarkSquare && !(isSelected || isPrevMove)) backgroundColor = "#EBECD0"; // Light square
+            else if (isDarkSquare  &&  (isSelected || isPrevMove)) backgroundColor = "#B9CA43"; // Dark Highlited Square
+            else if (!isDarkSquare &&  (isSelected || isPrevMove)) backgroundColor = "#F5F682"; // Light Highlighted Square
 
             return (
               <div
@@ -72,7 +92,7 @@ export default function PassAndPlay() {
                 onClick={() => click(row, col)}
                 className="relative flex justify-center items-center"
                 style={{
-                  backgroundColor: isDarkSquare ? "#658a3f" : "#EBECD0",
+                  backgroundColor,
                   width: "100%",
                   height: "100%"
                 }}
