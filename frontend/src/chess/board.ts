@@ -194,6 +194,32 @@ export default class Board {
     return validMoves;
   }
 
+  knightMoves(pos: number[]): number[][] {
+    const [row, col] = pos;
+    const validMoves: number[][] = [];
+    const color = this.pieceColor(pos);
+
+    const isValid = (row: number, col: number): void => {
+      if (row >= 8 || row < 0 || col >= 8 || col < 0) return;
+      if (this.pieceColor([row, col]) === color)      return;
+      validMoves.push([row, col]);
+    };
+
+    isValid(row + 2, col + 1); // Down Right
+    isValid(row + 2, col - 1); // Down Left
+
+    isValid(row - 2, col + 1); // Up Right
+    isValid(row - 2, col - 1); // Up Left
+
+    isValid(row + 1, col + 2); // Right Down
+    isValid(row + 1, col - 2); // Left Down
+
+    isValid(row - 1, col + 2); // Right Up
+    isValid(row - 1, col - 2); // Left Up
+
+    return validMoves;
+  }
+
 
   pieceColor(pos: number[]): 'w' | 'b' | null {
     const piece = this.grid[pos[0]][pos[1]];
