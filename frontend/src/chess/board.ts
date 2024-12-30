@@ -111,28 +111,84 @@ export default class Board {
     for (let i = row + 1; i < 8; i++) {
       if      (this.grid[i][col] === null)            validMoves.push([i, col]);          // empty square
       else if (this.pieceColor([i, col]) !== color) { validMoves.push([i, col]); break; } // enemy piece
-      else break;
+      else break;                                                                         // friendly piece
     }
 
     // Up
     for (let i = row - 1; i >= 0; i--) {
       if      (this.grid[i][col] === null)            validMoves.push([i, col]);          // empty square
       else if (this.pieceColor([i, col]) !== color) { validMoves.push([i, col]); break; } // enemy piece
-      else break;
+      else break;                                                                         // friendly piece
     }
     
     // Right
     for (let i = col + 1; i < 8; i++) {
       if      (this.grid[row][i] === null)            validMoves.push([row, i]);          // empty square
       else if (this.pieceColor([row, i]) !== color) { validMoves.push([row, i]); break; } // enemy piece
-      else break;
+      else break;                                                                         // friendly piece
     }
     
     // Left
     for (let i = col - 1; i >= 0; i--) {
       if      (this.grid[row][i] === null)            validMoves.push([row, i]);          // empty square
       else if (this.pieceColor([row, i]) !== color) { validMoves.push([row, i]); break; } // enemy piece
-      else break;
+      else break;                                                                         // friendly piece
+    }
+
+    return validMoves;
+  }
+
+  bishopMoves(pos: number[]): number[][] {
+    const [row, col] = pos;
+    const validMoves: number[][] = [];
+    const color = this.pieceColor(pos);
+
+    // Down Right
+    let i = row + 1;
+    let j = col + 1;
+    while (i < 8 && j < 8) {
+      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
+      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
+      else break;                                                                     // friendly piece
+      
+      i++;
+      j++;
+    }
+
+    // Down Left
+    i = row + 1;
+    j = col - 1;
+    while (i < 8 && j >= 0) {
+      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
+      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
+      else break;                                                                     // friendly piece
+      
+      i++;
+      j--;
+    }
+
+    // Up Right
+    i = row - 1;
+    j = col + 1;
+    while (i >= 0 && j < 8) {
+      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
+      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
+      else break;                                                                     // friendly piece
+      
+      i--;
+      j++;
+    }
+
+    // Up Left
+    i = row - 1;
+    j = col - 1;
+    while (i >= 0 && j >= 0) {
+      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
+      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
+      else break;                                                                     // friendly piece
+      
+      i--;
+      j--;
     }
 
     return validMoves;

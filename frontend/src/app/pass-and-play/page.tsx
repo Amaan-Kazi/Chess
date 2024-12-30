@@ -126,7 +126,7 @@ export default function PassAndPlay() {
                       width: "100%",
                       height: "100%",
                       background: "transparent",
-                      boxShadow: "inset 0 0 0 5px rgba(0, 0, 0, 0.15)", // Semi-transparent donut effect
+                      boxShadow: "inset 0 0 0 5px rgba(0, 0, 0, 0.2)", // Semi-transparent donut effect
                     }}
                   />
                 )}
