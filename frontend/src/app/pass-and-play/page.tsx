@@ -10,11 +10,7 @@ export default function PassAndPlay() {
   const [version, setVersion] = useState(0); // manually trigger re renders
 
   const click = (row: number, col: number) => {
-    console.log(`Square clicked: Row ${row}, Col ${col}`);
-
     game.select([row, col]);
-    console.log(game.validMoves);
-
     setVersion(version + 1);
   };
 

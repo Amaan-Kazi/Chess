@@ -143,52 +143,25 @@ export default class Board {
     const validMoves: number[][] = [];
     const color = this.pieceColor(pos);
 
-    // Down Right
-    let i = row + 1;
-    let j = col + 1;
-    while (i < 8 && j < 8) {
-      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
-      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
-      else break;                                                                     // friendly piece
-      
-      i++;
-      j++;
-    }
+    const directions = [
+      [1,   1], // Down Right
+      [1,  -1], // Down Left
+      [-1,  1], // Up Right
+      [-1, -1], // Up Left
+    ];
 
-    // Down Left
-    i = row + 1;
-    j = col - 1;
-    while (i < 8 && j >= 0) {
-      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
-      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
-      else break;                                                                     // friendly piece
-      
-      i++;
-      j--;
-    }
+    for (const [dRow, dCol] of directions) {
+      let i = row + dRow;
+      let j = col + dCol;
 
-    // Up Right
-    i = row - 1;
-    j = col + 1;
-    while (i >= 0 && j < 8) {
-      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
-      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
-      else break;                                                                     // friendly piece
-      
-      i--;
-      j++;
-    }
+      while (i < 8  && i >= 0 && j < 8 && j >= 0) {
+        if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
+        else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
+        else break;                                                                     // friendly piece
 
-    // Up Left
-    i = row - 1;
-    j = col - 1;
-    while (i >= 0 && j >= 0) {
-      if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
-      else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
-      else break;                                                                     // friendly piece
-      
-      i--;
-      j--;
+        i += dRow;
+        j += dCol;
+      }
     }
 
     return validMoves;
