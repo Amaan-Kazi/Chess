@@ -102,6 +102,11 @@ export default class Board {
   }
 
 
+  queenMoves(pos: number[]): number[][] {
+    // Queen moves are a combination of rook and bishop moves
+    return [...this.rookMoves(pos), ...this.bishopMoves(pos)];
+  }
+
   rookMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
