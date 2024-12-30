@@ -6,13 +6,16 @@ import Navbar from "@/components/navbar"
 import Game from "@/chess/game"
 
 export default function PassAndPlay() {
-  const [game, setGame] = useState(new Game());
+  const [game] = useState(new Game());
+  const [version, setVersion] = useState(0); // manually trigger re renders
 
   const click = (row: number, col: number) => {
-    setGame(game);
-    console.log(game.board.FEN());
-    console.log(game.board.rookMoves([3, 4]));
     console.log(`Square clicked: Row ${row}, Col ${col}`);
+
+    game.select([row, col]);
+    console.log(game.validMoves);
+
+    setVersion(version + 1);
   };
 
   return (
@@ -60,6 +63,9 @@ export default function PassAndPlay() {
               pieceName = piece[pieceKey as keyof typeof piece];
             }
 
+            // Check if the current square is a valid move
+            const isValidMove = game.validMoves.some(([r, c]) => r === row && c === col);
+
             return (
               <div
                 key={`${row}-${col}`}
@@ -77,6 +83,31 @@ export default function PassAndPlay() {
                     src={`/chess/pieces/${pieceName}.png`}
                     alt="Chess Piece"
                     className="w-full h-full"
+                  />
+                )}
+
+                {/* Overlay a semi-transparent circle */}
+                {isValidMove && !pieceKey && (
+                  <div
+                    className="absolute rounded-full"
+                    style={{
+                      width: "35%",
+                      height: "35%",
+                      backgroundColor: "rgba(0, 0, 0, 0.2)", // Semi-transparent black circle
+                    }}
+                  />
+                )}
+
+                {/* Overlay a semi-transparent donut if there's a piece */}
+                {isValidMove && pieceKey && (
+                  <div
+                    className="absolute rounded-full"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      background: "transparent",
+                      boxShadow: "inset 0 0 0 5px rgba(0, 0, 0, 0.15)", // Semi-transparent donut effect
+                    }}
                   />
                 )}
 

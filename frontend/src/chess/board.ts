@@ -104,7 +104,6 @@ export default class Board {
 
     // Down
     for (let i = row + 1; i < 8; i++) {
-      console.log(this.grid[i][col])
       if      (this.grid[i][col] === null)            validMoves.push([i, col]);          // empty square
       else if (this.pieceColor([i, col]) !== color) { validMoves.push([i, col]); break; } // enemy piece
       else break;
@@ -139,8 +138,8 @@ export default class Board {
     const piece = this.grid[pos[0]][pos[1]];
     if (!piece) return null;
 
-    if (piece === piece.toLowerCase() && piece !== piece.toUpperCase()) return 'w';
-    if (piece === piece.toUpperCase() && piece !== piece.toLowerCase()) return 'b';
+    if (piece === piece.toLowerCase() && piece !== piece.toUpperCase()) return 'b';
+    if (piece === piece.toUpperCase() && piece !== piece.toLowerCase()) return 'w';
 
     return null;
   }
