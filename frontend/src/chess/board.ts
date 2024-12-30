@@ -102,6 +102,35 @@ export default class Board {
   }
 
 
+  kingMoves(pos: number[]): number[][] {
+    const [row, col] = pos;
+    const validMoves: number[][] = [];
+    const color = this.pieceColor(pos);
+
+    const directions = [
+      [-1, -1], // Up Left
+      [-1,  0], // Up
+      [-1,  1], // Up Right
+
+      [0,  -1], // Left
+      [0,   1], // Right
+
+      [1,  -1], // Down Left
+      [1,   0], // Down
+      [1,   1], // Down Right
+    ];
+
+    for (const [dRow, dCol] of directions) {
+      const i = row + dRow;
+      const j = col + dCol;
+
+      if      (this.grid[i][j] === null)          validMoves.push([i, j]); // empty square
+      else if (this.pieceColor([i, j]) !== color) validMoves.push([i, j]); // enemy piece
+    }
+
+    return validMoves;
+  }
+
   queenMoves(pos: number[]): number[][] {
     // Queen moves are a combination of rook and bishop moves
     return [...this.rookMoves(pos), ...this.bishopMoves(pos)];

@@ -7,7 +7,7 @@ export default class Game {
   validMoves: number[][];
 
   constructor() {
-    this.board = new Board(undefined, "rnbqkbnr/pppppppp/2N5/3BQ1R1/8/8/PPPPPPPP/1NB1K2R w KQkq - 0 1");
+    this.board = new Board(undefined, "rnbqkbnr/pppppppp/1KN5/3BQ1R1/8/8/PPPPPPPP/1NB4R w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
 
     this.selection = null;
@@ -20,6 +20,7 @@ export default class Game {
     const piece = this.board.grid[row][col];
 
     const pieceMoves = {
+      'k': this.board.kingMoves.bind(this.board),
       'q': this.board.queenMoves.bind(this.board),
       'r': this.board.rookMoves.bind(this.board),
       'b': this.board.bishopMoves.bind(this.board),
