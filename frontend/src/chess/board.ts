@@ -124,6 +124,8 @@ export default class Board {
       const i = row + dRow;
       const j = col + dCol;
 
+      if (!this.isInBounds(i, j)) continue;
+
       if      (this.grid[i][j] === null)          validMoves.push([i, j]); // empty square
       else if (this.pieceColor([i, j]) !== color) validMoves.push([i, j]); // enemy piece
     }
@@ -152,7 +154,7 @@ export default class Board {
       let i = row + dRow;
       let j = col + dCol;
 
-      while (i < 8 && i >= 0 && j < 8 && j >= 0) {
+      while (this.isInBounds(i, j)) {
         if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
         else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
         else break;                                                                     // friendly piece
@@ -181,7 +183,7 @@ export default class Board {
       let i = row + dRow;
       let j = col + dCol;
 
-      while (i < 8  && i >= 0 && j < 8 && j >= 0) {
+      while (this.isInBounds(i, j)) {
         if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
         else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
         else break;                                                                     // friendly piece
@@ -200,8 +202,8 @@ export default class Board {
     const color = this.pieceColor(pos);
 
     const isValid = (row: number, col: number): void => {
-      if (row >= 8 || row < 0 || col >= 8 || col < 0) return;
-      if (this.pieceColor([row, col]) === color)      return;
+      if (!this.isInBounds(row, col))            return;
+      if (this.pieceColor([row, col]) === color) return;
       validMoves.push([row, col]);
     };
 
@@ -234,6 +236,10 @@ export default class Board {
   isCheck(): boolean {
     // pending implementation
     return false;
+  }
+
+  isInBounds(i: number, j: number): boolean {
+    return (i < 0 || i >= 8 || j < 0 || j >= 8);
   }
 
 
