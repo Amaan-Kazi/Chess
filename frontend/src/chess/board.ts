@@ -275,8 +275,119 @@ export default class Board {
     return null;
   }
   
-  isCheck(): boolean {
-    // pending implementation
+  isCheck(color: 'w' | 'b'): boolean {
+    let kingFound = false;
+    let row = 0;
+    let col = 0;
+
+    const enemy = {
+      pawn:   color === 'b' ? 'P' : 'p',
+      knight: color === 'b' ? 'N' : 'n',
+      bishop: color === 'b' ? 'B' : 'b',
+      rook:   color === 'b' ? 'R' : 'r',
+      queen:  color === 'b' ? 'Q' : 'q',
+      king:   color === 'b' ? 'K' : 'k',
+    };
+
+    const friend = color === 'w' ? ['P', 'N', 'B', 'R', 'Q'] : ['p', 'n', 'b', 'r', 'q'];
+
+    // King Position
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++ ) {
+        if (this.grid[i][j] === (color === 'w' ? 'K' : 'k')) {
+          kingFound = true;
+          row = i;
+          col = j;
+          break;
+        }
+      }
+      if (kingFound) break;
+    }
+    if (!kingFound) {
+      console.table(this.grid);
+      throw new Error(`King (${color}) not Found in: \n${this.grid}`);
+    }
+
+    // King directions are first square of Rook + Bishop
+    // Queen is Rook + Bishop
+
+    const rookDirections = [
+      [1,  0], // Down
+      [-1, 0], // Up
+      [0,  1], // Right
+      [0, -1], // Left
+    ];
+    for (const [dRow, dCol] of rookDirections) {
+      let i = row + dRow;
+      let j = col + dCol;
+      let iterations = 0;
+
+      while (this.isInBounds(i, j)) {
+        iterations++;
+        if (this.grid[i][j] === null)                                          continue;    // Empty Square
+        if (friend.includes(this.grid[i][j]!))                                 break;       // Friendly piece
+        if (this.grid[i][j] === enemy.rook || this.grid[i][j] === enemy.queen) return true; // Enemy rook or queen
+        if (iterations === 1 && this.grid[i][j] === enemy.king)                return true; // Enemy King
+
+        i += dRow;
+        j += dCol;
+      }
+    }
+
+    const bishopDirections = [
+      [1,   1], // Down Right
+      [1,  -1], // Down Left
+      [-1,  1], // Up Right
+      [-1, -1], // Up Left
+    ];
+    for (const [dRow, dCol] of bishopDirections) {
+      let i = row + dRow;
+      let j = col + dCol;
+      let iterations = 0;
+
+      while (this.isInBounds(i, j)) {
+        iterations++;
+        if (this.grid[i][j] === null)                                            continue;    // Empty Square
+        if (friend.includes(this.grid[i][j]!))                                   break;       // Friendly piece
+        if (this.grid[i][j] === enemy.bishop || this.grid[i][j] === enemy.queen) return true; // Enemy bishop or queen
+        if (iterations === 1 && this.grid[i][j] === enemy.king)                  return true; // Enemy King
+
+        i += dRow;
+        j += dCol;
+      }
+    }
+
+    const knightDirections = [
+      [row + 2, col + 1], // Down Right
+      [row + 2, col - 1], // Down Left
+
+      [row - 2, col + 1], // Up Right
+      [row - 2, col - 1], // Up Left
+
+      [row + 1, col + 2], // Right Down
+      [row + 1, col - 2], // Left Down
+
+      [row - 1, col + 2], // Right Up
+      [row - 1, col - 2], // Left Up
+    ];
+    for (const [r, c] of knightDirections) {
+      if (!this.isInBounds(r ,c))           continue;    // Out of Bounds
+      if (this.grid[r][c] === null)         continue;    // Empty Square
+      if (this.grid[r][c] === enemy.knight) return true; // Enemy Knight
+    }
+
+    // Pawn
+    const pawnDirection = color === 'w' ? -1 : 1;
+    const pawnRow = row + pawnDirection;
+    const pawnCol1 = col - 1;
+    const pawnCol2 = col + 1;
+    if (this.isInBounds(pawnRow, pawnCol1)) {
+      if (this.grid[pawnRow][pawnCol1] === enemy.pawn) return true;
+    }
+    if (this.isInBounds(pawnRow, pawnCol2)) {
+      if (this.grid[pawnRow][pawnCol2] === enemy.pawn) return true;
+    }
+
     return false;
   }
 
