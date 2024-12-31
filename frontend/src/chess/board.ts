@@ -224,7 +224,10 @@ export default class Board {
 
 
   pieceColor(pos: number[]): 'w' | 'b' | null {
-    const piece = this.grid[pos[0]][pos[1]];
+    const [row, col] = pos;
+    if (!this.isInBounds(row, col)) return null;
+
+    const piece = this.grid[row][col];
     if (!piece) return null;
 
     if (piece === piece.toLowerCase() && piece !== piece.toUpperCase()) return 'b';
@@ -239,7 +242,7 @@ export default class Board {
   }
 
   isInBounds(i: number, j: number): boolean {
-    return (i < 0 || i >= 8 || j < 0 || j >= 8);
+    return (i < 8 && i >= 0 && j < 8 && j >= 0);
   }
 
 
