@@ -105,6 +105,7 @@ export default class Board {
   kingMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
+    const safeValidMoves: number[][] = [];
     const color = this.pieceColor(pos);
 
     const directions = [
@@ -130,7 +131,10 @@ export default class Board {
       else if (this.pieceColor([i, j]) !== color) validMoves.push([i, j]); // enemy piece
     }
 
-    return validMoves;
+    for (const [toRow, toCol] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    }
+    return safeValidMoves;
   }
 
   queenMoves(pos: number[]): number[][] {
@@ -141,6 +145,7 @@ export default class Board {
   rookMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
+    const safeValidMoves: number[][] = [];
     const color = this.pieceColor(pos);
 
     const directions = [
@@ -164,12 +169,16 @@ export default class Board {
       }
     }
 
-    return validMoves;
+    for (const [toRow, toCol] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    }
+    return safeValidMoves;
   }
 
   bishopMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
+    const safeValidMoves: number[][] = [];
     const color = this.pieceColor(pos);
 
     const directions = [
@@ -193,12 +202,16 @@ export default class Board {
       }
     }
 
-    return validMoves;
+    for (const [toRow, toCol] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    }
+    return safeValidMoves;
   }
 
   knightMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
+    const safeValidMoves: number[][] = [];
     const color = this.pieceColor(pos);
 
     const isValid = (row: number, col: number): void => {
@@ -219,12 +232,16 @@ export default class Board {
     isValid(row - 1, col + 2); // Right Up
     isValid(row - 1, col - 2); // Left Up
 
-    return validMoves;
+    for (const [toRow, toCol] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    }
+    return safeValidMoves;
   }
 
   pawnMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
+    const safeValidMoves: number[][] = [];
     const color = this.pieceColor(pos);
     const direction = color === 'w' ? -1 : 1;
 
@@ -258,7 +275,10 @@ export default class Board {
 
     // Promotion can be handled at move() since it is just piece replacement
 
-    return validMoves;
+    for (const [toRow, toCol] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    }
+    return safeValidMoves;
   }
 
 
@@ -324,10 +344,12 @@ export default class Board {
 
       while (this.isInBounds(i, j)) {
         iterations++;
-        if (this.grid[i][j] === null)                                          continue;    // Empty Square
-        if (friend.includes(this.grid[i][j]!))                                 break;       // Friendly piece
-        if (this.grid[i][j] === enemy.rook || this.grid[i][j] === enemy.queen) return true; // Enemy rook or queen
-        if (iterations === 1 && this.grid[i][j] === enemy.king)                return true; // Enemy King
+        if (this.grid[i][j] !== null) {
+          if (friend.includes(this.grid[i][j]!))                                    break;       // Friendly piece
+          if (this.grid[i][j] === enemy.rook || this.grid[i][j] === enemy.queen)    return true; // Enemy rook or queen
+          if (iterations === 1 && this.grid[i][j] === enemy.king)                   return true; // Enemy King
+          if (!(this.grid[i][j] === enemy.rook || this.grid[i][j] === enemy.queen)) break;       // Enemy Piece blocking attacker
+        }
 
         i += dRow;
         j += dCol;
@@ -347,10 +369,12 @@ export default class Board {
 
       while (this.isInBounds(i, j)) {
         iterations++;
-        if (this.grid[i][j] === null)                                            continue;    // Empty Square
-        if (friend.includes(this.grid[i][j]!))                                   break;       // Friendly piece
-        if (this.grid[i][j] === enemy.bishop || this.grid[i][j] === enemy.queen) return true; // Enemy bishop or queen
-        if (iterations === 1 && this.grid[i][j] === enemy.king)                  return true; // Enemy King
+        if (this.grid[i][j] !== null) {
+          if (friend.includes(this.grid[i][j]!))                                      break;       // Friendly piece
+          if (this.grid[i][j] === enemy.bishop || this.grid[i][j] === enemy.queen)    return true; // Enemy bishop or queen
+          if (iterations === 1 && this.grid[i][j] === enemy.king)                     return true; // Enemy King
+          if (!(this.grid[i][j] === enemy.bishop || this.grid[i][j] === enemy.queen)) break;       // Enemy Piece blocking attacker
+        }
 
         i += dRow;
         j += dCol;
@@ -389,6 +413,15 @@ export default class Board {
     }
 
     return false;
+  }
+
+  isSafeMove(move: number[][]): boolean {
+    const [[fromRow, fromCol], [toRow, toCol]] = move;
+    const tempBoard = new Board(this);
+
+    tempBoard.grid[toRow][toCol]     = tempBoard.grid[fromRow][fromCol];
+    tempBoard.grid[fromRow][fromCol] = null;
+    return !tempBoard.isCheck(tempBoard.turn);
   }
 
   isInBounds(i: number, j: number): boolean {
