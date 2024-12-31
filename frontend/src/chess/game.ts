@@ -7,7 +7,7 @@ export default class Game {
   validMoves: number[][];
 
   constructor() {
-    this.board = new Board(undefined, "rnbqkbnr/pppppppp/1KN5/3BQ1R1/8/8/PPPPPPPP/1NB4R w KQkq - 0 1");
+    this.board = new Board(undefined, "rnbqkbnr/p1pppppp/1KN5/3BQ1R1/Pp2P3/3P4/1PP2PPP/1NB4R b KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
 
     this.selection = null;
@@ -25,6 +25,7 @@ export default class Game {
       'r': this.board.rookMoves.bind(this.board),
       'b': this.board.bishopMoves.bind(this.board),
       'n': this.board.knightMoves.bind(this.board),
+      'p': this.board.pawnMoves.bind(this.board),
     };
 
     if (!piece) {

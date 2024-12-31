@@ -222,6 +222,45 @@ export default class Board {
     return validMoves;
   }
 
+  pawnMoves(pos: number[]): number[][] {
+    const [row, col] = pos;
+    const validMoves: number[][] = [];
+    const color = this.pieceColor(pos);
+    const direction = color === 'w' ? -1 : 1;
+
+    // Single Move
+    const sRow = row + direction;
+    const sCol = col;
+    if (this.isInBounds(sRow, sCol)) {
+      if (this.grid[sRow][sCol] === null) validMoves.push([sRow, sCol]);
+    }
+
+    // Double Move
+    if ((row === 6 && color === 'w') || (row === 1 && color === 'b')) {
+      const dRow = row + (2 * direction);
+      const dCol = col;
+
+      if (this.grid[sRow][sCol] === null && this.grid[dRow][dCol] === null) validMoves.push([dRow, dCol]);
+    }
+
+    // Capture
+    const cRow = row + direction;
+    const cCol1 = col + 1; // Right
+    const cCol2 = col - 1; // Left
+    if (this.isInBounds(cRow, cCol1)) {
+      if (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color) validMoves.push([cRow, cCol1]); 
+    }
+    if (this.isInBounds(cRow, cCol2)) {
+      if (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color) validMoves.push([cRow, cCol2]); 
+    }
+
+    // en passant
+
+    // Promotion can be handled at move() since it is just piece replacement
+
+    return validMoves;
+  }
+
 
   pieceColor(pos: number[]): 'w' | 'b' | null {
     const [row, col] = pos;
