@@ -29,6 +29,23 @@ export default class Game {
       'p': this.board.pawnMoves.bind(this.board),
     };
 
+    // If already selected a piece, and clicked on a valid move, then perform move
+    if (this.validMoves.length > 0 && this.selection !== null) {
+      for (const [r, c] of this.validMoves) {
+        if (r === row && c === col) {
+          const newBoard = new Board(this.board); // Make a copy
+          const successfullMove = newBoard.move([this.selection!, [row, col]]);
+
+          if (successfullMove) {
+            this.moves.push(new Board(this.board));
+            this.board = newBoard;
+          }
+
+          break;
+        }
+      }
+    }
+
     if (!piece) {
       this.selection = null;
       this.validMoves = [];
@@ -37,7 +54,7 @@ export default class Game {
 
     if (this.board.pieceColor(pos) == this.board.turn) {
       this.selection = pos;
-      this.validMoves = pieceMoves[`${piece.toLowerCase()}` as keyof typeof pieceMoves]([row, col]);
+      this.validMoves = pieceMoves[`${piece!.toLowerCase()}` as keyof typeof pieceMoves]([row, col]);
       return;
     }
     else {

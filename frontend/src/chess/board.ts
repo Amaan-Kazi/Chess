@@ -102,6 +102,60 @@ export default class Board {
   }
 
 
+  move(move: number[][]): boolean {
+    const [[fromRow, fromCol], [toRow, toCol]] = move;
+
+    const pieceMoves = {
+      'k': this.kingMoves.bind(this),
+      'q': this.queenMoves.bind(this),
+      'r': this.rookMoves.bind(this),
+      'b': this.bishopMoves.bind(this),
+      'n': this.knightMoves.bind(this),
+      'p': this.pawnMoves.bind(this),
+    };
+
+    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return false; // Bounds check
+    if (this.grid[fromRow][fromCol] === null)                                 return false; // piece check
+
+    const piece = this.grid[fromRow][fromCol];
+    if (this.turn === this.pieceColor([fromRow, fromCol])) { // piece color check
+      const moves = pieceMoves[piece!.toLowerCase() as keyof typeof pieceMoves]([fromRow, fromCol]);
+      let isValidMove = false;
+
+      for (const [r, c] of moves) {
+        if (r === toRow && c === toCol) {
+          isValidMove = true;
+          break;
+        }
+      }
+
+      if (!isValidMove) return false;
+
+      this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
+      this.grid[fromRow][fromCol] = null;
+
+      if (this.turn === 'b') this.fullMoveNumber++;
+      this.halfMoveClock++; // set to 0 when a pawn is moved or piece is captured
+      this.turn = this.turn === 'w' ? 'b' : 'w';
+      this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
+
+      // Special Cases
+
+      // En passant
+
+      // promotion
+
+      // castling rights
+
+      // check for checkmate, stalemate, draw, etc
+
+      return true;
+    }
+
+    return false;
+  }
+
+
   kingMoves(pos: number[]): number[][] {
     const [row, col] = pos;
     const validMoves: number[][] = [];
