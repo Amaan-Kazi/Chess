@@ -102,7 +102,7 @@ export default class Board {
   }
 
 
-  move(move: number[][]): boolean {
+  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "check" | "checkmate" {
     const [[fromRow, fromCol], [toRow, toCol]] = move;
 
     const pieceMoves = {
@@ -114,8 +114,8 @@ export default class Board {
       'p': this.pawnMoves.bind(this),
     };
 
-    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return false; // Bounds check
-    if (this.grid[fromRow][fromCol] === null)                                 return false; // piece check
+    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return "failed"; // Bounds check
+    if (this.grid[fromRow][fromCol] === null)                                 return "failed"; // piece check
 
     const piece = this.grid[fromRow][fromCol];
     if (this.turn === this.pieceColor([fromRow, fromCol])) { // piece color check
@@ -129,7 +129,11 @@ export default class Board {
         }
       }
 
-      if (!isValidMove) return false;
+      if (!isValidMove) return "failed";
+
+      let status: "failed" | "move" | "capture" | "castle" | "check" | "checkmate" = "move";
+      if (this.grid[toRow][toCol] !== null) status = "capture";
+      
 
       this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
       this.grid[fromRow][fromCol] = null;
@@ -138,6 +142,8 @@ export default class Board {
       this.halfMoveClock++; // set to 0 when a pawn is moved or piece is captured
       this.turn = this.turn === 'w' ? 'b' : 'w';
       this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
+
+      if (this.isCheck(this.turn)) status = "check";
 
       // Special Cases
 
@@ -149,10 +155,10 @@ export default class Board {
 
       // check for checkmate, stalemate, draw, etc
 
-      return true;
+      return status;
     }
 
-    return false;
+    return "failed";
   }
 
 
