@@ -102,8 +102,21 @@ export default class Board {
   }
 
 
+  // Move Metadata
+  //   0: Move
+  //   1: Capture
+  // 100: Pawn Double Move
+  // 101: En Passant
+  // 200: Castle King Side
+  // 201: Castle Queen Side
+  // 300: Promotion - Queen
+  // 301: Promotion - Knight
+  // 302: Promotion - Rook
+  // 303: Promotion - Bishop
+
   move(move: number[][]): "failed" | "move" | "capture" | "castle" | "check" | "checkmate" {
-    const [[fromRow, fromCol], [toRow, toCol]] = move;
+    const [[fromRow, fromCol], [toRow, toCol], [metadata]] = move;
+    console.log(metadata);
 
     const pieceMoves = {
       'k': this.kingMoves.bind(this),
@@ -187,12 +200,12 @@ export default class Board {
 
       if (!this.isInBounds(i, j)) continue;
 
-      if      (this.grid[i][j] === null)          validMoves.push([i, j]); // empty square
-      else if (this.pieceColor([i, j]) !== color) validMoves.push([i, j]); // enemy piece
+      if      (this.grid[i][j] === null)          validMoves.push([i, j, 0]); // empty square
+      else if (this.pieceColor([i, j]) !== color) validMoves.push([i, j, 1]); // enemy piece
     }
 
-    for (const [toRow, toCol] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    for (const [toRow, toCol, metadata] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -220,17 +233,17 @@ export default class Board {
       let j = col + dCol;
 
       while (this.isInBounds(i, j)) {
-        if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
-        else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
-        else break;                                                                     // friendly piece
+        if      (this.grid[i][j] === null)            validMoves.push([i, j, 0]);          // empty square
+        else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j, 1]); break; } // enemy piece
+        else break;                                                                        // friendly piece
         
         i += dRow;
         j += dCol;
       }
     }
 
-    for (const [toRow, toCol] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    for (const [toRow, toCol, metadata] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -253,17 +266,17 @@ export default class Board {
       let j = col + dCol;
 
       while (this.isInBounds(i, j)) {
-        if      (this.grid[i][j] === null)            validMoves.push([i, j]);          // empty square
-        else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j]); break; } // enemy piece
-        else break;                                                                     // friendly piece
+        if      (this.grid[i][j] === null)            validMoves.push([i, j, 0]);          // empty square
+        else if (this.pieceColor([i, j]) !== color) { validMoves.push([i, j, 1]); break; } // enemy piece
+        else break;                                                                        // friendly piece
 
         i += dRow;
         j += dCol;
       }
     }
 
-    for (const [toRow, toCol] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    for (const [toRow, toCol, metadata] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -277,7 +290,7 @@ export default class Board {
     const isValid = (row: number, col: number): void => {
       if (!this.isInBounds(row, col))            return;
       if (this.pieceColor([row, col]) === color) return;
-      validMoves.push([row, col]);
+      validMoves.push([row, col, this.grid[row][col] === null ? 0 : 1]);
     };
 
     isValid(row + 2, col + 1); // Down Right
@@ -292,8 +305,8 @@ export default class Board {
     isValid(row - 1, col + 2); // Right Up
     isValid(row - 1, col - 2); // Left Up
 
-    for (const [toRow, toCol] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    for (const [toRow, toCol, metadata] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -309,7 +322,7 @@ export default class Board {
     const sRow = row + direction;
     const sCol = col;
     if (this.isInBounds(sRow, sCol)) {
-      if (this.grid[sRow][sCol] === null) validMoves.push([sRow, sCol]);
+      if (this.grid[sRow][sCol] === null) validMoves.push([sRow, sCol, 0]);
     }
 
     // Double Move
@@ -317,7 +330,7 @@ export default class Board {
       const dRow = row + (2 * direction);
       const dCol = col;
 
-      if (this.grid[sRow][sCol] === null && this.grid[dRow][dCol] === null) validMoves.push([dRow, dCol]);
+      if (this.grid[sRow][sCol] === null && this.grid[dRow][dCol] === null) validMoves.push([dRow, dCol, 100]);
     }
 
     // Capture
@@ -325,18 +338,18 @@ export default class Board {
     const cCol1 = col + 1; // Right
     const cCol2 = col - 1; // Left
     if (this.isInBounds(cRow, cCol1)) {
-      if (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color) validMoves.push([cRow, cCol1]); 
+      if (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color) validMoves.push([cRow, cCol1, 1]); 
     }
     if (this.isInBounds(cRow, cCol2)) {
-      if (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color) validMoves.push([cRow, cCol2]); 
+      if (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color) validMoves.push([cRow, cCol2, 1]); 
     }
 
     // en passant
 
     // Promotion can be handled at move() since it is just piece replacement
 
-    for (const [toRow, toCol] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol]])) safeValidMoves.push([toRow, toCol]);
+    for (const [toRow, toCol, metadata] of validMoves) {
+      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -476,7 +489,8 @@ export default class Board {
   }
 
   isSafeMove(move: number[][]): boolean {
-    const [[fromRow, fromCol], [toRow, toCol]] = move;
+    const [[fromRow, fromCol], [toRow, toCol], [metadata]] = move;
+    console.log(metadata);
     const tempBoard = new Board(this);
 
     tempBoard.grid[toRow][toCol]     = tempBoard.grid[fromRow][fromCol];
