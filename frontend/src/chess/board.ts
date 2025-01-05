@@ -2,7 +2,7 @@ export default class Board {
   grid: (string | null)[][];
   turn: 'w' | 'b';
   castlingRights: { white: { kingSide: boolean; queenSide: boolean }, black: { kingSide: boolean; queenSide: boolean } };
-  enPassant: string | null; // e.g., "e3" if black just moved a pawn two squares forward.
+  enPassant: number[] | null; // e.g., "e3" if black just moved a pawn two squares forward.
   halfMoveClock: number;
   fullMoveNumber: number;
   gameState: "ongoing" | "checkmate" | "stalemate" | "draw";
@@ -67,7 +67,8 @@ export default class Board {
       };
 
       // Parse en passant target square
-      this.enPassant = enPassant === "-" ? null : enPassant;
+      const rowNums = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5, g: 6, h: 7}; 
+      this.enPassant = enPassant === "-" ? null : [rowNums[enPassant.charAt(0) as keyof typeof rowNums], parseInt(enPassant.charAt(0))];
 
       // Parse half-move clock and full-move number
       this.halfMoveClock  = parseInt(halfMoveClock, 10);
@@ -115,8 +116,8 @@ export default class Board {
   // 303: Promotion - Bishop
 
   move(move: number[][]): "failed" | "move" | "capture" | "castle" | "check" | "checkmate" {
-    const [[fromRow, fromCol], [toRow, toCol], [metadata]] = move;
-    console.log(metadata);
+    const [[fromRow, fromCol], [toRow, toCol]] = move;
+    let metadata: number = 0;
 
     const pieceMoves = {
       'k': this.kingMoves.bind(this),
@@ -135,9 +136,10 @@ export default class Board {
       const moves = pieceMoves[piece!.toLowerCase() as keyof typeof pieceMoves]([fromRow, fromCol]);
       let isValidMove = false;
 
-      for (const [r, c] of moves) {
+      for (const [r, c, m] of moves) {
         if (r === toRow && c === toCol) {
           isValidMove = true;
+          metadata = m;
           break;
         }
       }
@@ -160,7 +162,15 @@ export default class Board {
 
       // Special Cases
 
+      // Pawn Double Move
+      this.enPassant = null;
+      if (metadata === 100) this.enPassant = [(fromRow + toRow) / 2, fromCol]; // row is in between from row and to row
+
       // En passant
+      if (metadata === 101) {
+        this.grid[fromRow][toCol] = null; // capture the piece
+        status = "capture";
+      }
 
       // promotion
 
@@ -338,13 +348,13 @@ export default class Board {
     const cCol1 = col + 1; // Right
     const cCol2 = col - 1; // Left
     if (this.isInBounds(cRow, cCol1)) {
-      if (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color) validMoves.push([cRow, cCol1, 1]); 
+      if      (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color)                                             validMoves.push([cRow, cCol1, 1]); // Diagonal Capture
+      else if (this.grid[cRow][cCol1] === null && this.enPassant !== null && this.enPassant[0] === cRow && this.enPassant[1] === cCol1) validMoves.push([cRow, cCol1, 101]); // En Passant
     }
     if (this.isInBounds(cRow, cCol2)) {
-      if (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color) validMoves.push([cRow, cCol2, 1]); 
+      if      (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color)                                             validMoves.push([cRow, cCol2, 1]);   // Diagonal Capture
+      else if (this.grid[cRow][cCol2] === null && this.enPassant !== null && this.enPassant[0] === cRow && this.enPassant[1] === cCol2) validMoves.push([cRow, cCol2, 101]); // En Passant
     }
-
-    // en passant
 
     // Promotion can be handled at move() since it is just piece replacement
 
@@ -490,11 +500,16 @@ export default class Board {
 
   isSafeMove(move: number[][]): boolean {
     const [[fromRow, fromCol], [toRow, toCol], [metadata]] = move;
-    console.log(metadata);
     const tempBoard = new Board(this);
 
     tempBoard.grid[toRow][toCol]     = tempBoard.grid[fromRow][fromCol];
     tempBoard.grid[fromRow][fromCol] = null;
+
+    // En Passant
+    if (metadata === 101) tempBoard.grid[fromRow][toCol] = null;
+
+    // Castle
+
     return !tempBoard.isCheck(tempBoard.turn);
   }
 
@@ -535,11 +550,17 @@ export default class Board {
     if (this.castlingRights.black.queenSide) castlingRights.push('q');
     const castlingRightsString: string = castlingRights.length > 0 ? castlingRights.join('') : '-';
 
+    // 4. En passant
+    let enPassant: string;
+    const numRows = ['a', 'b', 'c', 'd', 'e', 'e', 'f', 'g', 'h'];
+    if (this.enPassant === null) enPassant = '-';
+    else                         enPassant = `${numRows[this.enPassant[0]]}${this.enPassant[1]}`;
+
     return [
       piecePlacement,
       activeColor,
       castlingRightsString,
-      this.enPassant || '-',
+      enPassant,
       String(this.halfMoveClock),
       String(this.fullMoveNumber),
     ].join(' ');
