@@ -6,12 +6,12 @@ export default class Game {
   selection: number[] | null;
   validMoves: number[][];
 
-  moveAudio: HTMLAudioElement;
-  illegalMoveAudio: HTMLAudioElement;
-  captureAudio: HTMLAudioElement;
-  gameEndAudio: HTMLAudioElement;
-  checkAudio: HTMLAudioElement;
-  castleAudio: HTMLAudioElement;
+  moveAudio?:        HTMLAudioElement;
+  illegalMoveAudio?: HTMLAudioElement;
+  captureAudio?:     HTMLAudioElement;
+  gameEndAudio?:     HTMLAudioElement;
+  checkAudio?:       HTMLAudioElement;
+  castleAudio?:      HTMLAudioElement;
 
   constructor() {
     //this.board = new Board(undefined, "rnbqkbnr/p1pppppp/2N5/3BQ1R1/Pp2P3/K2P4/1PP2PPP/1NB4R w KQkq - 0 1");
@@ -21,12 +21,14 @@ export default class Game {
     this.selection = null;
     this.validMoves = [];
 
-    this.moveAudio        = new Audio("/chess/sounds/move-self.mp3");
-    this.illegalMoveAudio = new Audio("/chess/sounds/illegal.mp3");
-    this.captureAudio     = new Audio("/chess/sounds/capture.mp3");
-    this.castleAudio      = new Audio("/chess/sounds/castle.mp3");
-    this.checkAudio       = new Audio("/chess/sounds/move-check.mp3");
-    this.gameEndAudio     = new Audio("/chess/sounds/game-end.mp3");
+    if (typeof window !== "undefined") {
+      this.moveAudio        = new Audio("/chess/sounds/move-self.mp3");
+      this.illegalMoveAudio = new Audio("/chess/sounds/illegal.mp3");
+      this.captureAudio     = new Audio("/chess/sounds/capture.mp3");
+      this.castleAudio      = new Audio("/chess/sounds/castle.mp3");
+      this.checkAudio       = new Audio("/chess/sounds/move-check.mp3");
+      this.gameEndAudio     = new Audio("/chess/sounds/game-end.mp3");
+    }
   }
 
   
@@ -54,13 +56,15 @@ export default class Game {
             this.moves.push(new Board(this.board));
             this.board = newBoard;
 
-            if      (moveStatus === "move")      this.moveAudio.play();
-            else if (moveStatus === "capture")   this.captureAudio.play();
-            else if (moveStatus === "castle")    this.castleAudio.play();
-            else if (moveStatus === "check")     this.checkAudio.play();
-            else if (moveStatus === "checkmate") this.gameEndAudio.play();
+            if (typeof window !== "undefined") {
+              if      (moveStatus === "move")      this.moveAudio?.play();
+              else if (moveStatus === "capture")   this.captureAudio?.play();
+              else if (moveStatus === "castle")    this.castleAudio?.play();
+              else if (moveStatus === "check")     this.checkAudio?.play();
+              else if (moveStatus === "checkmate") this.gameEndAudio?.play();
+            }
           }
-          else this.illegalMoveAudio.play();
+          else if (typeof window !== "undefined") this.illegalMoveAudio?.play();
 
           break;
         }
