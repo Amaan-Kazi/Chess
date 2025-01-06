@@ -116,8 +116,8 @@ export default class Board {
   // 303: Promotion - Bishop
 
   move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" {
-    const [[fromRow, fromCol], [toRow, toCol]] = move;
-    let metadata: number = 0;
+    const [[fromRow, fromCol], [toRow, toCol], [meta]] = move;
+    let metadata = meta;
 
     const pieceMoves = {
       'k': this.kingMoves.bind(this),
@@ -145,6 +145,9 @@ export default class Board {
       }
 
       if (!isValidMove) return "failed";
+
+      // override to original metadata in case of promotion
+      if (meta >= 300 && meta <= 303) metadata = meta;
 
       let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" = "move";
       if (this.grid[toRow][toCol] !== null) status = "capture";      

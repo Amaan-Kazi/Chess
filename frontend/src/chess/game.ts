@@ -35,7 +35,7 @@ export default class Game {
 
   
   select(pos: number[]) {
-    const [row, col] = pos;
+    const [row, col, metadata] = pos;
     const piece = this.board.grid[row][col];
 
     const pieceMoves = {
@@ -52,7 +52,7 @@ export default class Game {
       for (const [r, c] of this.validMoves) {
         if (r === row && c === col) {
           const newBoard = new Board(this.board); // Make a copy
-          const moveStatus = newBoard.move([this.selection!, [row, col]]);
+          const moveStatus = newBoard.move([this.selection!, [row, col], [metadata]]);
 
           if (moveStatus !== "failed") {
             this.moves.push(new Board(this.board));
