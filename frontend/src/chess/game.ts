@@ -12,6 +12,7 @@ export default class Game {
   gameEndAudio?:     HTMLAudioElement;
   checkAudio?:       HTMLAudioElement;
   castleAudio?:      HTMLAudioElement;
+  promotionAudio?:   HTMLAudioElement;
 
   constructor() {
     //this.board = new Board(undefined, "rnbqkbnr/p1pppppp/2N5/3BQ1R1/Pp2P3/K2P4/1PP2PPP/1NB4R w KQkq - 0 1");
@@ -28,6 +29,7 @@ export default class Game {
       this.castleAudio      = new Audio("/chess/sounds/castle.mp3");
       this.checkAudio       = new Audio("/chess/sounds/move-check.mp3");
       this.gameEndAudio     = new Audio("/chess/sounds/game-end.mp3");
+      this.promotionAudio   = new Audio("/chess/sounds/promote.mp3");
     }
   }
 
@@ -62,6 +64,7 @@ export default class Game {
               else if (moveStatus === "castle")    this.castleAudio?.play();
               else if (moveStatus === "check")     this.checkAudio?.play();
               else if (moveStatus === "checkmate") this.gameEndAudio?.play();
+              else if (moveStatus === "promotion") this.promotionAudio?.play();
             }
           }
           else if (typeof window !== "undefined") this.illegalMoveAudio?.play();

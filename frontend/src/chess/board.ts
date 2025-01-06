@@ -115,7 +115,7 @@ export default class Board {
   // 302: Promotion - Rook
   // 303: Promotion - Bishop
 
-  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "check" | "checkmate" {
+  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" {
     const [[fromRow, fromCol], [toRow, toCol]] = move;
     let metadata: number = 0;
 
@@ -146,21 +146,11 @@ export default class Board {
 
       if (!isValidMove) return "failed";
 
-      let status: "failed" | "move" | "capture" | "castle" | "check" | "checkmate" = "move";
-      if (this.grid[toRow][toCol] !== null) status = "capture";
-      
+      let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" = "move";
+      if (this.grid[toRow][toCol] !== null) status = "capture";      
 
       this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
       this.grid[fromRow][fromCol] = null;
-
-      if (this.turn === 'b') this.fullMoveNumber++;
-      this.halfMoveClock++; // set to 0 when a pawn is moved or piece is captured
-      this.turn = this.turn === 'w' ? 'b' : 'w';
-      this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
-
-      if (this.isCheck(this.turn)) status = "check";
-
-      // Special Cases
 
       // Pawn Double Move
       this.enPassant = null;
@@ -171,12 +161,27 @@ export default class Board {
         this.grid[fromRow][toCol] = null; // capture the piece
         status = "capture";
       }
+        
+      // Promotion
+      if (metadata >= 300 && metadata <= 303) {
+        if      (metadata === 300) this.grid[toRow][toCol] = this.turn === 'w' ? 'Q' : 'q';
+        else if (metadata === 301) this.grid[toRow][toCol] = this.turn === 'w' ? 'N' : 'n';
+        else if (metadata === 302) this.grid[toRow][toCol] = this.turn === 'w' ? 'R' : 'r';
+        else if (metadata === 303) this.grid[toRow][toCol] = this.turn === 'w' ? 'B' : 'b';
 
-      // promotion
+        status = "promotion";
+      }
 
       // castling rights
 
       // check for checkmate, stalemate, draw, etc
+
+      if (this.turn === 'b') this.fullMoveNumber++;
+      this.halfMoveClock++; // set to 0 when a pawn is moved or piece is captured
+      this.turn = this.turn === 'w' ? 'b' : 'w';
+      this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
+
+      if (this.isCheck(this.turn)) status = "check";
 
       return status;
     }
@@ -332,7 +337,13 @@ export default class Board {
     const sRow = row + direction;
     const sCol = col;
     if (this.isInBounds(sRow, sCol)) {
-      if (this.grid[sRow][sCol] === null) validMoves.push([sRow, sCol, 0]);
+      if (this.grid[sRow][sCol] === null && (sRow === 0 || sRow === 7)) { // Promotion
+        validMoves.push([sRow, sCol, 300]); // Queen
+        validMoves.push([sRow, sCol, 301]); // Knight
+        validMoves.push([sRow, sCol, 302]); // Rook
+        validMoves.push([sRow, sCol, 303]); // Bishop
+      }
+      else if (this.grid[sRow][sCol] === null) validMoves.push([sRow, sCol, 0]);
     }
 
     // Double Move
@@ -348,15 +359,25 @@ export default class Board {
     const cCol1 = col + 1; // Right
     const cCol2 = col - 1; // Left
     if (this.isInBounds(cRow, cCol1)) {
-      if      (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color)                                             validMoves.push([cRow, cCol1, 1]); // Diagonal Capture
+      if (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color && (cRow === 0 || cRow === 7)) { // Capture Promotion
+        validMoves.push([cRow, cCol1, 300]); // Queen
+        validMoves.push([cRow, cCol1, 301]); // Knight
+        validMoves.push([cRow, cCol1, 302]); // Rook
+        validMoves.push([cRow, cCol1, 303]); // Bishop
+      }
+      else if (this.grid[cRow][cCol1] !== null && this.pieceColor([cRow, cCol1]) !== color)                                             validMoves.push([cRow, cCol1, 1]);   // Diagonal Capture
       else if (this.grid[cRow][cCol1] === null && this.enPassant !== null && this.enPassant[0] === cRow && this.enPassant[1] === cCol1) validMoves.push([cRow, cCol1, 101]); // En Passant
     }
     if (this.isInBounds(cRow, cCol2)) {
-      if      (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color)                                             validMoves.push([cRow, cCol2, 1]);   // Diagonal Capture
+      if (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color && (cRow === 0 || cRow === 7)) { // Capture Promotion
+        validMoves.push([cRow, cCol2, 300]); // Queen
+        validMoves.push([cRow, cCol2, 301]); // Knight
+        validMoves.push([cRow, cCol2, 302]); // Rook
+        validMoves.push([cRow, cCol2, 303]); // Bishop
+      }
+      else if (this.grid[cRow][cCol2] !== null && this.pieceColor([cRow, cCol2]) !== color)                                             validMoves.push([cRow, cCol2, 1]);   // Diagonal Capture
       else if (this.grid[cRow][cCol2] === null && this.enPassant !== null && this.enPassant[0] === cRow && this.enPassant[1] === cCol2) validMoves.push([cRow, cCol2, 101]); // En Passant
     }
-
-    // Promotion can be handled at move() since it is just piece replacement
 
     for (const [toRow, toCol, metadata] of validMoves) {
       if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
@@ -507,6 +528,12 @@ export default class Board {
 
     // En Passant
     if (metadata === 101) tempBoard.grid[fromRow][toCol] = null;
+
+    // Promotion
+    if      (metadata === 300) tempBoard.grid[toRow][toCol] = this.turn === 'w' ? 'Q' : 'q';
+    else if (metadata === 301) tempBoard.grid[toRow][toCol] = this.turn === 'w' ? 'N' : 'n';
+    else if (metadata === 302) tempBoard.grid[toRow][toCol] = this.turn === 'w' ? 'R' : 'r';
+    else if (metadata === 303) tempBoard.grid[toRow][toCol] = this.turn === 'w' ? 'B' : 'b';
 
     // Castle
 
