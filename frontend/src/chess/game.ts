@@ -16,7 +16,7 @@ export default class Game {
 
   constructor() {
     //this.board = new Board(undefined, "rnbqkbnr/p1pppppp/2N5/3BQ1R1/Pp2P3/K2P4/1PP2PPP/1NB4R w KQkq - 0 1");
-    this.board = new Board(undefined, "rnbqkbnr/pppp1ppp/N7/Q6R/1KP5/1N2B3/PP1PPPPP/5B1R w - - 0 1");
+    this.board = new Board(undefined, "r3k2r/pppp1ppp/N7/Q6R/1KP5/1N2B3/PP1PPPPP/5B1R w kq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
 
     this.selection = null;

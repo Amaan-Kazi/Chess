@@ -1,3 +1,5 @@
+import { throwIfDisallowedDynamic } from "next/dist/server/app-render/dynamic-rendering";
+
 export default class Board {
   grid: (string | null)[][];
   turn: 'w' | 'b';
@@ -175,7 +177,33 @@ export default class Board {
         status = "promotion";
       }
 
+      // Castle
+      if (metadata === 200) { // King Side
+        this.grid[fromRow][7] = null;
+        this.grid[fromRow][5] = this.turn === 'w' ? 'R' : 'r';
+        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+      }
+      if (metadata === 201) { // Queen Side
+        this.grid[fromRow][0] = null;
+        this.grid[fromRow][3] = this.turn === 'w' ? 'R' : 'r';
+        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+      }
+
       // castling rights
+      if (fromRow === (this.turn === 'w' ? 7 : 0)) { // Rook moved
+        if      (fromCol === 0) this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+        else if (fromCol === 7) this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+      }
+      if (toRow === (this.turn === 'b' ? 7 : 0)) { // Rook Captured
+        if      (toCol === 0) this.castlingRights[this.turn === 'b' ? 'white' : 'black'].queenSide = false;
+        else if (toCol === 7) this.castlingRights[this.turn === 'b' ? 'white' : 'black'].kingSide  = false;
+      }
+      if (piece.toLowerCase() === 'k') { // King Moved
+        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+      }
 
       // check for checkmate, stalemate, draw, etc
 
@@ -222,8 +250,30 @@ export default class Board {
       else if (this.pieceColor([i, j]) !== color) validMoves.push([i, j, 1]); // enemy piece
     }
 
+    // Castle
+    if (!this.isCheck(color!)) { // king should not be in check
+      if (this.castlingRights[color === 'w' ? 'white' : 'black'].kingSide) {
+        if (this.grid[row][col + 1] === null && this.grid[row][col + 2] === null) { // no pieces in between
+          // king must not be in check even between castling
+          const tempBoard = new Board(this);
+          tempBoard.grid[row][col]     = null;
+          tempBoard.grid[row][col + 1] = color === 'w' ? 'K' : 'k';
+          if (!tempBoard.isCheck(color!)) validMoves.push([row, col + 2, 200]);
+        }
+      }
+      if (this.castlingRights[color === 'w' ? 'white' : 'black'].queenSide) {
+        if (this.grid[row][col - 1] === null && this.grid[row][col - 2] === null && this.grid[row][col - 3] === null) { // no pieces in between
+          // king must not be in check even between castling
+          const tempBoard = new Board(this);
+          tempBoard.grid[row][col]     = null;
+          tempBoard.grid[row][col - 1] = color === 'w' ? 'K' : 'k';
+          if (!tempBoard.isCheck(color!)) validMoves.push([row, col - 2, 201]);
+        }
+      }
+    }
+
     for (const [toRow, toCol, metadata] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
+      if (this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -261,7 +311,7 @@ export default class Board {
     }
 
     for (const [toRow, toCol, metadata] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
+      if (this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -294,7 +344,7 @@ export default class Board {
     }
 
     for (const [toRow, toCol, metadata] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
+      if (this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -324,7 +374,7 @@ export default class Board {
     isValid(row - 1, col - 2); // Left Up
 
     for (const [toRow, toCol, metadata] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
+      if (this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -383,7 +433,7 @@ export default class Board {
     }
 
     for (const [toRow, toCol, metadata] of validMoves) {
-      if(this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
+      if (this.isSafeMove([[row, col], [toRow, toCol], [metadata]])) safeValidMoves.push([toRow, toCol, metadata]);
     }
     return safeValidMoves;
   }
@@ -539,6 +589,14 @@ export default class Board {
     else if (metadata === 303) tempBoard.grid[toRow][toCol] = this.turn === 'w' ? 'B' : 'b';
 
     // Castle
+    if (metadata === 200) { // King Side
+      tempBoard.grid[fromRow][7] = null;
+      tempBoard.grid[fromRow][5] = this.turn === 'w' ? 'R' : 'r';
+    }
+    if (metadata === 201) { // Queen Side
+      tempBoard.grid[fromRow][0] = null;
+      tempBoard.grid[fromRow][3] = this.turn === 'w' ? 'R' : 'r';
+    }
 
     return !tempBoard.isCheck(tempBoard.turn);
   }
