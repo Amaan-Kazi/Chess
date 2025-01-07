@@ -15,8 +15,7 @@ export default class Game {
   promotionAudio?:   HTMLAudioElement;
 
   constructor() {
-    //this.board = new Board(undefined, "rnbqkbnr/p1pppppp/2N5/3BQ1R1/Pp2P3/K2P4/1PP2PPP/1NB4R w KQkq - 0 1");
-    this.board = new Board(undefined, "r3k2r/pppp1ppp/N7/Q6R/1KP5/1N2B3/PP1PPPPP/5B1R w kq - 0 1");
+    this.board = new Board();
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
 
     this.selection = null;
@@ -74,13 +73,14 @@ export default class Game {
       }
     }
 
+    // Empty Square
     if (!piece) {
       this.selection = null;
       this.validMoves = [];
       return;
     }
 
-    if (this.board.pieceColor(pos) == this.board.turn) {
+    if (this.board.pieceColor(pos) == this.board.turn) { // selected piece color = player turn color
       this.selection = pos;
       this.validMoves = pieceMoves[`${piece!.toLowerCase()}` as keyof typeof pieceMoves]([row, col]);
       return;

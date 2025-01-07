@@ -212,12 +212,42 @@ export default class Board {
       this.turn = this.turn === 'w' ? 'b' : 'w';
       this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
 
+      console.log(this.validMoves());
+
       if (this.isCheck(this.turn)) status = "check";
 
       return status;
     }
 
     return "failed";
+  }
+
+
+  validMoves(): number[][][] {
+    const moves: number[][][] = [];
+
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.grid[i][j] === null || this.pieceColor([i, j]) !== this.turn) continue; // Empty Square || Enemy Piece
+
+        const pieceMoves = {
+          p: this.pawnMoves.bind(this),
+          n: this.knightMoves.bind(this),
+          b: this.bishopMoves.bind(this),
+          r: this.rookMoves.bind(this),
+          q: this.queenMoves.bind(this),
+          k: this.kingMoves.bind(this),
+        }
+
+        const pieceValidMoves = pieceMoves[this.grid![i][j]?.toLowerCase() as keyof typeof pieceMoves]([i, j]);
+
+        for (const [toRow, toCol, metadata] of pieceValidMoves) {
+          moves.push([[i, j], [toRow, toCol], [metadata]]);
+        }
+      }
+    }
+
+    return moves;
   }
 
 
