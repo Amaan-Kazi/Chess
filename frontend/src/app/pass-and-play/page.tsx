@@ -1,8 +1,16 @@
 "use client"
 import { useState } from "react";
+import "../../../public/fonts.css"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import Navbar from "@/components/navbar"
 
 import Game from "@/chess/game"
@@ -12,6 +20,7 @@ export default function PassAndPlay() {
   const [version, setVersion] = useState(0); // manually trigger re renders
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
+  const [dialogClosed, setDialogClosed] = useState(false);
 
   const click = (row: number, col: number) => {
     // Pawn Promotion
@@ -212,6 +221,15 @@ export default function PassAndPlay() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={game.state !== "ongoing" && !dialogClosed} onOpenChange={() => {setDialogClosed(true)}}>
+        <DialogContent className="w-[90%] md:max-w-[50%] lg:max-w-[35%] px-10">
+          <DialogHeader>
+            <DialogTitle className="text-5xl font-academiaM54 tracking-wider font-thin text-center">{game.state.toUpperCase()}</DialogTitle>
+            <DialogDescription className="text-center text-3xl text-primary">{game.stateDescription}</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

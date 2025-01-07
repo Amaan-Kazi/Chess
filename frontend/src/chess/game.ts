@@ -5,6 +5,8 @@ export default class Game {
   moves: Board[];
   selection: number[] | null;
   validMoves: number[][];
+  state: "ongoing" | "checkmate" | "stalemate" | "draw";
+  stateDescription: string;
 
   moveAudio?:        HTMLAudioElement;
   illegalMoveAudio?: HTMLAudioElement;
@@ -15,11 +17,14 @@ export default class Game {
   promotionAudio?:   HTMLAudioElement;
 
   constructor() {
-    this.board = new Board();
+    this.board = new Board(undefined, "1r6/8/8/K7/3q4/8/7k/8 b - - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
 
     this.selection = null;
     this.validMoves = [];
+
+    this.state = "ongoing";
+    this.stateDescription = "";
 
     if (typeof window !== "undefined") {
       this.moveAudio        = new Audio("/chess/sounds/move-self.mp3");
@@ -62,8 +67,17 @@ export default class Game {
               else if (moveStatus === "capture")   this.captureAudio?.play();
               else if (moveStatus === "castle")    this.castleAudio?.play();
               else if (moveStatus === "check")     this.checkAudio?.play();
-              else if (moveStatus === "checkmate") this.gameEndAudio?.play();
               else if (moveStatus === "promotion") this.promotionAudio?.play();
+              else if (moveStatus === "checkmate") {
+                this.state = "checkmate";
+                this.stateDescription = `${this.board.turn === 'b' ? "White" : "Black"} Wins`
+                this.gameEndAudio?.play();
+              }
+              else if (moveStatus === "stalemate") {
+                this.state = "draw";
+                this.stateDescription = `By Stalemate`
+                this.gameEndAudio?.play();
+              }
             }
           }
           else if (typeof window !== "undefined") this.illegalMoveAudio?.play();

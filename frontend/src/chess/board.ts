@@ -1,5 +1,3 @@
-import { throwIfDisallowedDynamic } from "next/dist/server/app-render/dynamic-rendering";
-
 export default class Board {
   grid: (string | null)[][];
   turn: 'w' | 'b';
@@ -117,7 +115,7 @@ export default class Board {
   // 302: Promotion - Rook
   // 303: Promotion - Bishop
 
-  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" {
+  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "stalemate" {
     const [[fromRow, fromCol], [toRow, toCol], [meta]] = move;
     let metadata = meta;
 
@@ -151,7 +149,7 @@ export default class Board {
       // override to original metadata in case of promotion
       if (meta >= 300 && meta <= 303) metadata = meta;
 
-      let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" = "move";
+      let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "stalemate" = "move";
       if (this.grid[toRow][toCol] !== null) status = "capture";      
 
       this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
@@ -205,16 +203,19 @@ export default class Board {
         this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
       }
 
-      // check for checkmate, stalemate, draw, etc
-
       if (this.turn === 'b') this.fullMoveNumber++;
       this.halfMoveClock++; // set to 0 when a pawn is moved or piece is captured
       this.turn = this.turn === 'w' ? 'b' : 'w';
       this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
 
-      console.log(this.validMoves());
-
       if (this.isCheck(this.turn)) status = "check";
+
+      if (this.validMoves().length === 0) {
+        if (this.isCheck(this.turn)) status = "checkmate";
+        else                         status = "stalemate";
+        console.log(status);
+        this.gameState = status;
+      }
 
       return status;
     }
