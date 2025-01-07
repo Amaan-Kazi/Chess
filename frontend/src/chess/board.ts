@@ -7,6 +7,7 @@ export default class Board {
   fullMoveNumber: number;
   gameState: "ongoing" | "checkmate" | "stalemate" | "draw";
   prevMove: number[][];
+  positionHistory: Record<string, number>
 
   constructor(copyBoard?: Board, FEN?: string) {
     if (copyBoard) {
@@ -17,12 +18,13 @@ export default class Board {
         black: { kingSide: copyBoard.castlingRights.black.kingSide, queenSide: copyBoard.castlingRights.black.queenSide },
       };
 
-      this.turn           = copyBoard.turn;
-      this.enPassant      = copyBoard.enPassant;
-      this.halfMoveClock  = copyBoard.halfMoveClock;
-      this.fullMoveNumber = copyBoard.fullMoveNumber;
-      this.gameState      = copyBoard.gameState;
-      this.prevMove       = [];
+      this.turn            = copyBoard.turn;
+      this.enPassant       = copyBoard.enPassant;
+      this.halfMoveClock   = copyBoard.halfMoveClock;
+      this.fullMoveNumber  = copyBoard.fullMoveNumber;
+      this.gameState       = copyBoard.gameState;
+      this.prevMove        = [];
+      this.positionHistory = copyBoard.positionHistory;
     }
     else if (FEN) {
       const [
@@ -75,9 +77,9 @@ export default class Board {
       this.fullMoveNumber = parseInt(fullMoveNumber, 10);
 
       // Set game state to ongoing by default
-      this.gameState = "ongoing";
-
-      this.prevMove = [];
+      this.gameState       = "ongoing";
+      this.prevMove        = [];
+      this.positionHistory = {};
     }
     else {      
       this.grid = [
@@ -93,12 +95,13 @@ export default class Board {
         black: { kingSide: true, queenSide: true },
       };
 
-      this.turn           = 'w';
-      this.enPassant      = null;
-      this.halfMoveClock  = 0;
-      this.fullMoveNumber = 1;
-      this.gameState      = "ongoing";
-      this.prevMove       = [];
+      this.turn            = 'w';
+      this.enPassant       = null;
+      this.halfMoveClock   = 0;
+      this.fullMoveNumber  = 1;
+      this.gameState       = "ongoing";
+      this.prevMove        = [];
+      this.positionHistory = {};
     }
   }
 
@@ -115,7 +118,7 @@ export default class Board {
   // 302: Promotion - Rook
   // 303: Promotion - Bishop
 
-  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "stalemate" {
+  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition" {
     const [[fromRow, fromCol], [toRow, toCol], [meta]] = move;
     let metadata = meta;
 
@@ -128,13 +131,18 @@ export default class Board {
       'p': this.pawnMoves.bind(this),
     };
 
+    if (this.gameState !== "ongoing") return "failed";
+
     if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return "failed"; // Bounds check
     if (this.grid[fromRow][fromCol] === null)                                 return "failed"; // piece check
 
     const piece = this.grid[fromRow][fromCol];
+
     if (this.turn === this.pieceColor([fromRow, fromCol])) { // piece color check
       const moves = pieceMoves[piece!.toLowerCase() as keyof typeof pieceMoves]([fromRow, fromCol]);
       let isValidMove = false;
+      let capture = false;
+      let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition" = "move";
 
       for (const [r, c, m] of moves) {
         if (r === toRow && c === toCol) {
@@ -143,15 +151,18 @@ export default class Board {
           break;
         }
       }
-
       if (!isValidMove) return "failed";
 
       // override to original metadata in case of promotion
       if (meta >= 300 && meta <= 303) metadata = meta;
 
-      let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "stalemate" = "move";
-      if (this.grid[toRow][toCol] !== null) status = "capture";      
+      // Piece Captured
+      if (this.grid[toRow][toCol] !== null) { 
+        status = "capture";
+        capture = true;
+      }      
 
+      // Make the move itself
       this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
       this.grid[fromRow][fromCol] = null;
 
@@ -162,6 +173,7 @@ export default class Board {
       // En passant
       if (metadata === 101) {
         this.grid[fromRow][toCol] = null; // capture the piece
+        capture = true;
         status = "capture";
       }
         
@@ -203,18 +215,70 @@ export default class Board {
         this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
       }
 
+      // after move - update counters, turn, check for checkmate and draws
       if (this.turn === 'b') this.fullMoveNumber++;
-      this.halfMoveClock++; // set to 0 when a pawn is moved or piece is captured
+      this.halfMoveClock = (capture || piece.toLowerCase() === 'p') ? 0 : this.halfMoveClock + 1; // set to 0 when a pawn is moved or piece is captured
       this.turn = this.turn === 'w' ? 'b' : 'w';
       this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
 
-      if (this.isCheck(this.turn)) status = "check";
+      if (this.isCheck(this.turn))   status = "check";
+      if (this.halfMoveClock >= 100) status = "draw - 50 move rule";
 
       if (this.validMoves().length === 0) {
-        if (this.isCheck(this.turn)) status = "checkmate";
-        else                         status = "stalemate";
-        console.log(status);
-        this.gameState = status;
+        if (this.isCheck(this.turn)) {
+          this.gameState = "checkmate";
+          status = "checkmate";
+        }
+        else {
+          this.gameState = "stalemate";
+          status = "draw - stalemate";
+        }
+      }
+
+      let pieces = {
+        K: 0,
+        Q: 0,
+        R: 0,
+        B: 0,
+        N: 0,
+        P: 0,
+        k: 0,
+        q: 0,
+        r: 0,
+        b: 0,
+        n: 0,
+        p: 0,
+        total: 0,
+      }
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          if (this.grid[i][j] !== null) {
+            pieces[this.grid![i][j] as keyof typeof pieces]++;
+            pieces.total++;
+          }
+        }
+      }
+
+      if (pieces.total <= 2) status = "draw - insufficient material";
+      if (pieces.total === 3) {
+        if      (pieces.b === 1 || pieces.B === 1) status = "draw - insufficient material";
+        else if (pieces.n === 1 || pieces.N === 1) status = "draw - insufficient material";
+      }
+      if (pieces.total === 4) {
+        if      (pieces.b === 1 && pieces.B === 1)                                         status = "draw - insufficient material";
+        else if (pieces.n === 1 && pieces.N === 1)                                         status = "draw - insufficient material";
+        else if ((pieces.b === 1 && pieces.N === 1) || (pieces.n === 1 && pieces.B === 1)) status = "draw - insufficient material";
+      }
+      if (status === "draw - insufficient material") this.gameState = "draw";
+
+      const FEN = this.FEN().split(" ").slice(0, 4).join(" ");
+      if (!this.positionHistory[FEN]) {
+        this.positionHistory[FEN] = 0;
+      }
+      this.positionHistory[FEN]++;
+      if (this.positionHistory[FEN] >= 3) {
+        this.gameState = "draw";
+        status = "draw - repetition";
       }
 
       return status;

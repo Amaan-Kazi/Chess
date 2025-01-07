@@ -73,9 +73,9 @@ export default class Game {
                 this.stateDescription = `${this.board.turn === 'b' ? "White" : "Black"} Wins`
                 this.gameEndAudio?.play();
               }
-              else if (moveStatus === "stalemate") {
+              else if (moveStatus.startsWith("draw - ")) {
                 this.state = "draw";
-                this.stateDescription = `By Stalemate`
+                this.stateDescription = "By " + moveStatus.slice(7);
                 this.gameEndAudio?.play();
               }
             }
