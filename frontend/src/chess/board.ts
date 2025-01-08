@@ -235,7 +235,7 @@ export default class Board {
         }
       }
 
-      let pieces = {
+      const pieces = {
         K: 0,
         Q: 0,
         R: 0,
