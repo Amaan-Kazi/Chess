@@ -723,7 +723,7 @@ export default class Board {
     }).join('/');
 
     // 2. Active color
-    const activeColor: string = this.fullMoveNumber % 2 === 1 ? 'w' : 'b';
+    const activeColor: string = this.turn;
 
     // 3. Castling rights
     const castlingRights: string[] = [];

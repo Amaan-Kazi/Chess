@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../../../public/fonts.css"
 
 import { Button } from "@/components/ui/button"
@@ -16,11 +16,34 @@ import Navbar from "@/components/navbar"
 import Game from "@/chess/game"
 
 export default function PassAndPlay() {
-  const [game] = useState(new Game());
+  const [game, setGame] = useState(new Game(null));
   const [version, setVersion] = useState(0); // manually trigger re renders
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
   const [dialogClosed, setDialogClosed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Initialize the Stockfish worker
+      let worker: Worker | null;
+      try {
+        worker = new Worker("/stockfish.js");
+      } catch (error) {
+        console.log(error);
+        worker = null;
+      }
+
+      // Pass the worker to the Game class
+      const gameInstance = new Game(worker);
+
+      // Set the game instance in state
+      setGame(gameInstance);
+
+      return () => {
+        worker?.terminate(); // Clean up worker on unmount
+      };
+    }
+  }, []);
 
   const click = (row: number, col: number) => {
     // Pawn Promotion
@@ -176,8 +199,8 @@ export default function PassAndPlay() {
                   />
                 )}
 
-                {row == 7 && <div className="absolute -bottom-px right-px text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{cols[col]}</div>}
-                {col == 0 && <div className="absolute -top-px    left-px  text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{rows[row]}</div>}
+                {row == 7 && <div className="absolute -bottom-px right-px text-xs md:text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{cols[col]}</div>}
+                {col == 0 && <div className="absolute -top-px    left-px  text-xs md:text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{rows[row]}</div>}
               </div>
             );
           })}

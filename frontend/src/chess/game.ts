@@ -5,8 +5,12 @@ export default class Game {
   moves: Board[];
   selection: number[] | null;
   validMoves: number[][];
+
   state: "ongoing" | "checkmate" | "stalemate" | "draw";
   stateDescription: string;
+
+  evaluation: number;
+  stockfish: Worker | null;
 
   moveAudio?:        HTMLAudioElement;
   illegalMoveAudio?: HTMLAudioElement;
@@ -16,8 +20,8 @@ export default class Game {
   castleAudio?:      HTMLAudioElement;
   promotionAudio?:   HTMLAudioElement;
 
-  constructor() {
-    this.board = new Board(undefined, "1r6/8/8/K7/3q4/8/7k/8 b - - 0 1");
+  constructor(stockfish: Worker | null) {
+    this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
 
     this.selection = null;
@@ -34,6 +38,15 @@ export default class Game {
       this.checkAudio       = new Audio("/chess/sounds/move-check.mp3");
       this.gameEndAudio     = new Audio("/chess/sounds/game-end.mp3");
       this.promotionAudio   = new Audio("/chess/sounds/promote.mp3");
+    }
+
+    this.evaluation = 0;
+
+    this.stockfish = stockfish;
+    if (this.stockfish) {
+      this.stockfish.onmessage = this.handleStockfishResponse.bind(this);
+      this.stockfish.postMessage("uci");
+      this.evaluatePosition();
     }
   }
 
@@ -79,6 +92,12 @@ export default class Game {
                 this.gameEndAudio?.play();
               }
             }
+
+            if (this.stockfish)
+            {
+              console.clear();
+              this.evaluatePosition();
+            }
           }
           else if (typeof window !== "undefined") this.illegalMoveAudio?.play();
 
@@ -103,6 +122,37 @@ export default class Game {
       this.selection = null;
       this.validMoves = [];
       return;
+    }
+  }
+
+
+  evaluatePosition() {
+    this.stockfish?.postMessage("ucinewgame");
+    this.stockfish?.postMessage(`position fen ${this.board.FEN()}`);
+    this.stockfish?.postMessage("go depth 14");
+  }
+
+  handleStockfishResponse(event: MessageEvent) {
+    const data = event.data;
+    console.log(data);
+
+    // Handle Stockfish evaluation response
+    if (data.startsWith("info") && data.includes("score")) {
+      const scoreMatch = data.match(/score (cp|mate) (-?\d+)/);
+      if (scoreMatch) {
+        const [, type, value] = scoreMatch;
+        if (type === "cp") {
+          // Centipawn score (convert to evaluation range)
+          this.evaluation = parseInt(value, 10) / 100; // Convert centipawns to pawn units
+          console.log("Evaluation: ", this.evaluation);
+        } else if (type === "mate") {
+          // Mate in X moves (use a very high score to indicate win/loss)
+          const mateIn = parseInt(value, 10);
+          console.log("Mate in ", mateIn);
+          this.evaluation = mateIn > 0 ? 100 : -100; // Positive for White, negative for Black
+          console.log("Evaluation: ", this.evaluation);
+        }
+      }
     }
   }
 }
