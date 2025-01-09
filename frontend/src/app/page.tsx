@@ -1,104 +1,41 @@
 "use client";
-import { useState } from "react";
-import { useMediaQuery } from 'react-responsive';
+// import { useState } from "react";
+// import { useMediaQuery } from 'react-responsive';
 
+import {WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle} from "@/components/wideButton";
 import Navbar from "@/components/navbar"
-// import {Button} from "@/components/ui/button"
-
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer"
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-
-import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
-  const [selection, setSelection] = useState("null");
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  // const [selection, setSelection] = useState("null");
+  // const isSmallScreen = useMediaQuery({ maxWidth: 768 });
 
   return (
     <div className="flex flex-col min-h-screen justify-between">
       <Navbar activePage="Home"/>
-      <div className="container mx-auto flex justify-evenly">
-        <Card className="m-10 min-h-96">
-          <CardHeader>
-            <CardTitle><p className="text-4xl md:text-6xl">Game Mode</p></CardTitle>
-          </CardHeader>
+      <div className="flex justify-center md:justify-evenly w-[90%] m-auto">
+        <div>
+          <h1 className="text-3xl md:text-6xl font-bold text-center my-20 w-fit">Play chess with anyone,<br/>in your browser</h1>
+          <WideButton onClick={() => {console.log("Clicked")}} highlighted={true} className="my-5">
+            <WideButtonImage src="/images/move.png"/>
+            <WideButtonTitle>Play Online</WideButtonTitle>
+            <WideButtonDescription>Play against another online player</WideButtonDescription>
+          </WideButton>
 
-          <CardContent>
-            <div className="flex flex-col gap-10">
-              <Card
-                className="cursor-pointer"
-                onClick={() => setSelection("Play Online")}
-              >
-                <CardHeader>
-                  <CardTitle>Play Online</CardTitle>
-                  <CardDescription>Play against other players online</CardDescription>
-                </CardHeader>
-              </Card>
+          <WideButton onClick={() => {console.log("Clicked")}} highlighted={false} className="my-5">
+            <WideButtonImage src="/images/robot.png"/>
+            <WideButtonTitle>Play Computer</WideButtonTitle>
+            <WideButtonDescription>Play against a customizable bot</WideButtonDescription>
+          </WideButton>
 
-              <Card
-                className="cursor-pointer"
-                onClick={() => setSelection("Play With Bot")}
-              >
-                <CardHeader>
-                  <CardTitle>Play with Bot</CardTitle>
-                  <CardDescription>Play against a bot with customizable difficulty</CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card
-                className="cursor-pointer"
-                onClick={() => setSelection("Pass And Play")}
-              >
-                <CardHeader>
-                  <CardTitle>Pass and Play</CardTitle>
-                  <CardDescription>Play against another player locally</CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Game Settings */}
-        {/* Hidden on small screen and replaced by drawer */}
-        <Card className="hidden md:block w-6/12">
-          <CardHeader>
-            <CardTitle><p className="text-4xl">Settings</p></CardTitle>
-            <CardDescription>Card Description</CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            {selection === "Pass And Play" && <PassAndPlayForm />}
-          </CardContent>
-        </Card>
-
-        <Drawer open={(selection !== "null") && (isSmallScreen == true)} onOpenChange={() => {if (selection !== "null") setSelection("null");}}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>{selection} - Game Settings</DrawerTitle>
-              <DrawerDescription>This is the drawer description</DrawerDescription>
-            </DrawerHeader>
-
-            <div className="flex justify-center mb-4">
-              <div className="w-4/5">
-                {selection === "Pass And Play" && <PassAndPlayForm />}
-              </div>
-            </div>
-          </DrawerContent>
-        </Drawer>
+          <WideButton onClick={() => {console.log("Clicked")}} highlighted={false} className="my-5">
+            <WideButtonImage src="/images/phone.png"/>
+            <WideButtonTitle>Pass and Play</WideButtonTitle>
+            <WideButtonDescription>Play on the same device</WideButtonDescription>
+          </WideButton>
+        </div>
+        <div className="hidden md:block">Chess Board</div>
       </div>
+      <div></div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import React, { ReactNode, ReactElement } from "react";
 
 export const WideButtonImage: React.FC<{ src: string, alt?: string, className?: string }> = ({ src, alt, className }) => {
   return (
-    <div className="w-16 aspect-square bg-gray-300 flex items-center justify-center rounded-md">
+    <div className="w-16 aspect-square flex items-center justify-center rounded-md">
       <img src={src} alt={alt} className={`w-full h-full object-cover rounded-md ${className}`} />
     </div>
   )
@@ -37,7 +37,6 @@ interface WideButtonProps {
 
 export const WideButton: React.FC<WideButtonProps> = ({ onClick, children, className, highlighted = false }) => {
   const [image, title, description] = children || [];
-  console.log(highlighted);
 
   return (
     <button
