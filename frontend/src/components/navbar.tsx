@@ -23,7 +23,7 @@ export default function Navbar({ activePage }: { activePage: string }) {
         }
 
         .dark .navbar-background {
-          background-color: rgb(9, 9, 11);
+          background-color: hsl(45, 5%, 14%);
         }
       `}</style>
 
