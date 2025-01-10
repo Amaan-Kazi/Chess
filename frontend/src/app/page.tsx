@@ -17,8 +17,8 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen justify-between">
       <Navbar activePage="Home"/>
-      <div className="flex justify-center md:justify-evenly w-[95%] m-auto xl:scale-105">
-        <div className="flex flex-col justify-around items-center">
+      <div className="flex justify-center md:justify-evenly w-[95%] m-auto xl:ml-0 2xl:ml-auto xl:scale-105">
+        <div className="flex flex-col justify-around items-center xl:scale-75 2xl:scale-100">
           <h1 className="text-3xl md:text-6xl font-bold text-center mb-16 w-fit">Play <span className="text-primary">chess</span> with anyone<br/>in your <span className="text-primary">browser</span></h1>
           
           <div className="flex flex-col w-full items-center">
@@ -41,7 +41,7 @@ export default function Home() {
             </WideButton>
           </div>
         </div>
-        <div className="hidden xl:block">
+        <div className="hidden xl:flex xl:flex-col xl:justify-center">
           <ChessBoard game={game} onclick={click} style={{
             aspectRatio: "1 / 1",     // Maintain square aspect ratio
             width: "min(40vw, 60vh)", // Ensure it fits within both width and height
