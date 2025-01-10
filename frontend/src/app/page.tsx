@@ -1,16 +1,50 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import { useMediaQuery } from 'react-responsive';
 
 import Game from "@/chess/game"
+import Board from "@/chess/board"
 import ChessBoard from "@/components/board";
 import {WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle} from "@/components/wideButton";
 import Navbar from "@/components/navbar"
 
 export default function Home() {
-  const [game] = useState(new Game(null));
+  const [game, setGame] = useState(new Game(null));
+  const [fenArray, setFenArray] = useState([]);
+  const [move, setMove] = useState(0);
   // const [selection, setSelection] = useState("null");
   // const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+
+  useEffect(() => {
+    // Fetch the JSON file from the public folder
+    fetch("/chess/games/1.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load JSON file");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Loaded Game: ", data.name);
+        setFenArray(data.FEN); // Extract the FEN array
+      })
+      .catch((error) => {
+        console.error("Error loading FEN array:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (fenArray.length != 0) {
+        game.board = new Board(undefined, fenArray[move < fenArray.length ? move : fenArray.length - 1]);
+        setGame(game);
+        setMove(move + 1);
+      } else {setMove(move+1)}
+    }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
+
+    // Cleanup on unmount
+    return () => clearInterval(interval);
+  }, [move]);
 
   const click = (row: number, col: number) => {console.log(`clicked ${row}, ${col}`)}
 
