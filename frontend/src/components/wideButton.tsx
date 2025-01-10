@@ -44,7 +44,7 @@ export const WideButton: React.FC<WideButtonProps> = ({ onClick, children, class
       className={`
         flex items-center p-4 w-full max-w-lg rounded-lg
         ${ highlighted && "bg-[hsl(90,42%,51%)] hover:bg-[hsl(84,55%,60%)] shadow-[0px_4px_0px_rgba(69,117,60,1)]"}
-        ${!highlighted && "bg-[hsl(30,3%,26%)]  hover:bg-[hsl(45,3%,29%)]  shadow-[0px_4px_0px_rgba(0,0,0,0.1)]"}
+        ${!highlighted && "bg-[hsl(30,3%,26%)]  hover:bg-[hsl(45,3%,29%)]  shadow-[0px_5px_0px_rgba(0,0,0,0.25)]"}
         ${className}
       `}
     >
