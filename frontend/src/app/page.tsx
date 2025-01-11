@@ -17,7 +17,7 @@ export default function Home() {
 
   useEffect(() => {
     // Fetch the JSON file from the public folder
-    fetch("/chess/games/1.json")
+    fetch("/chess/games.json")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to load JSON file");
@@ -25,8 +25,10 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        console.log("Loaded Game: ", data.name);
-        setFenArray(data.FEN); // Extract the FEN array
+        // randomize game
+        const index = Math.floor(Math.random() * data.games.length);
+        console.log("Loaded Game: ", data.games[index].name);
+        setFenArray(data.games[index].FEN); // Extract the FEN array
       })
       .catch((error) => {
         console.error("Error loading FEN array:", error);
