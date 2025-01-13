@@ -302,15 +302,21 @@ export default class Board {
         capture: "", // x when capture
         toRow: rows[toRow],
         toCol: cols[toCol],
-        attribute: "", // + when check, # when checkmate, =Q / =N / =R / =B when promotion
+        promotion: "", // =Q / =N / =R / =B when promoting to respective piece
+        attribute: "", // + when check, # when checkmate
       }
 
-      if (piece.toUpperCase() !== 'P') notation.piece = piece.toUpperCase();
+      if (piece.toUpperCase() !== 'P') notation.piece = piece.toUpperCase(); // pawns dont have a piece prefix in algebraic notation
+      if (capture) { // x on capture
+        if (piece.toUpperCase() === 'P') notation.fromCol = cols[fromCol]; // pawns prefix column on every capture regardless of ambiguity
+        notation.capture = "x";
+      }
 
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 8; i++) { // Ambiguity resolution - row
         if (i === fromRow) continue;
+        if (copyBoard.grid[i][fromCol] === 'K' || copyBoard.grid[i][fromCol] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
         
-        if (this.grid[i][fromCol] === piece) {
+        if (copyBoard.grid[i][fromCol] === piece && copyBoard.grid[i][fromCol] !== null) {
           for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([i, fromCol])) {
             if (tRow === toRow && tCol === toCol) {
               notation.fromRow = rows[fromRow];
@@ -320,10 +326,11 @@ export default class Board {
         }
       }
 
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 8; i++) { // Ambiguity resolution - column
         if (i === fromCol) continue;
+        if (copyBoard.grid[fromRow][i] === 'K' || copyBoard.grid[fromRow][i] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
         
-        if (this.grid[fromRow][i] === piece) {
+        if (copyBoard.grid[fromRow][i] === piece && copyBoard.grid[fromRow][i] !== null) {
           for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([fromRow, i])) {
             if (tRow === toRow && tCol === toCol) {
               notation.fromCol = cols[fromCol];
@@ -333,7 +340,19 @@ export default class Board {
         }
       }
 
-      return {moveStatus: status, moveNotation:`${notation.piece}${notation.fromCol}${notation.fromRow}${notation.capture}${notation.toCol}${notation.toRow}${notation.attribute}`};
+      if (this.isCheck(this.turn)) notation.attribute = "+"; // Check
+      if (status === "checkmate") notation.attribute = "#";  // Checkmate
+
+      if      (metadata === 300) notation.promotion = "=Q"; // Queen
+      else if (metadata === 301) notation.promotion = "=N"; // Knight
+      else if (metadata === 302) notation.promotion = "=R"; // Rook
+      else if (metadata === 303) notation.promotion = "=B"; // Bishop
+
+      let mNotation = `${notation.piece}${notation.fromCol}${notation.fromRow}${notation.capture}${notation.toCol}${notation.toRow}${notation.promotion}${notation.attribute}`;
+      if      (metadata === 200) mNotation = `O-O${notation.attribute}`;   // king side castle
+      else if (metadata === 201) mNotation = `O-O-O${notation.attribute}`; // queen side castle
+
+      return {moveStatus: status, moveNotation: mNotation};
     }
 
     return {moveStatus:"failed", moveNotation: null};
