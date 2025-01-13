@@ -69,7 +69,8 @@ export default class Game {
       for (const [r, c] of this.validMoves) {
         if (r === row && c === col) {
           const newBoard = new Board(this.board); // Make a copy
-          const moveStatus = newBoard.move([this.selection!, [row, col], [metadata]]);
+          const { moveStatus, moveNotation } = newBoard.move([this.selection!, [row, col], [metadata]]);
+          console.log(moveNotation);
 
           if (moveStatus !== "failed") {
             this.moves.push(new Board(this.board));
@@ -95,8 +96,8 @@ export default class Game {
 
             if (this.stockfish)
             {
-              console.clear();
-              this.evaluatePosition();
+              //console.clear();
+              //this.evaluatePosition();
             }
           }
           else if (typeof window !== "undefined") this.illegalMoveAudio?.play();

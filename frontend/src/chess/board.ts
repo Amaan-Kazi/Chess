@@ -118,9 +118,11 @@ export default class Board {
   // 302: Promotion - Rook
   // 303: Promotion - Bishop
 
-  move(move: number[][]): "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition" {
+  move(move: number[][]): {moveStatus:"failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition", moveNotation: string | null} {
     const [[fromRow, fromCol], [toRow, toCol], [meta]] = move;
     let metadata = meta;
+
+    const copyBoard = new Board(this);
 
     const pieceMoves = {
       'k': this.kingMoves.bind(this),
@@ -131,10 +133,10 @@ export default class Board {
       'p': this.pawnMoves.bind(this),
     };
 
-    if (this.gameState !== "ongoing") return "failed";
+    if (this.gameState !== "ongoing") return {moveStatus:"failed", moveNotation: null};
 
-    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return "failed"; // Bounds check
-    if (this.grid[fromRow][fromCol] === null)                                 return "failed"; // piece check
+    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return {moveStatus:"failed", moveNotation: null}; // Bounds check
+    if (this.grid[fromRow][fromCol] === null)                                 return {moveStatus:"failed", moveNotation: null}; // piece check
 
     const piece = this.grid[fromRow][fromCol];
 
@@ -151,7 +153,7 @@ export default class Board {
           break;
         }
       }
-      if (!isValidMove) return "failed";
+      if (!isValidMove) return {moveStatus:"failed", moveNotation: null};
 
       // override to original metadata in case of promotion
       if (meta >= 300 && meta <= 303) metadata = meta;
@@ -281,10 +283,60 @@ export default class Board {
         status = "draw - repetition";
       }
 
-      return status;
+      const copiedPieceMoves = {
+        'k': copyBoard.kingMoves.bind(copyBoard),
+        'q': copyBoard.queenMoves.bind(copyBoard),
+        'r': copyBoard.rookMoves.bind(copyBoard),
+        'b': copyBoard.bishopMoves.bind(copyBoard),
+        'n': copyBoard.knightMoves.bind(copyBoard),
+        'p': copyBoard.pawnMoves.bind(copyBoard),
+      };
+
+      const rows = ['8', '7', '6', '5', '4', '3', '2', '1'];
+      const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+      const notation = {
+        piece: "", // Pawn
+        fromCol: "",
+        fromRow: "",
+        capture: "", // x when capture
+        toRow: rows[toRow],
+        toCol: cols[toCol],
+        attribute: "", // + when check, # when checkmate, =Q / =N / =R / =B when promotion
+      }
+
+      if (piece.toUpperCase() !== 'P') notation.piece = piece.toUpperCase();
+
+      for (let i = 0; i < 8; i++) {
+        if (i === fromRow) continue;
+        
+        if (this.grid[i][fromCol] === piece) {
+          for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([i, fromCol])) {
+            if (tRow === toRow && tCol === toCol) {
+              notation.fromRow = rows[fromRow];
+              break;
+            }
+          }
+        }
+      }
+
+      for (let i = 0; i < 8; i++) {
+        if (i === fromCol) continue;
+        
+        if (this.grid[fromRow][i] === piece) {
+          for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([fromRow, i])) {
+            if (tRow === toRow && tCol === toCol) {
+              notation.fromCol = cols[fromCol];
+              break;
+            }
+          }
+        }
+      }
+
+      return {moveStatus: status, moveNotation:`${notation.piece}${notation.fromCol}${notation.fromRow}${notation.capture}${notation.toCol}${notation.toRow}${notation.attribute}`};
     }
 
-    return "failed";
+    return {moveStatus:"failed", moveNotation: null};
   }
 
 
