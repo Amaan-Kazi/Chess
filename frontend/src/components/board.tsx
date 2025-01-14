@@ -4,7 +4,7 @@ import Game from "@/chess/game"
 export default function ChessBoard({ game, onclick, style }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties }): React.ReactElement {
   return (
     <div
-      className="grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none"
+      className="grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-2xl"
       style={style}
     >
       {Array.from({ length: 8 * 8 }).map((_, index) => {
@@ -74,10 +74,10 @@ export default function ChessBoard({ game, onclick, style }: { game: Game, oncli
             onClick={() => onclick(row, col)}
             className={`
               relative flex justify-center items-center
-              ${(row == 0 && col == 0) && "rounded-tl-md"}
-              ${(row == 0 && col == 7) && "rounded-tr-md"}
-              ${(row == 7 && col == 0) && "rounded-bl-md"}
-              ${(row == 7 && col == 7) && "rounded-br-md"}
+              ${(row == 0 && col == 0) && "rounded-tl-sm md:rounded-tl-md"}
+              ${(row == 0 && col == 7) && "rounded-tr-sm md:rounded-tr-md"}
+              ${(row == 7 && col == 0) && "rounded-bl-sm md:rounded-bl-md"}
+              ${(row == 7 && col == 7) && "rounded-br-sm md:rounded-br-md"}
             `}
             style={{
               backgroundColor,

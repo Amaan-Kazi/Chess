@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import "../../../public/fonts.css"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -83,13 +83,22 @@ export default function PassAndPlay() {
     <div className="flex flex-col h-screen">
       <Navbar activePage="Pass And Play"/>
 
-      <div className="flex flex-1 justify-center items-center">
+      <div className="flex flex-1 justify-center gap-12 items-center">
         <ChessBoard game={game} onclick={click} style={{
           aspectRatio: "1 / 1",     // Maintain square aspect ratio
           width: "min(90vw, 75vh)", // Ensure it fits within both width and height
           maxWidth: "90vw",         // Avoid overflowing horizontally
           maxHeight: "75vh",        // Avoid overflowing vertically
         }} />
+
+        <Card className="hidden md:flex md:flex-col w-[25%] h-[90%] rounded-sm border-none shadow-2xl">
+          <CardTitle className="h-[7%] bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg">Pass And Play</CardTitle>
+          <CardContent className="flex flex-1 flex-col p-0 w-full">
+            <div className="h-[25%] w-full text-foreground">Chart</div>
+            <div className="h-full w-full text-foreground">Algebraic Notation</div>
+          </CardContent>
+          <CardFooter className="h-[12.5%] bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg p-0">Buttons</CardFooter>
+        </Card>
       </div>
 
       <div>Menu</div>
