@@ -3,6 +3,7 @@ import Board from "@/chess/board";
 export default class Game {
   board: Board;
   moves: Board[];
+  moveNotations: string[];
   selection: number[] | null;
   validMoves: number[][];
 
@@ -23,6 +24,7 @@ export default class Game {
   constructor(stockfish: Worker | null) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
+    this.moveNotations = [];
 
     this.selection = null;
     this.validMoves = [];
@@ -70,11 +72,12 @@ export default class Game {
         if (r === row && c === col) {
           const newBoard = new Board(this.board); // Make a copy
           const { moveStatus, moveNotation } = newBoard.move([this.selection!, [row, col], [metadata]]);
-          console.log(moveNotation);
 
           if (moveStatus !== "failed") {
             this.moves.push(new Board(this.board));
             this.board = newBoard;
+
+            this.moveNotations.push(moveNotation!);
 
             if (typeof window !== "undefined") {
               if      (moveStatus === "move")      this.moveAudio?.play();
@@ -96,8 +99,8 @@ export default class Game {
 
             if (this.stockfish)
             {
-              //console.clear();
-              //this.evaluatePosition();
+              console.clear();
+              this.evaluatePosition();
             }
           }
           else if (typeof window !== "undefined") this.illegalMoveAudio?.play();

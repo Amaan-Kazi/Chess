@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../../../public/fonts.css"
 
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,16 @@ export default function PassAndPlay() {
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
   const [dialogClosed, setDialogClosed] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (tableRef.current) {
+      // Scroll to the bottom after each move
+      tableRef.current.scrollTop = tableRef.current.scrollHeight;
+      console.log(tableRef.current.scrollTop)
+      console.log(tableRef.current.scrollHeight)
+    }
+  }, [version]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -97,7 +107,7 @@ export default function PassAndPlay() {
           <CardContent className="h-full p-0 w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
             {/* Limit algebraic notation to 25% if chat box below */}
-            <div className="max-h-[62.5%] text-foreground overflow-y-scroll">
+            <div ref={tableRef} className="h-[62.5%] text-foreground overflow-y-scroll border-t-2">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -108,111 +118,26 @@ export default function PassAndPlay() {
                 </TableHeader>
 
                 <TableBody>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell>e4</TableCell>
-                    <TableCell>exd5</TableCell>
-                  </TableRow>
+                  {( () => {
+                    const moves: {white?: string, black?: string}[] = [];
+                    let whiteMove = true;
+
+                    game.moveNotations.map((notation, index) => {
+                      if (whiteMove) moves.push({white: notation});
+                      else           moves[moves.length - 1].black = notation;
+                      whiteMove = !whiteMove;
+                    })
+                    return (moves.map((obj, index) => {
+                      return (
+                        <TableRow key={`move-${index+1}`}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{obj.white}</TableCell>
+                          {obj.black && <TableCell>{obj.black}</TableCell>}
+                        </TableRow>
+                      );
+                    }))
+                  })()
+                  }
                 </TableBody>
               </Table>
             </div>
