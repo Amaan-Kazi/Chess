@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {Table, TableHeader, TableHead, TableBody, TableRow, TableCell} from "@/components/ui/table"
 import Navbar from "@/components/navbar"
 
 import Game from "@/chess/game"
@@ -83,7 +84,7 @@ export default function PassAndPlay() {
     <div className="flex flex-col h-screen">
       <Navbar activePage="Pass And Play"/>
 
-      <div className="flex flex-1 justify-center gap-12 items-center">
+      <div className="flex flex-1 justify-center gap-12 items-center h-[85%]">
         <ChessBoard game={game} onclick={click} style={{
           aspectRatio: "1 / 1",     // Maintain square aspect ratio
           width: "min(90vw, 75vh)", // Ensure it fits within both width and height
@@ -92,12 +93,131 @@ export default function PassAndPlay() {
         }} />
 
         <Card className="hidden md:flex md:flex-col w-[25%] h-[90%] rounded-sm border-none shadow-2xl">
-          <CardTitle className="h-[7%] bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg">Pass And Play</CardTitle>
-          <CardContent className="flex flex-1 flex-col p-0 w-full">
+          <CardTitle className="p-2 bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg">Pass And Play</CardTitle>
+          <CardContent className="h-full p-0 w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
-            <div className="h-full w-full text-foreground">Algebraic Notation</div>
+            {/* Limit algebraic notation to 25% if chat box below */}
+            <div className="max-h-[62.5%] text-foreground overflow-y-scroll">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Move</TableHead>
+                    <TableHead>White</TableHead>
+                    <TableHead>Black</TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>e4</TableCell>
+                    <TableCell>exd5</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+            <div className="h-[12.5%] bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg p-0">Buttons</div>
           </CardContent>
-          <CardFooter className="h-[12.5%] bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg p-0">Buttons</CardFooter>
         </Card>
       </div>
 
