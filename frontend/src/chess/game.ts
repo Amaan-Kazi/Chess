@@ -131,9 +131,10 @@ export default class Game {
 
 
   evaluatePosition() {
+    console.log(this.board.FEN())
     this.stockfish?.postMessage("ucinewgame");
     this.stockfish?.postMessage(`position fen ${this.board.FEN()}`);
-    this.stockfish?.postMessage("go depth 14");
+    this.stockfish?.postMessage("go depth 10");
   }
 
   handleStockfishResponse(event: MessageEvent) {
@@ -147,13 +148,15 @@ export default class Game {
         const [, type, value] = scoreMatch;
         if (type === "cp") {
           // Centipawn score (convert to evaluation range)
-          this.evaluation = parseInt(value, 10) / 100; // Convert centipawns to pawn units
+          this.evaluation = Math.max(-10, Math.min(10, (parseInt(value, 10) / 100))); // Convert centipawns to pawn units
+          if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
           console.log("Evaluation: ", this.evaluation);
         } else if (type === "mate") {
           // Mate in X moves (use a very high score to indicate win/loss)
           const mateIn = parseInt(value, 10);
           console.log("Mate in ", mateIn);
-          this.evaluation = mateIn > 0 ? 100 : -100; // Positive for White, negative for Black
+          this.evaluation = mateIn > 0 ? 10 : -10; // Positive for White, negative for Black
+          if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
           console.log("Evaluation: ", this.evaluation);
         }
       }

@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import "../../../public/fonts.css"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -24,13 +24,21 @@ export default function PassAndPlay() {
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
   const [dialogClosed, setDialogClosed] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
+  const [evaluation, setEvaluation] = useState(game.evaluation);
+
+  // Update evaluation whenever game updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEvaluation(game.evaluation);
+    }, 100); // Adjust frequency as needed
+
+    return () => clearInterval(interval);
+  }, [game]);
 
   useEffect(() => {
     if (tableRef.current) {
       // Scroll to the bottom after each move
       tableRef.current.scrollTop = tableRef.current.scrollHeight;
-      console.log(tableRef.current.scrollTop)
-      console.log(tableRef.current.scrollHeight)
     }
   }, [version]);
 
@@ -94,7 +102,17 @@ export default function PassAndPlay() {
     <div className="flex flex-col h-screen">
       <Navbar activePage="Pass And Play"/>
 
-      <div className="flex flex-1 justify-center gap-12 items-center h-[85%]">
+      <div className="flex flex-1 justify-center gap-12 items-center">
+        <div className="w-10 block" style={{height:"min(90vw, 75vh)"}}>
+          <div 
+            className={`bg-black`}
+            style={{ height: `${100 - Math.trunc((game.evaluation + 10) / 20 * 100)}%`, transition: "height 0.3 ease"}}
+          ></div>
+          <div
+            className={`bg-white`}
+            style={{ height: `${Math.trunc((game.evaluation + 10) / 20 * 100)}%`, transition: "height 0.3 ease"}}
+          ></div>
+        </div>
         <ChessBoard game={game} onclick={click} style={{
           aspectRatio: "1 / 1",     // Maintain square aspect ratio
           width: "min(90vw, 75vh)", // Ensure it fits within both width and height
@@ -122,7 +140,7 @@ export default function PassAndPlay() {
                     const moves: {white?: string, black?: string}[] = [];
                     let whiteMove = true;
 
-                    game.moveNotations.map((notation, index) => {
+                    game.moveNotations.map((notation) => {
                       if (whiteMove) moves.push({white: notation});
                       else           moves[moves.length - 1].black = notation;
                       whiteMove = !whiteMove;
