@@ -14,6 +14,8 @@ import {
 import {Table, TableHeader, TableHead, TableBody, TableRow, TableCell} from "@/components/ui/table"
 import Navbar from "@/components/navbar"
 
+import {ChevronLeft, ChevronRight} from "lucide-react"
+
 import Game from "@/chess/game"
 import ChessBoard from "@/components/board"
 
@@ -29,6 +31,7 @@ export default function PassAndPlay() {
   // Update evaluation whenever game updates
   useEffect(() => {
     const interval = setInterval(() => {
+      if(evaluation > 1000) console.log("Evaluation: ", evaluation); // since it currently has no use
       setEvaluation(game.evaluation);
     }, 100); // Adjust frequency as needed
 
@@ -99,20 +102,63 @@ export default function PassAndPlay() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="block h-screen max-h-screen">
       <Navbar activePage="Pass And Play"/>
+      
+      {/* Promotion Modal */}
+      <div className={`absolute z-10 flex w-screen h-[90%] justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
+        <Card className="max-w-[80%]">
+          <CardHeader>
+            <CardTitle className="text-foreground">Pawn Promotion</CardTitle>
+            <CardDescription>Select a piece to promote to</CardDescription>
+          </CardHeader>
+          <CardContent className="flex">
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Queen")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wq' : 'bq'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Knight")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wn' : 'bn'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Rook")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wr' : 'br'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Bishop")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wb' : 'bb'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
-      <div className="flex flex-1 justify-center gap-12 items-center">
-        <div className="w-10 block" style={{height:"min(90vw, 75vh)"}}>
+      <div className="flex justify-center gap-6 2xl:gap-12 h-[90%] items-center">
+        <div className="w-10 hidden lg:block" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
           <div 
             className={`bg-black`}
-            style={{ height: `${100 - Math.trunc((game.evaluation + 10) / 20 * 100)}%`, transition: "height 0.3 ease"}}
+            style={{
+              height: `${100 - Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
+              transition: "height 0.3 ease"
+            }}
           ></div>
           <div
             className={`bg-white`}
-            style={{ height: `${Math.trunc((game.evaluation + 10) / 20 * 100)}%`, transition: "height 0.3 ease"}}
+            style={{
+              height: `${Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
+              transition: "height 0.3 ease"
+            }}
           ></div>
         </div>
+        
         <ChessBoard game={game} onclick={click} style={{
           aspectRatio: "1 / 1",     // Maintain square aspect ratio
           width: "min(90vw, 75vh)", // Ensure it fits within both width and height
@@ -120,12 +166,12 @@ export default function PassAndPlay() {
           maxHeight: "75vh",        // Avoid overflowing vertically
         }} />
 
-        <Card className="hidden md:flex md:flex-col w-[25%] h-[90%] rounded-sm border-none shadow-2xl">
+        <Card className="hidden lg:flex lg:flex-col lg:justify-center w-[25%] h-[85%] rounded-sm border-none shadow-2xl">
           <CardTitle className="p-2 bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg">Pass And Play</CardTitle>
           <CardContent className="h-full p-0 w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
             {/* Limit algebraic notation to 25% if chat box below */}
-            <div ref={tableRef} className="h-[62.5%] text-foreground overflow-y-scroll border-t-2">
+            <div ref={tableRef} className="h-[62.5%] max-h-[62.5%] text-foreground overflow-y-scroll border-t-2">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -159,45 +205,14 @@ export default function PassAndPlay() {
                 </TableBody>
               </Table>
             </div>
-            <div className="h-[12.5%] bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg p-0">Buttons</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div>Menu</div>
-
-      {/* Promotion Modal */}
-      <div className={`absolute flex w-screen h-screen justify-center items-center ${!showPromotionModal && "hidden"}`}>
-        <Card className="max-w-[80%]">
-          <CardHeader>
-            <CardTitle>Pawn Promotion</CardTitle>
-            <CardDescription>Select a piece to promote to</CardDescription>
-          </CardHeader>
-          <CardContent className="flex">
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Queen")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wq' : 'bq'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Knight")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wn' : 'bn'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Rook")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wr' : 'br'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Bishop")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wb' : 'bb'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
+            <div className="h-[12.5%] bg-card-foreground flex justify-around items-center text-foreground font-bold text-lg p-0">
+              <Button className="h-[45%] w-[25%]">
+                <ChevronLeft />
+              </Button>
+              <Button className="h-[45%] w-[25%]">
+                <ChevronRight />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
