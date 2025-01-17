@@ -11,6 +11,7 @@ export default class Game {
   stateDescription: string;
 
   evaluation: number;
+  mateIn: number | null;
   stockfish: Worker | null;
 
   moveAudio?:        HTMLAudioElement;
@@ -22,7 +23,7 @@ export default class Game {
   promotionAudio?:   HTMLAudioElement;
 
   constructor(stockfish: Worker | null) {
-    this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    this.board = new Board(undefined, "r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq - 1 0");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNotations = [];
 
@@ -43,6 +44,7 @@ export default class Game {
     }
 
     this.evaluation = 0;
+    this.mateIn = null;
 
     this.stockfish = stockfish;
     if (this.stockfish) {
@@ -150,10 +152,12 @@ export default class Game {
           // Centipawn score (convert to evaluation range)
           this.evaluation = Math.max(-10, Math.min(10, (parseInt(value, 10) / 100))); // Convert centipawns to pawn units
           if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
+          this.mateIn = null;
           console.log("Evaluation: ", this.evaluation);
         } else if (type === "mate") {
           // Mate in X moves (use a very high score to indicate win/loss)
           const mateIn = parseInt(value, 10);
+          this.mateIn = mateIn < 0 ? mateIn * -1 : mateIn;
           console.log("Mate in ", mateIn);
           this.evaluation = mateIn > 0 ? 10 : -10; // Positive for White, negative for Black
           if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;

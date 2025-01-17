@@ -27,12 +27,13 @@ export default function PassAndPlay() {
   const [dialogClosed, setDialogClosed] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
   const [evaluation, setEvaluation] = useState(game.evaluation);
+  const [mateIn, setMateIn] = useState(game.mateIn);
 
   // Update evaluation whenever game updates
   useEffect(() => {
     const interval = setInterval(() => {
-      if(evaluation > 1000) console.log("Evaluation: ", evaluation); // since it currently has no use
       setEvaluation(game.evaluation);
+      setMateIn(game.mateIn);
     }, 100); // Adjust frequency as needed
 
     return () => clearInterval(interval);
@@ -141,22 +142,26 @@ export default function PassAndPlay() {
         </Card>
       </div>
 
-      <div className="flex justify-center gap-6 2xl:gap-12 h-[90%] items-center">
-        <div className="w-10 hidden lg:block" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
+      <div className="flex justify-center h-[90%] items-center">
+        <div className="w-[30px] hidden lg:block" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
           <div 
-            className={`bg-black`}
+            className={`bg-[hsl(34,6%,24%)] text-white flex flex-col justify-start items-center text-xs`}
             style={{
               height: `${100 - Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
               transition: "height 0.3 ease"
             }}
-          ></div>
+          >
+            {evaluation < 0 && (mateIn !== null ? mateIn === 0 ? <p>0-1</p> : <p>{`M${mateIn}`}</p> : <p>{`${Math.abs(evaluation).toFixed(1)}`}</p>)}
+          </div>
           <div
-            className={`bg-white`}
+            className={`bg-white text-black flex flex-col justify-end items-center text-xs`}
             style={{
               height: `${Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
               transition: "height 0.3 ease"
             }}
-          ></div>
+          >
+            {evaluation > 0 && (mateIn !== null ? mateIn === 0 ? <p>1-0</p> : <p>{`M${mateIn}`}</p> : <p>{`${Math.abs(evaluation).toFixed(1)}`}</p>)}
+          </div>
         </div>
         
         <ChessBoard game={game} onclick={click} style={{
@@ -166,7 +171,7 @@ export default function PassAndPlay() {
           maxHeight: "75vh",        // Avoid overflowing vertically
         }} />
 
-        <Card className="hidden lg:flex lg:flex-col lg:justify-center w-[25%] h-[85%] rounded-sm border-none shadow-2xl">
+        <Card className="hidden ml-10 lg:flex lg:flex-col lg:justify-center w-[25%] h-[84%] rounded-sm border-none shadow-2xl">
           <CardTitle className="p-2 bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg">Pass And Play</CardTitle>
           <CardContent className="h-full p-0 w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
