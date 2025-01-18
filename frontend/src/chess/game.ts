@@ -23,7 +23,7 @@ export default class Game {
   promotionAudio?:   HTMLAudioElement;
 
   constructor(stockfish: Worker | null) {
-    this.board = new Board(undefined, "r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq - 1 0");
+    this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNotations = [];
 

@@ -74,10 +74,10 @@ export default function ChessBoard({ game, onclick, style }: { game: Game, oncli
             onClick={() => onclick(row, col)}
             className={`
               relative flex justify-center items-center
-              ${(row == 0 && col == 0) && "rounded-tl-sm md:rounded-tl-md"}
-              ${(row == 0 && col == 7) && "rounded-tr-sm md:rounded-tr-md"}
-              ${(row == 7 && col == 0) && "rounded-bl-sm md:rounded-bl-md"}
-              ${(row == 7 && col == 7) && "rounded-br-sm md:rounded-br-md"}
+              ${(row == 0 && col == 0) && "rounded-tl-sm"}
+              ${(row == 0 && col == 7) && "rounded-tr-sm"}
+              ${(row == 7 && col == 0) && "rounded-bl-sm"}
+              ${(row == 7 && col == 7) && "rounded-br-sm"}
             `}
             style={{
               backgroundColor,

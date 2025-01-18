@@ -143,12 +143,12 @@ export default function PassAndPlay() {
       </div>
 
       <div className="flex justify-center h-[90%] items-center">
-        <div className="w-[30px] hidden lg:block" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
+        <div className="w-[30px] hidden lg:block shadow-md" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
           <div 
             className={`bg-[hsl(34,6%,24%)] text-white flex flex-col justify-start items-center text-xs`}
             style={{
               height: `${100 - Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
-              transition: "height 0.3 ease"
+              transition: "height 0.75s ease-in-out"
             }}
           >
             {evaluation < 0 && (mateIn !== null ? mateIn === 0 ? <p>0-1</p> : <p>{`M${mateIn}`}</p> : <p>{`${Math.abs(evaluation).toFixed(1)}`}</p>)}
@@ -157,7 +157,7 @@ export default function PassAndPlay() {
             className={`bg-white text-black flex flex-col justify-end items-center text-xs`}
             style={{
               height: `${Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
-              transition: "height 0.3 ease"
+              transition: "height 0.75s ease-in-out"
             }}
           >
             {evaluation > 0 && (mateIn !== null ? mateIn === 0 ? <p>1-0</p> : <p>{`M${mateIn}`}</p> : <p>{`${Math.abs(evaluation).toFixed(1)}`}</p>)}
