@@ -1,23 +1,18 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
 import "../../../public/fonts.css"
+import {ChevronLeft, ChevronRight, Share2, Flag} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {Table, TableHeader, TableHead, TableBody, TableRow, TableCell} from "@/components/ui/table"
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
 import Navbar from "@/components/navbar"
-
-import {ChevronLeft, ChevronRight} from "lucide-react"
-
 import Game from "@/chess/game"
 import ChessBoard from "@/components/board"
+
 
 export default function PassAndPlay() {
   const [game, setGame] = useState(new Game(null));
@@ -210,13 +205,58 @@ export default function PassAndPlay() {
                 </TableBody>
               </Table>
             </div>
-            <div className="h-[12.5%] bg-card-foreground flex justify-around items-center text-foreground font-bold text-lg p-0">
-              <Button className="h-[45%] w-[25%]">
-                <ChevronLeft />
-              </Button>
-              <Button className="h-[45%] w-[25%]">
-                <ChevronRight />
-              </Button>
+            <div className="h-[12.5%] bg-card-foreground flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
+                      <Flag strokeWidth={3} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Resign</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
+                      <Share2 strokeWidth={3} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Export PGN/FEN</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
+                      <ChevronLeft strokeWidth={5} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Backward</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
+                      <ChevronRight strokeWidth={5} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Forward</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </CardContent>
         </Card>
