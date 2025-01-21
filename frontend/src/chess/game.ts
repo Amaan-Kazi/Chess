@@ -3,6 +3,7 @@ import Board from "@/chess/board";
 export default class Game {
   board: Board;
   moves: Board[];
+  moveNo: number;
   moveNotations: string[];
   selection: number[] | null;
   validMoves: number[][];
@@ -25,6 +26,7 @@ export default class Game {
   constructor(stockfish: Worker | null) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
+    this.moveNo = 0;
     this.moveNotations = [];
 
     this.selection = null;
@@ -68,6 +70,8 @@ export default class Game {
       'p': this.board.pawnMoves.bind(this.board),
     };
 
+    if (this.state !== "ongoing") return;
+
     // If already selected a piece, and clicked on a valid move, then perform move
     if (this.validMoves.length > 0 && this.selection !== null) {
       for (const [r, c] of this.validMoves) {
@@ -76,8 +80,17 @@ export default class Game {
           const { moveStatus, moveNotation } = newBoard.move([this.selection!, [row, col], [metadata]]);
 
           if (moveStatus !== "failed") {
-            this.moves.push(new Board(this.board));
             this.board = newBoard;
+
+            if (this.moveNo !== this.moves.length - 1) {
+              for (let i = this.moves.length - 1; i > this.moveNo; i--) {
+                this.moves.pop();
+                this.moveNotations.pop();
+              }
+            }
+
+            this.moves.push(new Board(this.board));
+            this.moveNo++;
 
             this.moveNotations.push(moveNotation!);
 
@@ -128,6 +141,36 @@ export default class Game {
       this.selection = null;
       this.validMoves = [];
       return;
+    }
+  }
+
+  backward(): void {
+    if (this.moves.length <= 1) return;
+
+    if (this.moveNo > 0) {
+      this.selection = null;
+      this.validMoves = [];
+
+      this.moveNo--;
+      this.board = new Board(this.moves[this.moveNo]);
+
+      console.clear();
+      this.evaluatePosition();
+    }
+  }
+
+  forward(): void {
+    if (this.moves.length <= 1) return;
+
+    if (this.moveNo < this.moves.length - 1) {
+      this.selection = null;
+      this.validMoves = [];
+      
+      this.moveNo++;
+      this.board = new Board(this.moves[this.moveNo]);
+      
+      console.clear();
+      this.evaluatePosition();
     }
   }
 

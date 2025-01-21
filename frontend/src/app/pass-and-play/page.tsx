@@ -235,7 +235,7 @@ export default function PassAndPlay() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
+                    <Button className="px-6 2xl:px-8" variant="outline" size="lg" onClick={() => {game.backward(); setVersion(version + 1);}}>
                       <ChevronLeft strokeWidth={5} />
                     </Button>
                   </TooltipTrigger>
@@ -248,7 +248,7 @@ export default function PassAndPlay() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
+                    <Button className="px-6 2xl:px-8" variant="outline" size="lg" onClick={() => {game.forward(); setVersion(version + 1);}}>
                       <ChevronRight strokeWidth={5} />
                     </Button>
                   </TooltipTrigger>

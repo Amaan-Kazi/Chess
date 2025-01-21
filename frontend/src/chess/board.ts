@@ -23,7 +23,7 @@ export default class Board {
       this.halfMoveClock   = copyBoard.halfMoveClock;
       this.fullMoveNumber  = copyBoard.fullMoveNumber;
       this.gameState       = copyBoard.gameState;
-      this.prevMove        = [];
+      this.prevMove        = copyBoard.prevMove;
       this.positionHistory = copyBoard.positionHistory;
     }
     else if (FEN) {
