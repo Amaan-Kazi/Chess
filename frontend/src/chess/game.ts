@@ -174,6 +174,14 @@ export default class Game {
     }
   }
 
+  peek(index: number): void {
+    this.selection = null;
+    this.validMoves = [];
+
+    this.moveNo = index;
+    this.board = new Board(this.moves[this.moveNo]);
+  }
+
 
   evaluatePosition() {
     console.log(this.board.FEN())

@@ -183,20 +183,47 @@ export default function PassAndPlay() {
 
                 <TableBody>
                   {( () => {
-                    const moves: {white?: string, black?: string}[] = [];
+                    const moves: {white?: string, black?: string, isWhiteMoveCurrent?: boolean, isBlackMoveCurrent?: boolean}[] = [];
                     let whiteMove = true;
 
-                    game.moveNotations.map((notation) => {
-                      if (whiteMove) moves.push({white: notation});
-                      else           moves[moves.length - 1].black = notation;
+                    game.moveNotations.map((notation, index) => {
+                      if (whiteMove) {
+                        let isWhiteMoveCurrent = false;
+                        if (index === game.moveNo - 1) isWhiteMoveCurrent = true;
+
+                        moves.push({white: notation, isWhiteMoveCurrent});
+                      }
+                      else {
+                        let isBlackMoveCurrent = false;
+                        if (index === game.moveNo - 1) isBlackMoveCurrent = true;
+                        
+                        moves[moves.length - 1].black = notation;
+                        moves[moves.length - 1].isBlackMoveCurrent = isBlackMoveCurrent;
+                      }
                       whiteMove = !whiteMove;
                     })
                     return (moves.map((obj, index) => {
                       return (
                         <TableRow key={`move-${index+1}`}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{obj.white}</TableCell>
-                          {obj.black && <TableCell>{obj.black}</TableCell>}
+                          <TableCell>
+                            <p
+                              className={`${obj.isWhiteMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                              onClick={() => {
+                                game.peek(((index + 1) * 2) - 1);
+                                setVersion(version + 1)
+                              }}
+                            >{obj.white}</p>
+                          </TableCell>
+                          {obj.black && <TableCell>
+                            <p 
+                              className={`${obj.isBlackMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                              onClick={() => {
+                                game.peek((index + 1) * 2);
+                                setVersion(version + 1)
+                              }}
+                            >{obj.black}</p>
+                          </TableCell>}
                         </TableRow>
                       );
                     }))
