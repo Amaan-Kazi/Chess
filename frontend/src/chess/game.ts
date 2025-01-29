@@ -180,6 +180,9 @@ export default class Game {
 
     this.moveNo = index;
     this.board = new Board(this.moves[this.moveNo]);
+
+    console.clear();
+    this.evaluatePosition();
   }
 
 

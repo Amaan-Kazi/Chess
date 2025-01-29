@@ -17,10 +17,11 @@ import ChessBoard from "@/components/board"
 export default function PassAndPlay() {
   const [game, setGame] = useState(new Game(null));
   const [version, setVersion] = useState(0); // manually trigger re renders
+  
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
   const [dialogClosed, setDialogClosed] = useState(false);
-  const tableRef = useRef<HTMLDivElement>(null);
+  
   const [evaluation, setEvaluation] = useState(game.evaluation);
   const [mateIn, setMateIn] = useState(game.mateIn);
 
@@ -29,11 +30,12 @@ export default function PassAndPlay() {
     const interval = setInterval(() => {
       setEvaluation(game.evaluation);
       setMateIn(game.mateIn);
-    }, 100); // Adjust frequency as needed
+    }, 100); // Re render every 100ms
 
     return () => clearInterval(interval);
   }, [game]);
 
+  const tableRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (tableRef.current) {
       // Scroll to the bottom after each move
