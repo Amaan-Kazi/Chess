@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-// import { useMediaQuery } from 'react-responsive';
 
 import Game from "@/chess/game"
 import Board from "@/chess/board"
@@ -12,8 +11,9 @@ export default function Home() {
   const [game, setGame] = useState(new Game(null));
   const [fenArray, setFenArray] = useState([]);
   const [move, setMove] = useState(0);
-  // const [selection, setSelection] = useState("null");
-  // const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  
+  const [turnedOver, setTurnedOver] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(() => {
     // Fetch the JSON file from the public folder
@@ -70,7 +70,7 @@ export default function Home() {
               <WideButtonDescription>Play against a customizable bot</WideButtonDescription>
             </WideButton>
 
-            <WideButton onClick={() => {console.log("Clicked")}} highlighted={false} className="my-2 lg:my-3">
+            <WideButton onClick={() => {if (!isAnimating) {setIsAnimating(true); setTurnedOver(!turnedOver);}}} highlighted={false} className="my-2 lg:my-3">
               <WideButtonImage src="/images/phone.png"/>
               <WideButtonTitle>Pass and Play</WideButtonTitle>
               <WideButtonDescription>Play on the same device</WideButtonDescription>
@@ -78,7 +78,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hidden xl:flex xl:flex-col xl:justify-center">
-          <ChessBoard game={game} onclick={click} style={{
+          <ChessBoard game={game} onclick={click} turnedOver={turnedOver} setIsAnimating={setIsAnimating} style={{
             aspectRatio: "1 / 1",     // Maintain square aspect ratio
             width: "min(40vw, 60vh)", // Ensure it fits within both width and height
           }} />

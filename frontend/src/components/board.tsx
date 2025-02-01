@@ -1,7 +1,9 @@
 import React from "react";
 import Game from "@/chess/game"
 
-export default function ChessBoard({ game, onclick, style }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties }): React.ReactElement {
+import { motion } from "framer-motion";
+
+export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void }): React.ReactElement {
   return (
     <div
       className="grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-2xl"
@@ -69,7 +71,7 @@ export default function ChessBoard({ game, onclick, style }: { game: Game, oncli
         else if (!isDarkSquare &&  (isSelected || isPrevMove)) backgroundColor = "#F5F682"; // Light Highlighted Square
 
         return (
-          <div
+          <motion.div
             key={`${row}-${col}`}
             onClick={() => onclick(row, col)}
             className={`
@@ -79,10 +81,24 @@ export default function ChessBoard({ game, onclick, style }: { game: Game, oncli
               ${(row == 7 && col == 0) && "rounded-bl-sm"}
               ${(row == 7 && col == 7) && "rounded-br-sm"}
             `}
+            animate={{
+              rotateX: turnedOver ? 180 : 0,
+              rotateY: turnedOver ? 180 : 0,
+              opacity: turnedOver ? 0   : 100,
+            }}
+            onAnimationComplete={() => {
+              if (row == 7 && col == 7) {setIsAnimating?.(false)}
+            }}
+            transition={{
+              duration: 0.4,
+              ease: "easeInOut",
+              delay: (row + col) * 0.1, // Creates a staggered effect
+            }}
             style={{
               backgroundColor,
               width: "100%",
-              height: "100%"
+              height: "100%",
+              transformStyle: "preserve-3d",
             }}
           >
             {game.board.grid[row][col] && (
@@ -121,7 +137,7 @@ export default function ChessBoard({ game, onclick, style }: { game: Game, oncli
 
             {row == 7 && <div className="absolute -bottom-px right-px text-xs md:text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{cols[col]}</div>}
             {col == 0 && <div className="absolute -top-px    left-px  text-xs md:text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{rows[row]}</div>}
-          </div>
+          </motion.div>
         );
       })}
     </div>
