@@ -1,12 +1,12 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import Game from "@/chess/game"
 
 import { motion } from "framer-motion";
 
-export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void }): React.ReactElement {
+export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating, className, children }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void, className?: string, children?: ReactElement }): React.ReactElement {
   return (
     <div
-      className="grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-2xl"
+      className={`grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-2xl ${className}`}
       style={style}
     >
       {Array.from({ length: 8 * 8 }).map((_, index) => {
@@ -73,9 +73,9 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         return (
           <motion.div
             key={`${row}-${col}`}
-            onClick={() => onclick(row, col)}
+            onClick={() => {if (!turnedOver) onclick(row, col)}}
             className={`
-              relative flex justify-center items-center
+              relative flex justify-center items-center z-10
               ${(row == 0 && col == 0) && "rounded-tl-sm"}
               ${(row == 0 && col == 7) && "rounded-tr-sm"}
               ${(row == 7 && col == 0) && "rounded-bl-sm"}
@@ -85,6 +85,7 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
               rotateX: turnedOver ? 180 : 0,
               rotateY: turnedOver ? 180 : 0,
               opacity: turnedOver ? 0   : 100,
+              visibility: turnedOver ? "hidden" : "visible",
             }}
             onAnimationComplete={() => {
               if (row == 7 && col == 7) {setIsAnimating?.(false)}
@@ -140,6 +141,10 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
           </motion.div>
         );
       })}
+
+      <div className={`absolute ${turnedOver ? "z-100 visible" : "z-0 hidden"} w-full h-full p-3`}>
+        {children}
+      </div>
     </div>
   );
 }
