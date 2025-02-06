@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -25,7 +26,7 @@ const passAndPlaySchema = z.object({
   allowUndo: z.boolean(),
 });
 
-export function PassAndPlayForm() {
+export function PassAndPlayForm() { 
   const form = useForm<z.infer<typeof passAndPlaySchema>>({
     resolver: zodResolver(passAndPlaySchema),
     defaultValues: {
@@ -36,11 +37,22 @@ export function PassAndPlayForm() {
       allowUndo: true,
     },
   });
- 
+  
   function onSubmit(values: z.infer<typeof passAndPlaySchema>) {
     // ✅ type-safe and validated.
-    console.log(values)
+    console.log(values);
+    localStorage.setItem("PassAndPlay", JSON.stringify({ settings: values }));
   }
+
+  // Load saved settings from localStorage after component mounts
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedSettings = JSON.parse(localStorage.getItem("PassAndPlay") || "{}").settings;
+      if (savedSettings) {
+        form.reset(savedSettings); // Update form with saved values
+      }
+    }
+  }, []);
 
   return (
     <Form {...form}>
