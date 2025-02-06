@@ -6,7 +6,7 @@ import Board from "@/chess/board"
 import ChessBoard from "@/components/board";
 import {WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle} from "@/components/wideButton";
 import Navbar from "@/components/navbar";
-import {Input} from "@/components/ui/input"
+import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
   const [game, setGame] = useState(new Game(null));
@@ -86,9 +86,7 @@ export default function Home() {
             zIndex: 1,
           }}>
             <div>
-              <p>Settings</p>
-              <button onClick={() => {console.log("Test Button Clicked")}}>Test</button>
-              <Input type="text" placeholder="Testing Input"/>
+              <PassAndPlayForm />
             </div>
           </ChessBoard>
           {/* <div style={{position: "absolute", zIndex: 0}}>Test 1</div> */}

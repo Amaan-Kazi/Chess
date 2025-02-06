@@ -142,7 +142,7 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         );
       })}
 
-      <div className={`absolute ${turnedOver ? "z-100 visible" : "z-0 hidden"} w-full h-full p-3`}>
+      <div className={`absolute ${turnedOver ? "z-100 visible" : "z-0 hidden"} w-full h-full p-3 flex flex-col justify-center`}>
         {children}
       </div>
     </div>
