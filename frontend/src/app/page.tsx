@@ -1,20 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useMediaQuery } from 'react-responsive';
 
 import Game from "@/chess/game"
 import Board from "@/chess/board"
 import ChessBoard from "@/components/board";
-import {WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle} from "@/components/wideButton";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+import { WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle } from "@/components/wideButton";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, } from "@/components/ui/sheet"
 import Navbar from "@/components/navbar";
 import { PassAndPlayForm } from "@/components/forms"
 
@@ -22,9 +14,28 @@ export default function Home() {
   const [game, setGame] = useState(new Game(null));
   const [fenArray, setFenArray] = useState([]);
   const [move, setMove] = useState(0);
+
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const [selected, setSelected] = useState(0);
   
   const [turnedOver, setTurnedOver] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
+
+  function handleSelection(selection: number) {
+    if (!isAnimating || isSmallScreen) {
+      // turn over if currently looking at board
+      if (selected == 0 && selection !== selected) {
+        setIsAnimating(true);
+        setTurnedOver(true);
+      }
+      else if (selection === 0) {
+        setIsAnimating(true);
+        setTurnedOver(false);
+      }
+
+      setSelected(selection);
+    }
+  }
 
   useEffect(() => {
     // Fetch the JSON file from the public folder
@@ -69,19 +80,19 @@ export default function Home() {
           <h1 className="text-3xl md:text-6xl font-bold text-center mb-16 w-fit">Play <span className="text-primary">chess</span> with anyone<br/>in your <span className="text-primary">browser</span></h1>
           
           <div className="flex flex-col w-full items-center">
-            <WideButton onClick={() => {console.log("Clicked")}} highlighted={true} className="my-2 lg:my-3">
+            <WideButton onClick={() => { handleSelection(1) }} highlighted={true} className="my-2 lg:my-3">
               <WideButtonImage src="/images/move.png"/>
               <WideButtonTitle>Play Online</WideButtonTitle>
               <WideButtonDescription>Play against another online player</WideButtonDescription>
             </WideButton>
 
-            <WideButton onClick={() => {console.log("Clicked")}} highlighted={false} className="my-2 lg:my-3">
+            <WideButton onClick={() => { handleSelection(2) }} highlighted={false} className="my-2 lg:my-3">
               <WideButtonImage src="/images/robot.png"/>
               <WideButtonTitle>Play Computer</WideButtonTitle>
               <WideButtonDescription>Play against a customizable bot</WideButtonDescription>
             </WideButton>
 
-            <WideButton onClick={() => {if (!isAnimating) {setIsAnimating(true); setTurnedOver(!turnedOver);}}} highlighted={false} className="my-2 lg:my-3">
+            <WideButton onClick={() => { handleSelection(3) }} highlighted={false} className="my-2 lg:my-3">
               <WideButtonImage src="/images/phone.png"/>
               <WideButtonTitle>Pass and Play</WideButtonTitle>
               <WideButtonDescription>Play on the same device</WideButtonDescription>
@@ -96,8 +107,8 @@ export default function Home() {
             zIndex: 1,
           }}>
             <div>
-              <PassAndPlayForm />
-              <Sheet open={true}>
+              {selected === 3 && <PassAndPlayForm />}
+              <Sheet open={selected === 3 && isSmallScreen} onOpenChange={() => { handleSelection(0) }} >
                 <SheetContent className="w-full border-0">
                   <SheetHeader className="hidden">
                     <SheetTitle>Pass And Play</SheetTitle>
