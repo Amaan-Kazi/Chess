@@ -104,7 +104,7 @@ export default function PassAndPlay() {
       <Navbar activePage="Pass And Play"/>
       
       {/* Promotion Modal */}
-      <div className={`absolute z-10 flex w-screen h-[90%] justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
+      <div className={`absolute z-50 flex w-screen h-[90%] justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
         <Card className="max-w-[80%]">
           <CardHeader>
             <CardTitle className="text-foreground">Pawn Promotion</CardTitle>

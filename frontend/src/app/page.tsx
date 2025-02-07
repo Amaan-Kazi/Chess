@@ -5,6 +5,16 @@ import Game from "@/chess/game"
 import Board from "@/chess/board"
 import ChessBoard from "@/components/board";
 import {WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle} from "@/components/wideButton";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import Navbar from "@/components/navbar";
 import { PassAndPlayForm } from "@/components/forms"
 
@@ -87,6 +97,18 @@ export default function Home() {
           }}>
             <div>
               <PassAndPlayForm />
+              <Sheet open={true}>
+                <SheetContent className="w-full border-0">
+                  <SheetHeader className="hidden">
+                    <SheetTitle>Pass And Play</SheetTitle>
+                    <SheetDescription>Settings for Pass And Play</SheetDescription>
+                  </SheetHeader>
+
+                  <div className="flex flex-col h-full justify-center">
+                    <PassAndPlayForm />
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </ChessBoard>
           {/* <div style={{position: "absolute", zIndex: 0}}>Test 1</div> */}

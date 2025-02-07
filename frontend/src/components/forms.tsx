@@ -57,7 +57,7 @@ export function PassAndPlayForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col justify-center">
-        <div className="space-y-4 2xl:space-y-10 h-full w-[95%] 2xl:w-[90%] m-auto">
+        <div className="space-y-8 md:space-y-4 2xl:space-y-10 h-full w-[95%] 2xl:w-[90%] m-auto">
           <div className="flex w-full justify-between">
             <FormField
               control={form.control}
