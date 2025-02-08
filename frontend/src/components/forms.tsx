@@ -1,8 +1,9 @@
 "use client";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import {
@@ -26,7 +27,9 @@ const passAndPlaySchema = z.object({
   allowUndo: z.boolean(),
 });
 
-export function PassAndPlayForm() { 
+export function PassAndPlayForm({ redirect }: { redirect?: string }) { 
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof passAndPlaySchema>>({
     resolver: zodResolver(passAndPlaySchema),
     defaultValues: {
@@ -42,6 +45,8 @@ export function PassAndPlayForm() {
     // ✅ type-safe and validated.
     console.log(values);
     localStorage.setItem("PassAndPlay", JSON.stringify({ settings: values }));
+    
+    if (redirect) router.push(redirect);
   }
 
   // Load saved settings from localStorage after component mounts
@@ -57,7 +62,7 @@ export function PassAndPlayForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col justify-center">
-        <div className="space-y-8 md:space-y-4 2xl:space-y-10 h-full w-[95%] 2xl:w-[90%] m-auto">
+        <div className="space-y-8 xl:space-y-4 2xl:space-y-10 h-full w-[95%] 2xl:w-[90%] m-auto">
           <div className="flex w-full justify-between">
             <FormField
               control={form.control}

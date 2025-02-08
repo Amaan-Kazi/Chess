@@ -15,7 +15,7 @@ export default function Home() {
   const [fenArray, setFenArray] = useState([]);
   const [move, setMove] = useState(0);
 
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
   const [selected, setSelected] = useState(0);
   
   const [turnedOver, setTurnedOver] = useState(false);
@@ -107,7 +107,7 @@ export default function Home() {
             zIndex: 1,
           }}>
             <div>
-              {selected === 3 && <PassAndPlayForm />}
+              {selected === 3 && <PassAndPlayForm redirect="/pass-and-play" />}
               <Sheet open={selected === 3 && isSmallScreen} onOpenChange={() => { handleSelection(0) }} >
                 <SheetContent className="w-full border-0">
                   <SheetHeader className="hidden">
@@ -116,7 +116,7 @@ export default function Home() {
                   </SheetHeader>
 
                   <div className="flex flex-col h-full justify-center">
-                    <PassAndPlayForm />
+                    <PassAndPlayForm redirect="/pass-and-play" />
                   </div>
                 </SheetContent>
               </Sheet>
