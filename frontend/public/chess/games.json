@@ -1,7 +1,8 @@
 {
   "games": [
     {
-      "name": "Kaspawrovs Immortal - Kasparov vs Topalov, wijk aan zee, 1999",
+      "name": "Kasparov vs Topalov [Kaspawrovs Immortal]",
+      "event": "wijk aan zee, 1999",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
@@ -94,7 +95,8 @@
       ]
     },
     {
-      "name": "Game of the century - Byrne vs Fischer, New York, 1956",
+      "name": "Byrne vs Fischer [Game of the century]",
+      "event": "New York, 1956",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
         "rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2",
@@ -181,7 +183,8 @@
       ]
     },
     {
-      "name": "Morphy vs. Allies, Paris Opera 1858",
+      "name": "Morphy vs Allies",
+      "event": "Paris Opera, 1858",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",
@@ -219,7 +222,8 @@
       ]
     },
     {
-      "name": "Aronian vs. Anand, Wijk aan Zee 2013",
+      "name": "Aronian vs Anand",
+      "event": "Wijk aan Zee, 2013",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1",
         "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq d6 0 2",
@@ -270,7 +274,8 @@
       ]
     },
     {
-      "name": "Rotlewi vs. Rubinstein, Lodz 1907",
+      "name": "Rotlewi vs Rubinstein",
+      "event": "Lodz, 1907",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1",
         "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq d6 0 2",
@@ -325,7 +330,8 @@
       ]
     },
     {
-      "name": "Ivanchuk vs. Yusupov, Brussels 1991",
+      "name": "Ivanchuk vs Yusupov",
+      "event": "Brussels, 1991",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1",
         "rnbqkbnr/pppp1ppp/8/4p3/2P5/8/PP1PPPPP/RNBQKBNR w KQkq e6 0 2",
@@ -408,7 +414,8 @@
       ]
     },
     {
-      "name": "Short vs. Timman, Tilburg 1991",
+      "name": "Short vs Timman",
+      "event": "Tilburg, 1991",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
         "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2",
@@ -480,7 +487,8 @@
       ]
     },
     {
-      "name": "Fischer vs. Spassky, World Championship 1972, Game 6",
+      "name": "Fischer vs Spassky",
+      "event": "Game 6 - World Championship, 1972",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1",
         "rnbqkbnr/pppp1ppp/4p3/8/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 0 2",
@@ -566,7 +574,8 @@
       ]
     },
     {
-      "name": "Tal vs. Botvinnik, World Championship 1960, Game 6",
+      "name": "Tal vs Botvinnik",
+      "event": "Game 6 - World Championship, 1960",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1",
         "rnbqkb1r/pppppppp/5n2/8/2P5/8/PP1PPPPP/RNBQKBNR w KQkq - 1 2",
@@ -664,7 +673,8 @@
       ]
     },
     {
-      "name": "Karpov vs. Kasparov, World Championship 1985, Game 16",
+      "name": "Karpov vs Kasparov",
+      "event": "Game 16 - World Championship, 1985",
       "FEN": [
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
         "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",

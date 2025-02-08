@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useMediaQuery } from 'react-responsive';
+import { useToast } from "@/hooks/use-toast";
 
 import Game from "@/chess/game"
 import Board from "@/chess/board"
@@ -12,14 +13,17 @@ import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
   const [game, setGame] = useState(new Game(null));
+  const [selected, setSelected] = useState(0);
+  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
+  
   const [fenArray, setFenArray] = useState([]);
+  const [gameDetails, setGameDetails] = useState({ name: "", event: "" })
   const [move, setMove] = useState(0);
 
-  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
-  const [selected, setSelected] = useState(0);
-  
   const [turnedOver, setTurnedOver] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
+
+  const { toast } = useToast()
 
   function handleSelection(selection: number) {
     if (!isAnimating || isSmallScreen) {
@@ -49,8 +53,9 @@ export default function Home() {
       .then((data) => {
         // randomize game
         const index = Math.floor(Math.random() * data.games.length);
-        console.log("Loaded Game: ", data.games[index].name);
+        console.log("Loaded Game:", data.games[index].name + ",", data.games[index].event);
         setFenArray(data.games[index].FEN); // Extract the FEN array
+        setGameDetails({ name: data.games[index].name, event: data.games[index].event });
       })
       .catch((error) => {
         console.error("Error loading FEN array:", error);
@@ -70,7 +75,15 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [move]);
 
-  const click = (row: number, col: number) => {console.log(`clicked ${row}, ${col}`)}
+  const click = (row: number, col: number) => {
+    console.log(`clicked ${row}, ${col}`);
+    toast({
+      className: "shadow-lg",
+      variant: "default",
+      title: gameDetails.name,
+      description: gameDetails.event,
+    });
+  }
 
   return (
     <div className="flex flex-col min-h-screen justify-between">
@@ -105,8 +118,9 @@ export default function Home() {
             width: "min(40vw, 60vh)", // Ensure it fits within both width and height
             position: "relative",
             zIndex: 1,
+            cursor: "pointer",
           }}>
-            <div>
+            <div className="cursor-default">
               {selected === 3 && <PassAndPlayForm redirect="/pass-and-play" />}
               <Sheet open={selected === 3 && isSmallScreen} onOpenChange={() => { handleSelection(0) }} >
                 <SheetContent className="w-full border-0">
