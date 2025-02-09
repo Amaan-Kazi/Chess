@@ -36,10 +36,15 @@ export default function PassAndPlay() {
   }, [game]);
 
   const tableRef = useRef<HTMLDivElement>(null);
+  const topRef   = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (tableRef.current) {
       // Scroll to the bottom after each move
       tableRef.current.scrollTop = tableRef.current.scrollHeight;
+    }
+
+    if (topRef.current) {
+      topRef.current.scrollLeft = topRef.current.scrollWidth
     }
   }, [version]);
 
@@ -102,43 +107,60 @@ export default function PassAndPlay() {
   return (
     <div className="block h-screen max-h-screen">
       <Navbar activePage="Pass And Play"/>
-      
-      {/* Promotion Modal */}
-      <div className={`absolute z-50 flex w-screen h-[90%] justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
-        <Card className="max-w-[80%]">
-          <CardHeader>
-            <CardTitle className="text-foreground">Pawn Promotion</CardTitle>
-            <CardDescription>Select a piece to promote to</CardDescription>
-          </CardHeader>
-          <CardContent className="flex">
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Queen")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wq' : 'bq'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Knight")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wn' : 'bn'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Rook")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wr' : 'br'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Bishop")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wb' : 'bb'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-          </CardContent>
-        </Card>
+
+      {/* Top Info */}
+      <div ref = {topRef} className="lg:hidden bg-secondary dark:bg-[#181716] py-2 flex overflow-x-scroll">
+        {function a () {
+          const moves: {white?: string, black?: string, isWhiteMoveCurrent?: boolean, isBlackMoveCurrent?: boolean}[] = [];
+          let whiteMove = true;
+
+          game.moveNotations.map((notation, index) => {
+            if (whiteMove) {
+              let isWhiteMoveCurrent = false;
+              if (index === game.moveNo - 1) isWhiteMoveCurrent = true;
+
+              moves.push({white: notation, isWhiteMoveCurrent});
+            }
+            else {
+              let isBlackMoveCurrent = false;
+              if (index === game.moveNo - 1) isBlackMoveCurrent = true;
+              
+              moves[moves.length - 1].black = notation;
+              moves[moves.length - 1].isBlackMoveCurrent = isBlackMoveCurrent;
+            }
+            whiteMove = !whiteMove;
+          })
+
+          return (moves.map((obj, index) => {
+            return (
+              <div className="flex mx-2" key={`move-${index+1}`}>
+                <div className="mx-1">{index + 1}.</div>
+                <div>
+                  <p
+                    className={`${obj.isWhiteMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit mx-1`}
+                    onClick={() => {
+                      game.peek(((index + 1) * 2) - 1);
+                      setVersion(version + 1)
+                    }}
+                  >{obj.white}</p>
+                </div>
+                {obj.black && <div>
+                  <p 
+                    className={`${obj.isBlackMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit mx-1`}
+                    onClick={() => {
+                      game.peek((index + 1) * 2);
+                      setVersion(version + 1)
+                    }}
+                  >{obj.black}</p>
+                </div>}
+              </div>
+            );
+          }))
+        }()}
       </div>
 
+
+      {/* Main */}
       <div className="flex justify-center h-[90%] items-center">
         <div className="w-[30px] hidden lg:block shadow-md" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
           <div 
@@ -291,6 +313,45 @@ export default function PassAndPlay() {
         </Card>
       </div>
 
+
+      {/* Promotion Modal */}
+      <div className={`absolute z-50 flex w-screen h-[90%] justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
+        <Card className="max-w-[80%]">
+          <CardHeader>
+            <CardTitle className="text-foreground">Pawn Promotion</CardTitle>
+            <CardDescription>Select a piece to promote to</CardDescription>
+          </CardHeader>
+          <CardContent className="flex">
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Queen")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wq' : 'bq'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Knight")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wn' : 'bn'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Rook")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wr' : 'br'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Bishop")}}>
+              <img
+                src={`/chess/pieces/${game.board.turn === 'w' ? 'wb' : 'bb'}.png`}
+                alt="Chess Piece"
+              />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+
+      {/* Game End Dialog */}
       <Dialog open={game.state !== "ongoing" && !dialogClosed} onOpenChange={() => {setDialogClosed(true)}}>
         <DialogContent className="w-[90%] md:max-w-[50%] lg:max-w-[35%] px-10">
           <DialogHeader>

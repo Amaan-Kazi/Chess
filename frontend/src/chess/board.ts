@@ -7,7 +7,6 @@ export default class Board {
   fullMoveNumber: number;
   gameState: "ongoing" | "checkmate" | "stalemate" | "draw";
   prevMove: number[][];
-  positionHistory: Record<string, number>
 
   constructor(copyBoard?: Board, FEN?: string) {
     if (copyBoard) {
@@ -24,7 +23,6 @@ export default class Board {
       this.fullMoveNumber  = copyBoard.fullMoveNumber;
       this.gameState       = copyBoard.gameState;
       this.prevMove        = copyBoard.prevMove;
-      this.positionHistory = copyBoard.positionHistory;
     }
     else if (FEN) {
       const [
@@ -79,7 +77,6 @@ export default class Board {
       // Set game state to ongoing by default
       this.gameState       = "ongoing";
       this.prevMove        = [];
-      this.positionHistory = {};
     }
     else {      
       this.grid = [
@@ -101,7 +98,6 @@ export default class Board {
       this.fullMoveNumber  = 1;
       this.gameState       = "ongoing";
       this.prevMove        = [];
-      this.positionHistory = {};
     }
   }
 
@@ -272,16 +268,6 @@ export default class Board {
         else if ((pieces.b === 1 && pieces.N === 1) || (pieces.n === 1 && pieces.B === 1)) status = "draw - insufficient material";
       }
       if (status === "draw - insufficient material") this.gameState = "draw";
-
-      const FEN = this.FEN().split(" ").slice(0, 4).join(" ");
-      if (!this.positionHistory[FEN]) {
-        this.positionHistory[FEN] = 0;
-      }
-      this.positionHistory[FEN]++;
-      if (this.positionHistory[FEN] >= 3) {
-        this.gameState = "draw";
-        status = "draw - repetition";
-      }
 
       const copiedPieceMoves = {
         'k': copyBoard.kingMoves.bind(copyBoard),

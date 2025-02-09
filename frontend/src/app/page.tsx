@@ -142,8 +142,3 @@ export default function Home() {
     </div>
   );
 }
-
-// select play, play with bot, play online
-// drawer, side thing, select settings
-// store settings in local storage
-// use settings from local storage in game, if not found then default settings
