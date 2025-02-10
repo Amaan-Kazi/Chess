@@ -1,17 +1,17 @@
-"use client"
-import { useState, useEffect, useRef } from "react";
-import "../../../public/fonts.css"
-import {ChevronLeft, ChevronRight, Share2, Flag} from "lucide-react"
+"use client";
+import "../../../public/fonts.css";
+import { useState, useEffect, useRef }             from "react";
+import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Button }                                                              from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent }           from "@/components/ui/card";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell }       from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }            from "@/components/ui/tooltip";
 
-import Navbar from "@/components/navbar"
-import Game from "@/chess/game"
-import ChessBoard from "@/components/board"
+import Navbar     from "@/components/navbar";
+import Game       from "@/chess/game";
+import ChessBoard from "@/components/board";
 
 
 export default function PassAndPlay() {
@@ -38,14 +38,8 @@ export default function PassAndPlay() {
   const tableRef = useRef<HTMLDivElement>(null);
   const topRef   = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (tableRef.current) {
-      // Scroll to the bottom after each move
-      tableRef.current.scrollTop = tableRef.current.scrollHeight;
-    }
-
-    if (topRef.current) {
-      topRef.current.scrollLeft = topRef.current.scrollWidth
-    }
+    if (tableRef.current) tableRef.current.scrollTop = tableRef.current.scrollHeight;
+    if (topRef.current)   topRef.current.scrollLeft = topRef.current.scrollWidth;
   }, [version]);
 
   useEffect(() => {
@@ -61,8 +55,6 @@ export default function PassAndPlay() {
 
       // Pass the worker to the Game class
       const gameInstance = new Game(worker);
-
-      // Set the game instance in state
       setGame(gameInstance);
 
       return () => {
@@ -105,14 +97,12 @@ export default function PassAndPlay() {
   }
 
   return (
-    <div className="block h-screen max-h-screen">
+    <div className="flex flex-col h-screen">
       <Navbar activePage="Pass And Play"/>
 
-      {/* Top Info */}
-      <div ref = {topRef} className="lg:hidden bg-secondary dark:bg-[#181716] py-2 flex overflow-x-scroll">
-        {/* Enpty Character */}
-        ‎
 
+      {/* Top Info */}
+      <div ref = {topRef} className="lg:hidden bg-secondary dark:bg-[#181716] h-10 flex items-center overflow-x-scroll">
         {function a () {
           const moves: {white?: string, black?: string, isWhiteMoveCurrent?: boolean, isBlackMoveCurrent?: boolean}[] = [];
           let whiteMove = true;
@@ -201,7 +191,7 @@ export default function PassAndPlay() {
 
 
       {/* Main */}
-      <div className="flex justify-center h-[85%] lg:h-[90%] items-center">
+      <main className="flex flex-1 justify-center items-center">
         <div className="w-[30px] hidden lg:block shadow-md" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
           <div 
             className={`bg-[hsl(34,6%,24%)] text-white flex flex-col justify-start items-center text-xs`}
@@ -351,7 +341,7 @@ export default function PassAndPlay() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
 
 
       {/* Game End Dialog */}
@@ -363,6 +353,11 @@ export default function PassAndPlay() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+
+
+      <div className="lg:hidden bg-secondary dark:bg-[#181716] h-10 flex items-center overflow-x-scroll">
+        Menu
+      </div>
     </div>
   )
 }
