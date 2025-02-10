@@ -18,6 +18,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
@@ -49,6 +50,7 @@ type Action =
       type: typeof actionTypes.REMOVE_TOAST
       toastId?: ToasterToast["id"]
     }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 interface State {
   toasts: ToasterToast[]
