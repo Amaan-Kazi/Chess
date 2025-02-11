@@ -90,7 +90,7 @@ export default function Home() {
       <Navbar activePage="Home"/>
       <div className="flex justify-center md:justify-evenly w-[95%] m-auto xl:ml-0 2xl:ml-auto xl:scale-105">
         <div className="flex flex-col justify-around items-center xl:scale-75 2xl:scale-100">
-          <h1 className="text-3xl md:text-6xl font-bold text-center mb-16 w-fit">Play <span className="text-primary">chess</span> with anyone<br/>in your <span className="text-primary">browser</span></h1>
+          <h1 className="text-3xl md:text-6xl font-bold text-center text-foreground mb-16 w-fit">Play <span className="text-primary">chess</span> with anyone<br/>in your <span className="text-primary">browser</span></h1>
           
           <div className="flex flex-col w-full items-center">
             <WideButton onClick={() => { handleSelection(1) }} highlighted={true} className="my-2 lg:my-3">

@@ -5,8 +5,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 0 0% 98%;
+    --foreground: 220 26% 14%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 100%;
@@ -30,6 +30,16 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+
+    --navbar: hsl(0, 0%, 100%);
+
+    --wideButton:             hsl(0, 0%, 100%);
+    --wideButton-highlighted: hsl(90, 42%, 51%);
+    --wideButton-hover:             hsl(45, 3%, 29%);
+    --wideButton-highlighted-hover: hsl(84, 55%, 60%);
+    --wideButton-shadow:             0px 4px 0px rgba(0, 0, 0, 0.25);
+    --wideButton-highlighted-shadow: 0px 4px 0px rgba(69, 117, 60, 1);
   }
 
   .dark {
@@ -57,5 +67,15 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+
+    --navbar: hsl(45, 5%, 14%);
+
+    --wideButton:             hsl(30, 3%, 26%);
+    --wideButton-highlighted: hsl(90, 42%, 51%);
+    --wideButton-hover:             hsl(45, 3%, 29%);
+    --wideButton-highlighted-hover: hsl(84, 55%, 60%);
+    --wideButton-shadow:             0px 5px 0px rgba(0, 0, 0, 0.25);
+    --wideButton-highlighted-shadow: 0px 4px 0px rgba(69, 117, 60, 1);
   }
 }

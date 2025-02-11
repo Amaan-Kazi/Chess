@@ -70,6 +70,8 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         if      (isDarkSquare  &&  (isSelected || isPrevMove)) backgroundColor = "#B9CA43"; // Dark Highlited Square
         else if (!isDarkSquare &&  (isSelected || isPrevMove)) backgroundColor = "#F5F682"; // Light Highlighted Square
 
+        // make different global css variables for board colors
+
         return (
           <motion.div
             key={`${row}-${col}`}
