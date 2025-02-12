@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating, className, children }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void, className?: string, children?: ReactElement }): React.ReactElement {
   return (
     <div
-      className={`grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-2xl ${className}`}
+      className={`grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-xl ${className}`}
       style={style}
     >
       {Array.from({ length: 8 * 8 }).map((_, index) => {

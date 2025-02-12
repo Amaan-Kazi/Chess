@@ -11,13 +11,13 @@ export const WideButtonImage: React.FC<{ src: string, alt?: string, className?: 
 
 export const WideButtonTitle: React.FC<{ children: ReactNode, className?: string }> = ({ children, className }) => {
   return (
-    <div className={`text-left text-foreground text-3xl font-bold ${className}`}>{children}</div>
+    <div className={`text-left text-3xl font-bold ${className}`}>{children}</div>
   );
 };
 
 export const WideButtonDescription: React.FC<{ children: ReactNode, className?: string }> = ({ children, className }) => {
   return (
-    <div className={`text-left text-foreground text-md ${className}`}>{children}</div>
+    <div className={`text-left text-md ${className}`}>{children}</div>
   );
 };
 
@@ -43,7 +43,7 @@ export const WideButton: React.FC<WideButtonProps> = ({ onClick, children, class
       onClick={onClick}
       className={`
         flex items-center p-4 w-full max-w-lg rounded-lg
-        ${ highlighted && "bg-wideButton-highlighted hover:bg-wideButton-highlighted-hover shadow-wideButtonHighlightedShadow dark"}
+        ${ highlighted && "bg-wideButton-highlighted hover:bg-wideButton-highlighted-hover shadow-wideButtonHighlightedShadow text-white"}
         ${!highlighted && "bg-wideButton             hover:bg-wideButton-hover             shadow-wideButtonShadow"}
         ${className}
       `}

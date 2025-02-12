@@ -1,12 +1,12 @@
 "use client";
-import "../../public/fonts.css";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Menu, X, Sun, Moon } from 'lucide-react';
 
 export default function Navbar({ activePage }: { activePage: string }) {
-  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const {theme, setTheme} = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
@@ -14,6 +14,8 @@ export default function Navbar({ activePage }: { activePage: string }) {
     { href: "/about", label: "About" },
     { href: "https://github.com/Amaan-Kazi/Chess", label: "GitHub" },
   ];
+
+  useEffect(() => {setMounted(true)}, []);
 
   return (
     <nav className="flex bg-navbar shadow-md">
@@ -25,7 +27,7 @@ export default function Navbar({ activePage }: { activePage: string }) {
             alt="Favicon"
             className="w-10 h-10"
           />
-          <p className="text-3xl font-academiaM54 py-3">Chess</p>
+          <p className="text-3xl tracking-wide font-academiaM54 py-3">Chess</p>
         </div>
 
         {/* Button for expanding navbar vertically on small devices */}
@@ -55,7 +57,7 @@ export default function Navbar({ activePage }: { activePage: string }) {
               <span
                 className={`
                   absolute left-1/2 bottom-0 h-[2px] w-0
-                  ${activePage !== link.label ? 'bg-primary' : theme === 'light' ? 'bg-black' : 'bg-white'}
+                  ${activePage !== link.label ? 'bg-primary' : "bg-foreground"}
                   transition-all duration-300 ease-out group-hover:w-full group-hover:left-0`
                 }
               ></span>
@@ -65,12 +67,14 @@ export default function Navbar({ activePage }: { activePage: string }) {
       </div>
 
       {/* Theme switch button */}
-      <button
-        className="mx-3"
-        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      >
-        {theme === "light" ? <Moon /> : <Sun />}
-      </button>
+      {mounted &&
+        <button
+          className="mx-3"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        >
+          {!mounted ? null : theme === "light" ? <Moon /> : <Sun />}
+        </button>
+      }
     </nav>
   );
 }

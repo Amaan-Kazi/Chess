@@ -69,6 +69,10 @@ export default {
 			boxShadow: {
 				wideButtonShadow: 'var(--wideButton-shadow)',
 				wideButtonHighlightedShadow: 'var(--wideButton-highlighted-shadow)'
+			},
+			fontFamily: {
+				robotoMono: 'robotoMono',
+				academiaM54: 'academiaM54'
 			}
   	}
   },

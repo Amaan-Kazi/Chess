@@ -1,5 +1,4 @@
 "use client";
-import "../../../public/fonts.css";
 import { useState, useEffect, useRef }             from "react";
 import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
 
@@ -154,7 +153,7 @@ export default function PassAndPlay() {
 
 
       {/* Promotion Modal */}
-      <div className={`absolute z-50 flex w-screen h-[90%] justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
+      <div className={`absolute z-50 flex w-screen h-screen justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
         <Card className="max-w-[80%]">
           <CardHeader>
             <CardTitle className="text-foreground">Pawn Promotion</CardTitle>
@@ -220,18 +219,18 @@ export default function PassAndPlay() {
           maxHeight: "75vh",        // Avoid overflowing vertically
         }} />
 
-        <Card className="hidden ml-10 lg:flex lg:flex-col lg:justify-center w-[25%] h-[84%] rounded-sm border-none shadow-2xl">
-          <CardTitle className="p-2 bg-card-foreground flex justify-center items-center text-foreground font-bold text-lg">Pass And Play</CardTitle>
-          <CardContent className="h-full p-0 w-full">
+        <Card className="hidden ml-10 lg:flex lg:flex-col lg:justify-center w-[25%] h-[84%] rounded-sm border-border border-2 shadow-lg">
+          <CardTitle className="p-2 bg-navbar flex justify-center items-center text-foreground font-bold text-lg tracking-wide">Pass And Play</CardTitle>
+          <CardContent className="h-full p-0 bg-background shadow-inner w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
             {/* Limit algebraic notation to 25% if chat box below */}
             <div ref={tableRef} className="h-[62.5%] max-h-[62.5%] text-foreground overflow-y-scroll border-t-2">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Move</TableHead>
-                    <TableHead>White</TableHead>
-                    <TableHead>Black</TableHead>
+                    <TableHead className="w-[20%]"><p className="font-robotoMono">Move</p></TableHead>
+                    <TableHead className="w-[40%]"><p className="font-robotoMono px-2">White</p></TableHead>
+                    <TableHead className="w-[40%]"><p className="font-robotoMono px-2">Black</p></TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -259,25 +258,25 @@ export default function PassAndPlay() {
                     return (moves.map((obj, index) => {
                       return (
                         <TableRow key={`move-${index+1}`}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>
+                          <TableCell className="font-robotoMono w-[20%] pl-2">{index + 1}</TableCell>
+                          <TableCell className="w-[40%]">
                             <p
-                              className={`${obj.isWhiteMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                              className={`${obj.isWhiteMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} font-robotoMono hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
                               onClick={() => {
                                 game.peek(((index + 1) * 2) - 1);
                                 setVersion(version + 1)
                               }}
                             >{obj.white}</p>
                           </TableCell>
-                          {obj.black && <TableCell>
+                          {obj.black ? <TableCell className="w-[40%]">
                             <p 
-                              className={`${obj.isBlackMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                              className={`${obj.isBlackMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} font-robotoMono hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
                               onClick={() => {
                                 game.peek((index + 1) * 2);
                                 setVersion(version + 1)
                               }}
                             >{obj.black}</p>
-                          </TableCell>}
+                          </TableCell> : <TableCell></TableCell>}
                         </TableRow>
                       );
                     }))
@@ -286,7 +285,7 @@ export default function PassAndPlay() {
                 </TableBody>
               </Table>
             </div>
-            <div className="h-[12.5%] bg-card-foreground flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">
+            <div className="h-[12.5%] bg-navbar flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

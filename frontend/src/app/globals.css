@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 
+@font-face {
+  font-family: academiaM54;
+  src: url(../../public/fonts/AcademicM54-po1Z.ttf)
+}
+@font-face {
+  font-family: robotoMono;
+  src: url(../../public/fonts/RobotoMono-VariableFont_wght.ttf)
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 98%;
@@ -36,8 +46,8 @@
 
     --wideButton:             hsl(0, 0%, 100%);
     --wideButton-highlighted: hsl(90, 42%, 51%);
-    --wideButton-hover:             hsl(45, 3%, 29%);
-    --wideButton-highlighted-hover: hsl(84, 55%, 60%);
+    --wideButton-hover:             hsl(0, 0%, 80%);
+    --wideButton-highlighted-hover: hsl(84, 55%, 40%);
     --wideButton-shadow:             0px 4px 0px rgba(0, 0, 0, 0.25);
     --wideButton-highlighted-shadow: 0px 4px 0px rgba(69, 117, 60, 1);
   }
@@ -74,7 +84,7 @@
     --wideButton:             hsl(30, 3%, 26%);
     --wideButton-highlighted: hsl(90, 42%, 51%);
     --wideButton-hover:             hsl(45, 3%, 29%);
-    --wideButton-highlighted-hover: hsl(84, 55%, 60%);
+    --wideButton-highlighted-hover: hsl(84, 55%, 55%);
     --wideButton-shadow:             0px 5px 0px rgba(0, 0, 0, 0.25);
     --wideButton-highlighted-shadow: 0px 4px 0px rgba(69, 117, 60, 1);
   }
