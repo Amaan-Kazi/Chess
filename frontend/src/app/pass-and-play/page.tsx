@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }            f
 import Navbar     from "@/components/navbar";
 import Game       from "@/chess/game";
 import ChessBoard from "@/components/board";
+import { HorizontalMoveNotations } from "@/components/moveNotations";
 
 
 export default function PassAndPlay() {
@@ -35,10 +36,10 @@ export default function PassAndPlay() {
   }, [game]);
 
   const tableRef = useRef<HTMLDivElement>(null);
-  const topRef   = useRef<HTMLDivElement>(null);
+  // const HorizontalMoveNotaionsRef   = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (tableRef.current) tableRef.current.scrollTop = tableRef.current.scrollHeight;
-    if (topRef.current)   topRef.current.scrollLeft = topRef.current.scrollWidth;
+  //   if (HorizontalMoveNotaionsRef.current)   HorizontalMoveNotaionsRef.current.scrollLeft = HorizontalMoveNotaionsRef.current.scrollWidth;
   }, [version]);
 
   useEffect(() => {
@@ -99,58 +100,15 @@ export default function PassAndPlay() {
     <div className="flex flex-col h-screen">
       <Navbar activePage="Pass And Play"/>
 
-
-      {/* Top Info */}
-      <div ref = {topRef} className="lg:hidden bg-secondary dark:bg-[#181716] h-[40px] flex items-center overflow-x-scroll">
-        {function a () {
-          const moves: {white?: string, black?: string, isWhiteMoveCurrent?: boolean, isBlackMoveCurrent?: boolean}[] = [];
-          let whiteMove = true;
-
-          game.moveNotations.map((notation, index) => {
-            if (whiteMove) {
-              let isWhiteMoveCurrent = false;
-              if (index === game.moveNo - 1) isWhiteMoveCurrent = true;
-
-              moves.push({white: notation, isWhiteMoveCurrent});
-            }
-            else {
-              let isBlackMoveCurrent = false;
-              if (index === game.moveNo - 1) isBlackMoveCurrent = true;
-              
-              moves[moves.length - 1].black = notation;
-              moves[moves.length - 1].isBlackMoveCurrent = isBlackMoveCurrent;
-            }
-            whiteMove = !whiteMove;
-          })
-
-          return (moves.map((obj, index) => {
-            return (
-              <div className="flex mx-2" key={`move-${index+1}`}>
-                <div className="mx-1">{index + 1}.</div>
-                <div>
-                  <p
-                    className={`${obj.isWhiteMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit mx-1`}
-                    onClick={() => {
-                      game.peek(((index + 1) * 2) - 1);
-                      setVersion(version + 1)
-                    }}
-                  >{obj.white}</p>
-                </div>
-                {obj.black && <div>
-                  <p 
-                    className={`${obj.isBlackMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit mx-1`}
-                    onClick={() => {
-                      game.peek((index + 1) * 2);
-                      setVersion(version + 1)
-                    }}
-                  >{obj.black}</p>
-                </div>}
-              </div>
-            );
-          }))
-        }()}
-      </div>
-
+      <HorizontalMoveNotations
+        className="lg:hidden"
+        notations={game.moveNotations}
+        moveNo={game.moveNo}
+        peek={(index) => {
+          game.peek(index);
+          setVersion(version+1);
+        }}
+      />
 
       {/* Promotion Modal */}
       <div className={`absolute z-50 flex w-screen h-screen justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
