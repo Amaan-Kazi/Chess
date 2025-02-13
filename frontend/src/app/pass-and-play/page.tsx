@@ -101,7 +101,7 @@ export default function PassAndPlay() {
 
 
       {/* Top Info */}
-      <div ref = {topRef} className="lg:hidden bg-secondary dark:bg-[#181716] h-10 flex items-center overflow-x-scroll">
+      <div ref = {topRef} className="lg:hidden bg-secondary dark:bg-[#181716] h-[40px] flex items-center overflow-x-scroll">
         {function a () {
           const moves: {white?: string, black?: string, isWhiteMoveCurrent?: boolean, isBlackMoveCurrent?: boolean}[] = [];
           let whiteMove = true;
@@ -190,7 +190,7 @@ export default function PassAndPlay() {
 
 
       {/* Main */}
-      <main className="flex flex-1 justify-center items-center">
+      <main className="flex min-h-[calc(100vh-60px-40px-60px)] max-h-[calc(100vh-60px-40px-60px)] lg:min-h-[calc(100vh-60px)] lg:max-h-[calc(100vh-60px)] justify-center items-center">
         <div className="w-[30px] hidden lg:block shadow-md" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
           <div 
             className={`bg-[hsl(34,6%,24%)] text-white flex flex-col justify-start items-center text-xs`}
@@ -219,7 +219,7 @@ export default function PassAndPlay() {
           maxHeight: "75vh",        // Avoid overflowing vertically
         }} />
 
-        <Card className="hidden ml-10 lg:flex lg:flex-col lg:justify-center w-[25%] h-[84%] rounded-sm border-border border-2 shadow-lg">
+        <Card className="hidden ml-10 lg:flex lg:flex-col lg:justify-center w-[25%] h-[84%] max-h-[84%] rounded-sm border-border border-2 shadow-lg">
           <CardTitle className="p-2 bg-navbar flex justify-center items-center text-foreground font-bold text-lg tracking-wide">Pass And Play</CardTitle>
           <CardContent className="h-full p-0 bg-background shadow-inner w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
@@ -354,7 +354,7 @@ export default function PassAndPlay() {
       </Dialog>
 
 
-      <div className="lg:hidden bg-secondary dark:bg-[#181716] h-10 flex items-center overflow-x-scroll">
+      <div className="lg:hidden bg-secondary dark:bg-[#181716] h-[60px] flex items-center overflow-x-scroll">
         Menu
       </div>
     </div>
