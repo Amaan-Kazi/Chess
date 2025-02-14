@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import Game from "@/chess/game"
+import Game from "@/chess/game";
 
 import { motion } from "framer-motion";
 
@@ -58,17 +58,17 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
 
         let backgroundColor = "";
         
-        if      (isDarkSquare  && !(isSelected || isPrevMove)) backgroundColor = "#739552"; // Dark Square
-        else if (!isDarkSquare && !(isSelected || isPrevMove)) backgroundColor = "#EBECD0"; // Light square
+        if      (isDarkSquare  && !(isSelected || isPrevMove)) backgroundColor = "bg-board-dark"; // Dark Square
+        else if (!isDarkSquare && !(isSelected || isPrevMove)) backgroundColor = "bg-board-light"; // Light square
 
         if (game.board.isCheck(game.board.turn) && ((game.board.grid[row][col] === 'K' && game.board.turn === 'w') || (game.board.grid[row][col] === 'k' && game.board.turn === 'b'))) {
           // King Check
-          if (isDarkSquare) backgroundColor = "#D36C50";
-          else              backgroundColor = "#EB7D6A";
+          if (isDarkSquare) backgroundColor = "bg-board-dark-danger";
+          else              backgroundColor = "bg-board-light-danger";
         }
         
-        if      (isDarkSquare  &&  (isSelected || isPrevMove)) backgroundColor = "#B9CA43"; // Dark Highlited Square
-        else if (!isDarkSquare &&  (isSelected || isPrevMove)) backgroundColor = "#F5F682"; // Light Highlighted Square
+        if      (isDarkSquare  &&  (isSelected || isPrevMove)) backgroundColor = "bg-board-dark-highlighted"; // Dark Highlited Square
+        else if (!isDarkSquare &&  (isSelected || isPrevMove)) backgroundColor = "bg-board-light-highlighted"; // Light Highlighted Square
 
         // make different global css variables for board colors
 
@@ -77,7 +77,7 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
             key={`${row}-${col}`}
             onClick={() => {if (!turnedOver) onclick(row, col)}}
             className={`
-              relative flex justify-center items-center z-10
+              relative flex justify-center items-center z-10 ${backgroundColor}
               ${(row == 0 && col == 0) && "rounded-tl-sm"}
               ${(row == 0 && col == 7) && "rounded-tr-sm"}
               ${(row == 7 && col == 0) && "rounded-bl-sm"}
@@ -98,7 +98,6 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
               delay: (row + col) * 0.1, // Creates a staggered effect
             }}
             style={{
-              backgroundColor,
               width: "100%",
               height: "100%",
               transformStyle: "preserve-3d",
@@ -138,8 +137,8 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
               />
             )}
 
-            {row == 7 && <div className="absolute -bottom-px right-px text-xs md:text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{cols[col]}</div>}
-            {col == 0 && <div className="absolute -top-px    left-px  text-xs md:text-sm font-semibold" style = {{color: isDarkSquare ? "#EBECD0" : "#658a3f"}}>{rows[row]}</div>}
+            {row == 7 && <div className={`absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>}
+            {col == 0 && <div className={`absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>}
           </motion.div>
         );
       })}

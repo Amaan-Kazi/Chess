@@ -50,6 +50,13 @@
     --wideButton-highlighted-hover: hsl(84, 55%, 40%);
     --wideButton-shadow:             0px 4px 0px rgba(0, 0, 0, 0.25);
     --wideButton-highlighted-shadow: 0px 4px 0px rgba(69, 117, 60, 1);
+
+    --board-dark: #739552;
+    --board-light: #EBECD0;
+    --board-dark-highlighted: #B9CA43;
+    --board-light-highlighted: #F5F682;
+    --board-dark-danger: #D36C50;
+    --board-light-danger: #EB7D6A;
   }
 
   .dark {

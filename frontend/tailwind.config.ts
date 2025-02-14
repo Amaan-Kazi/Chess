@@ -51,15 +51,27 @@ export default {
   				'5': 'hsl(var(--chart-5))'
   			},
 
-				navbar: 'var(--navbar)',
-				wideButton: {
-					DEFAULT: 'var(--wideButton)',
-					hover: 'var(--wideButton-hover)',
-					highlighted: {
-						DEFAULT: 'var(--wideButton-highlighted)',
-						hover: 'var(--wideButton-highlighted-hover)'
-					}
+			navbar: 'var(--navbar)',
+			wideButton: {
+				DEFAULT: 'var(--wideButton)',
+				hover: 'var(--wideButton-hover)',
+				highlighted: {
+					DEFAULT: 'var(--wideButton-highlighted)',
+					hover: 'var(--wideButton-highlighted-hover)'
 				}
+			},
+			board: {
+				dark: {
+					DEFAULT:     "var(--board-dark)",
+					highlighted: "var(--board-dark-highlighted)",
+					danger:      "var(--board-dark-danger)"
+				},
+				light: {
+					DEFAULT:     "var(--board-light)",
+					highlighted: "var(--board-light-highlighted)",
+					danger:      "var(--board-light-danger)"
+				}
+			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
