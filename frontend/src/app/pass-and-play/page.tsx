@@ -24,6 +24,8 @@ export default function PassAndPlay() {
   const [evaluation, setEvaluation] = useState(game.evaluation);
   const [mateIn, setMateIn] = useState(game.mateIn);
 
+  const lastPeek = useRef(0);
+
   // Update evaluation whenever game updates
   useEffect(() => {
     const interval = setInterval(() => {
@@ -61,6 +63,29 @@ export default function PassAndPlay() {
       };
     }
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const now = Date.now();
+      if (now - lastPeek.current < 150) return; // Enforce cooldown
+
+      if (event.key === "ArrowLeft") {
+        game.backward();
+        setVersion(version+1);
+      } else if (event.key === "ArrowRight") {
+        game.forward();
+        setVersion(version+1);
+      }
+
+      lastPeek.current = now;
+    };
+
+    // Add event listener when the component mounts
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup the event listener when the component unmounts
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [game, version]); // Dependency ensures it updates if `game` changes
 
   const click = (row: number, col: number) => {
     // Pawn Promotion
