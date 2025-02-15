@@ -4,14 +4,13 @@ import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
 
 import { Button }                                                              from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent }           from "@/components/ui/card";
-import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell }       from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }            from "@/components/ui/tooltip";
 
 import Navbar     from "@/components/navbar";
 import Game       from "@/chess/game";
 import ChessBoard from "@/components/board";
-import { HorizontalMoveNotations } from "@/components/moveNotations";
+import { HorizontalMoveNotations, TabularMoveNotaions } from "@/components/moveNotations";
 
 
 export default function PassAndPlay() {
@@ -104,7 +103,7 @@ export default function PassAndPlay() {
         className="lg:hidden"
         notations={game.moveNotations}
         moveNo={game.moveNo}
-        peek={(index) => {
+        peek={(index: number) => {
           game.peek(index);
           setVersion(version+1);
         }}
@@ -183,65 +182,14 @@ export default function PassAndPlay() {
             <div className="h-[25%] w-full text-foreground">Chart</div>
             {/* Limit algebraic notation to 25% if chat box below */}
             <div ref={tableRef} className="h-[62.5%] max-h-[62.5%] text-foreground overflow-y-scroll border-t-2">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[20%]"><p className="font-robotoMono">Move</p></TableHead>
-                    <TableHead className="w-[40%]"><p className="font-robotoMono px-2">White</p></TableHead>
-                    <TableHead className="w-[40%]"><p className="font-robotoMono px-2">Black</p></TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {( () => {
-                    const moves: {white?: string, black?: string, isWhiteMoveCurrent?: boolean, isBlackMoveCurrent?: boolean}[] = [];
-                    let whiteMove = true;
-
-                    game.moveNotations.map((notation, index) => {
-                      if (whiteMove) {
-                        let isWhiteMoveCurrent = false;
-                        if (index === game.moveNo - 1) isWhiteMoveCurrent = true;
-
-                        moves.push({white: notation, isWhiteMoveCurrent});
-                      }
-                      else {
-                        let isBlackMoveCurrent = false;
-                        if (index === game.moveNo - 1) isBlackMoveCurrent = true;
-                        
-                        moves[moves.length - 1].black = notation;
-                        moves[moves.length - 1].isBlackMoveCurrent = isBlackMoveCurrent;
-                      }
-                      whiteMove = !whiteMove;
-                    })
-                    return (moves.map((obj, index) => {
-                      return (
-                        <TableRow key={`move-${index+1}`}>
-                          <TableCell className="font-robotoMono w-[20%] pl-2">{index + 1}</TableCell>
-                          <TableCell className="w-[40%]">
-                            <p
-                              className={`${obj.isWhiteMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} font-robotoMono hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
-                              onClick={() => {
-                                game.peek(((index + 1) * 2) - 1);
-                                setVersion(version + 1)
-                              }}
-                            >{obj.white}</p>
-                          </TableCell>
-                          {obj.black ? <TableCell className="w-[40%]">
-                            <p 
-                              className={`${obj.isBlackMoveCurrent && "bg-gray-700 hover:bg-gray-700 text-white"} font-robotoMono hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
-                              onClick={() => {
-                                game.peek((index + 1) * 2);
-                                setVersion(version + 1)
-                              }}
-                            >{obj.black}</p>
-                          </TableCell> : <TableCell></TableCell>}
-                        </TableRow>
-                      );
-                    }))
-                  })()
-                  }
-                </TableBody>
-              </Table>
+              <TabularMoveNotaions
+                notations={game.moveNotations}
+                moveNo={game.moveNo}
+                peek={(index: number) => {
+                  game.peek(index);
+                  setVersion(version+1);
+                }}
+              />
             </div>
             <div className="h-[12.5%] bg-navbar flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">
               <TooltipProvider>
