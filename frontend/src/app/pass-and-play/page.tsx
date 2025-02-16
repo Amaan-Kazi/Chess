@@ -173,7 +173,12 @@ export default function PassAndPlay() {
 
       {/* Main */}
       <main className="flex min-h-[calc(100vh-60px-40px-60px)] max-h-[calc(100vh-60px-40px-60px)] lg:min-h-[calc(100vh-60px)] lg:max-h-[calc(100vh-60px)] justify-center items-center">
-        <div className="w-[30px] hidden lg:block shadow-md" style={{height:"min(90vw, 75vh)", maxHeight: "75vh"}}>
+        {/* Evaluation Bar */}
+        <div className="
+          w-[30px] hidden lg:block shadow-md
+          h-[min(100vw,calc(81/100*(100vh-60px-40px-60px)))]
+          lg:h-[min(100vw,calc(81/100*(100vh-60px)))]
+        ">
           <div 
             className={`bg-[hsl(34,6%,24%)] text-white flex flex-col justify-start items-center text-xs`}
             style={{
@@ -194,17 +199,31 @@ export default function PassAndPlay() {
           </div>
         </div>
         
-        <ChessBoard game={game} onclick={click} style={{
-          aspectRatio: "1 / 1",     // Maintain square aspect ratio
-          width: "min(90vw, 75vh)", // Ensure it fits within both width and height
-          maxWidth: "90vw",         // Avoid overflowing horizontally
-          maxHeight: "75vh",        // Avoid overflowing vertically
-        }} />
+        <div className="
+          w-[min(100%,calc(90/100*(100vh-60px-40px-60px)))]
+          lg:w-[min(100%,calc(90/100*(100vh-60px)))]
+        ">
+          <div className="w-[90%] mx-2 lg:mx-5 h-[10%]">Player 1</div>
+          
+          <ChessBoard
+            game={game}
+            onclick={click}
+            className="
+              m-2 lg:mx-2 select-none shadow-xl 
+              w-[min(96%,calc(90/100*(100vh-60px-40px-60px)))]
+              lg:w-[min(90%,calc(90/100*(100vh-60px)))]
+            "
+          />
 
-        <Card className="hidden ml-10 lg:flex lg:flex-col lg:justify-center w-[25%] h-[84%] max-h-[84%] rounded-sm border-border border-2 shadow-lg">
-          <CardTitle className="p-2 bg-navbar flex justify-center items-center text-foreground font-bold text-lg tracking-wide">Pass And Play</CardTitle>
-          <CardContent className="h-full p-0 bg-background shadow-inner w-full">
+          <div className="w-[90%] mx-2 lg:mx-5 h-[10%]">Player 2</div>
+        </div>
+
+        <Card className="hidden lg:flex lg:flex-col lg:justify-center w-[25%] 2xl:[25%] h-[81.75%] max-h-[81.75%] rounded-sm border-border border-2 shadow-lg">
+          <CardTitle className="h-[8%] 2xl:h-[6%] p-2 bg-navbar flex justify-center items-center text-foreground font-bold text-lg tracking-wide">Pass And Play</CardTitle>
+          
+          <CardContent className="h-[92%] 2xl:h-[94%] p-0 bg-background shadow-inner w-full">
             <div className="h-[25%] w-full text-foreground">Chart</div>
+            
             {/* Limit algebraic notation to 25% if chat box below */}
             <div ref={tableRef} className="h-[62.5%] max-h-[62.5%] text-foreground overflow-y-scroll border-t-2">
               <TabularMoveNotaions
@@ -216,6 +235,8 @@ export default function PassAndPlay() {
                 }}
               />
             </div>
+            
+            {/* Buttons with tooltips */}
             <div className="h-[12.5%] bg-navbar flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">
               <TooltipProvider>
                 <Tooltip>

@@ -3,10 +3,28 @@ import Game from "@/chess/game";
 
 import { motion } from "framer-motion";
 
-export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating, className, children }: { game: Game, onclick: (row: number, col: number) => void, style: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void, className?: string, children?: ReactElement }): React.ReactElement {
+export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating, className, children }: { game: Game, onclick: (row: number, col: number) => void, style?: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void, className?: string, children?: ReactElement }): React.ReactElement {
+  const piece = {
+    p: "bp",
+    n: "bn",
+    b: "bb",
+    r: "br",
+    q: "bq",
+    k: "bk",
+    P: "wp",
+    N: "wn",
+    B: "wb",
+    R: "wr",
+    Q: "wq",
+    K: "wk",
+  };
+
+  const rows = [8, 7, 6, 5, 4, 3, 2, 1];
+  const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  
   return (
     <div
-      className={`grid grid-cols-8 grid-rows-8 aspect-square m-5 select-none shadow-xl ${className}`}
+      className={`grid grid-cols-8 grid-rows-8 aspect-square ${className}`}
       style={style}
     >
       {Array.from({ length: 8 * 8 }).map((_, index) => {
@@ -14,30 +32,9 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         const col = index % 8;
         const isDarkSquare = (row + col) % 2 === 1;
         let pieceName = "";
-
-        const piece = {
-          p: "bp",
-          n: "bn",
-          b: "bb",
-          r: "br",
-          q: "bq",
-          k: "bk",
-          P: "wp",
-          N: "wn",
-          B: "wb",
-          R: "wr",
-          Q: "wq",
-          K: "wk",
-        };
-
-        const rows = [8, 7, 6, 5, 4, 3, 2, 1];
-        const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         
         const pieceKey = game.board.grid[row][col];
-        if (pieceKey) {
-          // Type assertion: tell TypeScript that pieceKey is one of the valid keys of `piece`
-          pieceName = piece[pieceKey as keyof typeof piece];
-        }
+        if (pieceKey) pieceName = piece[pieceKey as keyof typeof piece];
 
         // Check if the current square is a valid move
         const isValidMove = game.validMoves.some(([r, c]) => r === row && c === col);
@@ -69,8 +66,6 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         
         if      (isDarkSquare  &&  (isSelected || isPrevMove)) backgroundColor = "bg-board-dark-highlighted"; // Dark Highlited Square
         else if (!isDarkSquare &&  (isSelected || isPrevMove)) backgroundColor = "bg-board-light-highlighted"; // Light Highlighted Square
-
-        // make different global css variables for board colors
 
         return (
           <motion.div
@@ -143,6 +138,7 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         );
       })}
 
+      {/* Div hidden behind the board, revealed by turn over animation */}
       <div className={`absolute ${turnedOver ? "z-100 visible" : "z-0 hidden"} w-full h-full p-3 flex flex-col justify-center`}>
         {children}
       </div>
