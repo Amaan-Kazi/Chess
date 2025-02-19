@@ -14,7 +14,8 @@ interface PlayerDetailsInterface {
 
 export default function PlayerDetails({variant, name, grid, color, isActive, timer, className}: PlayerDetailsInterface) {
   const nameRef = useRef<HTMLDivElement | null>(null);
-  const [fontSize, setFontSize] = useState(20); // Default size
+  const [nameFontSize, setNameFontSize] = useState(20); // Default size
+  const [advantageFontSize, setAdvantageFontSize] = useState(20);
 
   console.log(timer);
 
@@ -22,7 +23,8 @@ export default function PlayerDetails({variant, name, grid, color, isActive, tim
     const resizeText = () => {
       if (nameRef.current) {
         const height = nameRef.current.clientHeight;
-        setFontSize(height * 1); // Scale factor (adjust as needed)
+        setNameFontSize(height * 1); // Scale factor (adjust as needed)
+        setAdvantageFontSize((height * (3 / 2)) * 0.6);
       }
     };
 
@@ -58,6 +60,25 @@ export default function PlayerDetails({variant, name, grid, color, isActive, tim
     p: 1
   };
 
+  const capturedPieces = {
+    white: {
+      wp: 8,
+      wb: 2,
+      wn: 2,
+      wr: 2,
+      wq: 1,
+      wk: 1,
+    },
+    black: {
+      bp: 8,
+      bb: 2,
+      bn: 2,
+      br: 2,
+      bq: 1,
+      bk: 1,
+    }
+  };
+
   let whiteValue = 0;
   let blackValue = 0;
 
@@ -68,11 +89,23 @@ export default function PlayerDetails({variant, name, grid, color, isActive, tim
       if (piece !== null) {
         const color = pieceColor([i, j]);
 
-        if (color === 'w') whiteValue += pieceValue[piece!.toLowerCase() as keyof typeof pieceValue];
-        else               blackValue += pieceValue[piece!.toLowerCase() as keyof typeof pieceValue];
+        if (color === 'w') {
+          if (capturedPieces.white[`w${piece!.toLowerCase()}` as keyof typeof capturedPieces.white] > 0) {
+            capturedPieces.white[`w${piece!.toLowerCase()}` as keyof typeof capturedPieces.white] -= 1;
+          }
+          whiteValue += pieceValue[piece!.toLowerCase() as keyof typeof pieceValue];
+        }
+        else {
+          if (capturedPieces.black[`b${piece!.toLowerCase()}` as keyof typeof capturedPieces.black] > 0) {
+            capturedPieces.black[`b${piece!.toLowerCase()}` as keyof typeof capturedPieces.black] -= 1;
+          }
+          blackValue += pieceValue[piece!.toLowerCase() as keyof typeof pieceValue];
+        }
       }
     }
   }
+
+  const enemyPiecesCaptured = color === 'w' ? capturedPieces.black : capturedPieces.white;
 
   let advantage = 0;
   let advantagedPlayer = null;
@@ -100,18 +133,45 @@ export default function PlayerDetails({variant, name, grid, color, isActive, tim
         {/* Name [primary color if active turn]*/}
         <div
           ref={nameRef}
-          className={`h-1/2 text-left font-bold ${isActive && "text-primary"}`}
+          className={`h-[40%] text-left font-bold font-robotoMono ${isActive && "text-primary"}`}
           style={{
-            fontSize: fontSize,
+            fontSize: nameFontSize,
             lineHeight: "1"
           }}
         >
           {name}
         </div>
         
-        {/* Captured Pieces */}
-        <div className="h-1/4 flex justify-start">
-          {advantagedPlayer === color && <p>+{advantage}</p>}
+        <div className="h-[60%] flex justify-start">
+          {/* Captured Pieces */}
+          {Object.entries(enemyPiecesCaptured).map((key) => {
+            if (key[1] <= 0) return null;
+            return <div
+              key={`${key[0]}`}
+              className="flex -ml-1 first:ml-0"
+            >
+              {Array.from({length:key[1]}).map((_, index) => {
+                return <img
+                  key={`${key[0]}-${index}`}
+                  src={`chess/pieces/${key[0]}.png`}
+                  className="h-full w-auto -ml-[15px] lg:-ml-[15px] 2xl:-ml-[22px] first:ml-0"
+                />
+              })}
+            </div>
+          })}
+
+          {/* Advantage Value */}
+          <div className="flex flex-col justify-center items-center">
+            {advantagedPlayer === color && <div
+              className="h-fit font-robotoMono text-playerDetails-advantage font-bold"
+              style={{
+                fontSize: advantageFontSize,
+                lineHeight: "1"
+              }}
+            >
+              +{advantage}
+            </div>}
+          </div>
         </div>
       </div>
     </div>
