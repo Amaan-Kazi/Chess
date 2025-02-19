@@ -38,13 +38,6 @@ export default function PassAndPlay() {
     return () => clearInterval(interval);
   }, [game]);
 
-  const tableRef = useRef<HTMLDivElement>(null);
-  // const HorizontalMoveNotaionsRef   = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (tableRef.current) tableRef.current.scrollTop = tableRef.current.scrollHeight;
-  //   if (HorizontalMoveNotaionsRef.current)   HorizontalMoveNotaionsRef.current.scrollLeft = HorizontalMoveNotaionsRef.current.scrollWidth;
-  }, [version]);
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Initialize the Stockfish worker
@@ -215,16 +208,19 @@ export default function PassAndPlay() {
           lg:w-[min(100%,calc(90/100*(100vh-60px)))]
         ">
           <PlayerDetails
+            variant="player"
+            name={settings.black}
+            
+            grid={game.board.grid}
+            color='b'
+            isActive={game.board.turn === 'b'}
+
             className="
               m-2
               h-[calc(6/100*(100vh-60px))]
               w-[min(96%,calc(90/100*(100vh-60px-40px-60px)))]
               lg:w-[min(90%,calc(90/100*(100vh-60px)))]
             "
-            name={settings.black}
-            variant="player"
-            capturedPieces={[" ", " "]}
-            isActive={game.board.turn === 'b'}
           />
           
           <ChessBoard
@@ -238,16 +234,19 @@ export default function PassAndPlay() {
           />
 
           <PlayerDetails
+            variant="player"
+            name={settings.white}
+
+            grid={game.board.grid}
+            isActive={game.board.turn === 'w'}
+            color='w'
+
             className="
               m-2
               h-[calc(6/100*(100vh-60px))]
               w-[min(96%,calc(90/100*(100vh-60px-40px-60px)))]
               lg:w-[min(90%,calc(90/100*(100vh-60px)))]
             "
-            name={settings.white}
-            variant="player"
-            capturedPieces={[" ", " "]}
-            isActive={game.board.turn === 'w'}
           />
         </div>
 
@@ -256,7 +255,7 @@ export default function PassAndPlay() {
           
           <CardContent className="h-[92%] 2xl:h-[94%] p-0 bg-background shadow-inner w-full">            
             {/* Limit algebraic notation to 25% if chat box below */}
-            <div ref={tableRef} className="h-[87.5%] max-h-[87.5%] text-foreground overflow-y-scroll border-t-2">
+            <div className="h-[87.5%] max-h-[87.5%] text-foreground overflow-y-scroll border-t-2">
               <TabularMoveNotaions
                 notations={game.moveNotations}
                 moveNo={game.moveNo}
