@@ -57,6 +57,7 @@ export function PassAndPlayForm({ redirect }: { redirect?: string }) {
         form.reset(savedSettings); // Update form with saved values
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

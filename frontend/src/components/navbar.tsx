@@ -21,7 +21,6 @@ export default function Navbar({ activePage }: { activePage: string }) {
     <nav className="flex bg-navbar shadow-md">
       <div className="w-full flex justify-between items-center">
         <div className="flex items-center pl-2 pr-5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="favicon.ico"
             alt="Favicon"

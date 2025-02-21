@@ -73,7 +73,7 @@ export default function Home() {
 
     // Cleanup on unmount
     return () => clearInterval(interval);
-  }, [move]);
+  }, [move, fenArray, game]);
 
   const click = (row: number, col: number) => {
     console.log(`clicked ${row}, ${col}`);

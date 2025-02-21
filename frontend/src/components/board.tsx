@@ -99,7 +99,6 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
             }}
           >
             {game.board.grid[row][col] && (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={`/chess/pieces/${pieceName}.png`}
                 alt="Chess Piece"

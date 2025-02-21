@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */ // eslint bug workaround: https://github.com/facebook/react/issues/31687
 import { useEffect, useState, useRef } from "react";
 
 interface PlayerDetailsInterface {
@@ -12,12 +13,10 @@ interface PlayerDetailsInterface {
   className?: string
 }
 
-export default function PlayerDetails({variant, name, grid, color, isActive, timer, className}: PlayerDetailsInterface) {
+export default function PlayerDetails({variant, name, grid, color, isActive, className}: PlayerDetailsInterface) {
   const nameRef = useRef<HTMLDivElement | null>(null);
   const [nameFontSize, setNameFontSize] = useState(20); // Default size
   const [advantageFontSize, setAdvantageFontSize] = useState(20);
-
-  console.log(timer);
 
   useEffect(() => {
     const resizeText = () => {
@@ -152,6 +151,7 @@ export default function PlayerDetails({variant, name, grid, color, isActive, tim
             >
               {Array.from({length:key[1]}).map((value, index) => {
                 return <img
+                  alt={`${key[0]}`}
                   key={`${key[0]}-${index}-${value}`}
                   src={`chess/pieces/${key[0]}.png`}
                   className="h-full w-auto -ml-[15px] lg:-ml-[15px] 2xl:-ml-[22px] first:ml-0"
