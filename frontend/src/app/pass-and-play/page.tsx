@@ -11,6 +11,7 @@ import Navbar        from "@/components/navbar";
 import Game          from "@/chess/game";
 import ChessBoard    from "@/components/board";
 import PlayerDetails from "@/components/playerDetails";
+import EvaluationBar from "@/components/evaulationBar";
 import { HorizontalMoveNotations, TabularMoveNotaions } from "@/components/moveNotations";
 
 
@@ -177,31 +178,16 @@ export default function PassAndPlay() {
 
       {/* Main */}
       <main className="flex min-h-[calc(100vh-60px-40px-60px)] max-h-[calc(100vh-60px-40px-60px)] lg:min-h-[calc(100vh-60px)] lg:max-h-[calc(100vh-60px)] justify-center items-center">
-        {/* Evaluation Bar */}
-        <div className="
-          w-[30px] hidden lg:block shadow-md
-          h-[min(100vw,calc(81/100*(100vh-60px-40px-60px)))]
-          lg:h-[min(100vw,calc(81/100*(100vh-60px)))]
-        ">
-          <div 
-            className={`bg-[hsl(34,6%,24%)] text-white flex flex-col justify-start items-center text-xs`}
-            style={{
-              height: `${100 - Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
-              transition: "height 0.75s ease-in-out"
-            }}
-          >
-            {evaluation < 0 && (mateIn !== null ? mateIn === 0 ? <p>0-1</p> : <p>{`M${mateIn}`}</p> : <p>{`${Math.abs(evaluation).toFixed(1)}`}</p>)}
-          </div>
-          <div
-            className={`bg-white text-black flex flex-col justify-end items-center text-xs`}
-            style={{
-              height: `${Math.trunc((game.evaluation + 10) / 20 * 100)}%`,
-              transition: "height 0.75s ease-in-out"
-            }}
-          >
-            {evaluation > 0 && (mateIn !== null ? mateIn === 0 ? <p>1-0</p> : <p>{`M${mateIn}`}</p> : <p>{`${Math.abs(evaluation).toFixed(1)}`}</p>)}
-          </div>
-        </div>
+        <EvaluationBar
+          variant="vertical"
+          className="
+            hidden lg:block shadow-lg border-border border-2
+            h-[min(100vw,calc(81/100*(100vh-60px-40px-60px)))]
+            lg:h-[min(100vw,calc(81/100*(100vh-60px)))]
+          "
+          evaluation={evaluation}
+          mateIn={mateIn}
+        />
         
         <div className="
           w-[min(100%,calc(90/100*(100vh-60px-40px-60px)))]
@@ -254,17 +240,15 @@ export default function PassAndPlay() {
           <CardTitle className="h-[8%] 2xl:h-[6%] p-2 bg-navbar flex justify-center items-center text-foreground font-bold text-lg tracking-wide">Pass And Play</CardTitle>
           
           <CardContent className="h-[92%] 2xl:h-[94%] p-0 bg-background shadow-inner w-full">            
-            {/* Limit algebraic notation to 25% if chat box below */}
-            <div className="h-[87.5%] max-h-[87.5%] text-foreground overflow-y-scroll border-t-2">
-              <TabularMoveNotaions
-                notations={game.moveNotations}
-                moveNo={game.moveNo}
-                peek={(index: number) => {
-                  game.peek(index);
-                  setVersion(version+1);
-                }}
-              />
-            </div>
+            <TabularMoveNotaions
+              className="h-[87.5%] max-h-[87.5%] text-foreground border-t-2"
+              notations={game.moveNotations}
+              moveNo={game.moveNo}
+              peek={(index: number) => {
+                game.peek(index);
+                setVersion(version+1);
+              }}
+            />            
             
             {/* Buttons with tooltips */}
             <div className="h-[12.5%] bg-navbar flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">

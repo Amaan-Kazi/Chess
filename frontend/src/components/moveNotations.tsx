@@ -62,7 +62,7 @@ export function HorizontalMoveNotations({notations, moveNo, peek, className}: Mo
 }
 
 export function TabularMoveNotaions({notations, moveNo, peek, className}: MoveNotationsProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLTableElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
   }, [moveNo]);
@@ -88,42 +88,44 @@ export function TabularMoveNotaions({notations, moveNo, peek, className}: MoveNo
   })
   
   return (
-    <Table className={`font-robotoMono ${className}`}>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[20%]"><p>Move</p></TableHead>
-          <TableHead className="w-[40%]"><p className="px-2">White</p></TableHead>
-          <TableHead className="w-[40%]"><p className="px-2">Black</p></TableHead>
-        </TableRow>
-      </TableHeader>
+    <div ref={ref} className={`overflow-y-scroll ${className}`}>
+      <Table className="font-robotoMono">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[20%]"><p>Move</p></TableHead>
+            <TableHead className="w-[40%]"><p className="px-2">White</p></TableHead>
+            <TableHead className="w-[40%]"><p className="px-2">Black</p></TableHead>
+          </TableRow>
+        </TableHeader>
 
-      <TableBody>
-        {moves.map((obj, index) => {
-          return (
-            <TableRow key={`move-${index+1}`}>
-              <TableCell className="font-robotoMono w-[20%] pl-2">{index + 1}</TableCell>
-              
-              <TableCell className="w-[40%]">
-                <p
-                  className={`${obj.isWhiteMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
-                  onClick={() => {
-                    peek?.(((index + 1) * 2) - 1);
-                  }}
-                >{obj.white}</p>
-              </TableCell>
-              
-              {obj.black ? <TableCell className="w-[40%]">
-                <p 
-                  className={`${obj.isBlackMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
-                  onClick={() => {
-                    peek?.((index + 1) * 2);
-                  }}
-                >{obj.black}</p>
-              </TableCell> : <TableCell></TableCell>}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+        <TableBody>
+          {moves.map((obj, index) => {
+            return (
+              <TableRow key={`move-${index+1}`}>
+                <TableCell className="font-robotoMono w-[20%] pl-2">{index + 1}</TableCell>
+                
+                <TableCell className="w-[40%]">
+                  <p
+                    className={`${obj.isWhiteMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                    onClick={() => {
+                      peek?.(((index + 1) * 2) - 1);
+                    }}
+                  >{obj.white}</p>
+                </TableCell>
+                
+                {obj.black ? <TableCell className="w-[40%]">
+                  <p 
+                    className={`${obj.isBlackMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                    onClick={() => {
+                      peek?.((index + 1) * 2);
+                    }}
+                  >{obj.black}</p>
+                </TableCell> : <TableCell></TableCell>}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

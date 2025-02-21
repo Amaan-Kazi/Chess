@@ -150,9 +150,9 @@ export default function PlayerDetails({variant, name, grid, color, isActive, tim
               key={`${key[0]}`}
               className="flex -ml-1 first:ml-0"
             >
-              {Array.from({length:key[1]}).map((_, index) => {
+              {Array.from({length:key[1]}).map((value, index) => {
                 return <img
-                  key={`${key[0]}-${index}`}
+                  key={`${key[0]}-${index}-${value}`}
                   src={`chess/pieces/${key[0]}.png`}
                   className="h-full w-auto -ml-[15px] lg:-ml-[15px] 2xl:-ml-[22px] first:ml-0"
                 />

@@ -1,3 +1,4 @@
+import EvaluationBar from "@/components/evaulationBar";
 import type { Config } from "tailwindcss";
 
 export default {
@@ -74,6 +75,10 @@ export default {
 				},
 				playerDetails: {
 					advantage: "var(--playerDetails-advantage)"
+				},
+				evaluationBar: {
+					white: "var(--evaluationBar-white)",
+					black: "var(--evaluationBar-black)"
 				}
   		},
   		borderRadius: {
