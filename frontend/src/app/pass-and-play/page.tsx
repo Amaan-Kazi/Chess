@@ -5,13 +5,13 @@ import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
 import { Button }                                                              from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent }           from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }            from "@/components/ui/tooltip";
 
 import Navbar        from "@/components/navbar";
 import Game          from "@/chess/game";
 import ChessBoard    from "@/components/board";
 import PlayerDetails from "@/components/playerDetails";
 import EvaluationBar from "@/components/evaulationBar";
+import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
 import { HorizontalMoveNotations, TabularMoveNotaions } from "@/components/moveNotations";
 
 
@@ -236,76 +236,28 @@ export default function PassAndPlay() {
           />
         </div>
 
-        <Card className="hidden lg:flex lg:flex-col lg:justify-center w-[25%] 2xl:[25%] h-[81.75%] max-h-[81.75%] rounded-sm border-border border-2 shadow-lg">
-          <CardTitle className="h-[8%] 2xl:h-[6%] p-2 bg-navbar flex justify-center items-center text-foreground font-bold text-lg tracking-wide">Pass And Play</CardTitle>
-          
-          <CardContent className="h-[92%] 2xl:h-[94%] p-0 bg-background shadow-inner w-full">            
+
+        {/* Side Panel */}
+        <Panel title="Pass And Play" className="hidden lg:flex w-[25%] h-[81.75%] max-h-[81.75%] border-border border-2 shadow-lg">
+          <PanelContent>
             <TabularMoveNotaions
-              className="h-[87.5%] max-h-[87.5%] text-foreground border-t-2"
+              className="h-full text-foreground border-t-2"
               notations={game.moveNotations}
               moveNo={game.moveNo}
               peek={(index: number) => {
                 game.peek(index);
                 setVersion(version+1);
               }}
-            />            
-            
-            {/* Buttons with tooltips */}
-            <div className="h-[12.5%] bg-navbar flex justify-center gap-3 items-center text-foreground font-bold text-lg p-0">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
-                      <Flag strokeWidth={3} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Resign</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            />
+          </PanelContent>
 
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="px-6 2xl:px-8" variant="outline" size="lg">
-                      <Share2 strokeWidth={3} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Export PGN/FEN</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="px-6 2xl:px-8" variant="outline" size="lg" onClick={() => {game.backward(); setVersion(version + 1);}}>
-                      <ChevronLeft strokeWidth={5} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Backward</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="px-6 2xl:px-8" variant="outline" size="lg" onClick={() => {game.forward(); setVersion(version + 1);}}>
-                      <ChevronRight strokeWidth={5} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Forward</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </CardContent>
-        </Card>
+          <PanelBottom>
+            <PanelButton tooltip="Resign"><Flag strokeWidth={3} /></PanelButton>
+            <PanelButton tooltip="Export PGN/FEN"><Share2 strokeWidth={3} /></PanelButton>
+            <PanelButton tooltip="Backward" onClick={() => {game.backward(); setVersion(version + 1);}}><ChevronLeft strokeWidth={5} /></PanelButton>
+            <PanelButton tooltip="Forward"  onClick={() => {game.forward();  setVersion(version + 1);}}><ChevronRight strokeWidth={5} /></PanelButton>
+          </PanelBottom>
+        </Panel>
       </main>
 
 
