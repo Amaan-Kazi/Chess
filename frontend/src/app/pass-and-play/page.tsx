@@ -1,18 +1,16 @@
 "use client";
 import { useState, useEffect, useRef }             from "react";
 import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
-
-import { Button }                                                              from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent }           from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Game from "@/chess/game";
 
 import Navbar        from "@/components/navbar";
-import Game          from "@/chess/game";
 import ChessBoard    from "@/components/board";
 import PlayerDetails from "@/components/playerDetails";
 import EvaluationBar from "@/components/evaulationBar";
+import { PromotionModal }                                from "@/components/modals";
 import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
-import { HorizontalMoveNotations, TabularMoveNotaions } from "@/components/moveNotations";
+import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/moveNotations";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 export default function PassAndPlay() {
@@ -39,18 +37,19 @@ export default function PassAndPlay() {
     return () => clearInterval(interval);
   }, [game]);
 
+  // add stockfish to game for evaluation only when loaded client side
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Initialize the Stockfish worker
       let worker: Worker | null;
+
       try {
         worker = new Worker("/stockfish.js");
-      } catch (error) {
+      }
+      catch (error) {
         console.log(error);
         worker = null;
       }
 
-      // Pass the worker to the Game class
       const gameInstance = new Game(worker);
       setGame(gameInstance);
 
@@ -60,6 +59,7 @@ export default function PassAndPlay() {
     }
   }, []);
 
+  // load game settings from local storage
   useEffect(() => {
     const savedSettings = JSON.parse(localStorage.getItem("PassAndPlay") || "{}").settings;
     
@@ -69,15 +69,20 @@ export default function PassAndPlay() {
     console.log(savedSettings);
   }, []);
 
+  // forward or backward moves using arrow keys
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      setVersion(version + 1);
+      if (showPromotionModal === true) return; // Dont allow when promotion modal is open
+      
       const now = Date.now();
       if (now - lastPeek.current < 150) return; // Enforce cooldown
 
       if (event.key === "ArrowLeft") {
         game.backward();
         setVersion(version+1);
-      } else if (event.key === "ArrowRight") {
+      }
+      else if (event.key === "ArrowRight") {
         game.forward();
         setVersion(version+1);
       }
@@ -90,7 +95,7 @@ export default function PassAndPlay() {
 
     // Cleanup the event listener when the component unmounts
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [game, version]); // Dependency ensures it updates if `game` changes
+  }, [game, version, showPromotionModal]);
 
   const click = (row: number, col: number) => {
     // Pawn Promotion
@@ -110,7 +115,7 @@ export default function PassAndPlay() {
     setVersion(version + 1);
   };
 
-  const promotion = (piece: string) => {
+  const promotion = (piece: "Queen" | "Knight" | "Rook" | "Bishop") => {
     const pieceCode = {
       "Queen":  300,
       "Knight": 301,
@@ -118,7 +123,7 @@ export default function PassAndPlay() {
       "Bishop": 303,
     };
 
-    game.select([promotionTarget![0], promotionTarget![1], pieceCode[piece as keyof typeof pieceCode]]);
+    game.select([promotionTarget![0], promotionTarget![1], pieceCode[piece]]);
     setVersion(version + 1);
 
     setShowPromotionModal(false);
@@ -138,42 +143,6 @@ export default function PassAndPlay() {
           setVersion(version+1);
         }}
       />
-
-      {/* Promotion Modal */}
-      <div className={`absolute z-50 flex w-screen h-screen justify-center items-center shadow-md ${!showPromotionModal && "hidden"}`}>
-        <Card className="max-w-[80%]">
-          <CardHeader>
-            <CardTitle className="text-foreground">Pawn Promotion</CardTitle>
-            <CardDescription>Select a piece to promote to</CardDescription>
-          </CardHeader>
-          <CardContent className="flex">
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Queen")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wq' : 'bq'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Knight")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wn' : 'bn'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Rook")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wr' : 'br'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-            <Button className = "bg-red w-14 h-14 m-1 aspect-square" variant={"outline"} onClick={() => {promotion("Bishop")}}>
-              <img
-                src={`/chess/pieces/${game.board.turn === 'w' ? 'wb' : 'bb'}.png`}
-                alt="Chess Piece"
-              />
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
 
 
       {/* Main */}
@@ -254,11 +223,16 @@ export default function PassAndPlay() {
           <PanelBottom>
             <PanelButton tooltip="Resign"><Flag strokeWidth={3} /></PanelButton>
             <PanelButton tooltip="Export PGN/FEN"><Share2 strokeWidth={3} /></PanelButton>
-            <PanelButton tooltip="Backward" onClick={() => {game.backward(); setVersion(version + 1);}}><ChevronLeft strokeWidth={5} /></PanelButton>
+            <PanelButton tooltip="Backward" onClick={() => {game.backward(); setVersion(version + 1);}}><ChevronLeft  strokeWidth={5} /></PanelButton>
             <PanelButton tooltip="Forward"  onClick={() => {game.forward();  setVersion(version + 1);}}><ChevronRight strokeWidth={5} /></PanelButton>
           </PanelBottom>
         </Panel>
       </main>
+
+
+      <div className="lg:hidden bg-secondary dark:bg-[#181716] h-[60px] flex items-center overflow-x-scroll">
+        Menu
+      </div>
 
 
       {/* Game End Dialog */}
@@ -271,10 +245,11 @@ export default function PassAndPlay() {
         </DialogContent>
       </Dialog>
 
-
-      <div className="lg:hidden bg-secondary dark:bg-[#181716] h-[60px] flex items-center overflow-x-scroll">
-        Menu
-      </div>
+      <PromotionModal 
+        isOpen={showPromotionModal}
+        onSelection={(piece: "Queen" | "Knight" | "Rook" | "Bishop") => {promotion(piece)}}
+        turn={game.board.turn}
+      />
     </div>
   )
 }
