@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function PromotionModal({ isOpen, turn, onSelection, className }: { isOpen: boolean, turn: 'w' | 'b', onSelection: (piece: "Queen" | "Knight" | "Rook" | "Bishop") => void, className?: string }) {
   return (
-    <div className={`absolute z-50 flex w-screen h-screen justify-center items-center shadow-md ${!isOpen && "hidden"} ${className}`}>
-      <Card className="max-w-[80%]">
+    <div className={`absolute z-50 flex w-screen h-screen justify-center items-center shadow-md ${!isOpen && "hidden"}`}>
+      <Card className={`max-w-[80%] ${className}`}>
         <CardHeader>
           <CardTitle className="text-foreground">Pawn Promotion</CardTitle>
           <CardDescription>Select a piece to promote to</CardDescription>
@@ -41,5 +42,18 @@ export function PromotionModal({ isOpen, turn, onSelection, className }: { isOpe
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export function GameEndModal({ isOpen, title, description, onOpenChange, className } : { isOpen: boolean, title: string, description: string, onOpenChange: () => void, className?: string }) {
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className={`w-[90%] md:max-w-[50%] lg:max-w-[35%] px-10 ${className}`}>
+        <DialogHeader>
+          <DialogTitle className="text-5xl font-academiaM54 tracking-wider font-thin text-center">{title}</DialogTitle>
+          <DialogDescription className="text-center text-3xl text-primary">{description}</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   );
 }

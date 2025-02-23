@@ -7,10 +7,9 @@ import Navbar        from "@/components/navbar";
 import ChessBoard    from "@/components/board";
 import PlayerDetails from "@/components/playerDetails";
 import EvaluationBar from "@/components/evaulationBar";
-import { PromotionModal }                                from "@/components/modals";
+import { PromotionModal, GameEndModal }                                from "@/components/modals";
 import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
 import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/moveNotations";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 export default function PassAndPlay() {
@@ -20,7 +19,7 @@ export default function PassAndPlay() {
   
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
-  const [dialogClosed, setDialogClosed] = useState(false);
+  const [gameEndModalClosed, setGameEndModalClosed] = useState(false);
   
   const [evaluation, setEvaluation] = useState(game.evaluation);
   const [mateIn, setMateIn] = useState(game.mateIn);
@@ -235,15 +234,12 @@ export default function PassAndPlay() {
       </div>
 
 
-      {/* Game End Dialog */}
-      <Dialog open={game.state !== "ongoing" && !dialogClosed} onOpenChange={() => {setDialogClosed(true)}}>
-        <DialogContent className="w-[90%] md:max-w-[50%] lg:max-w-[35%] px-10">
-          <DialogHeader>
-            <DialogTitle className="text-5xl font-academiaM54 tracking-wider font-thin text-center">{game.state.toUpperCase()}</DialogTitle>
-            <DialogDescription className="text-center text-3xl text-primary">{game.stateDescription}</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <GameEndModal
+        isOpen={game.state !== "ongoing" && !gameEndModalClosed}
+        onOpenChange={() => {setGameEndModalClosed(true)}}
+        title={game.state.toUpperCase()}
+        description={game.stateDescription}
+      />
 
       <PromotionModal 
         isOpen={showPromotionModal}
