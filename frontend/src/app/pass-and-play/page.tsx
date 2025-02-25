@@ -7,7 +7,8 @@ import Navbar        from "@/components/navbar";
 import ChessBoard    from "@/components/board";
 import PlayerDetails from "@/components/playerDetails";
 import EvaluationBar from "@/components/evaulationBar";
-import { PromotionModal, GameEndModal }                                from "@/components/modals";
+import { ActionBar, ActionBarButton }                    from "@/components/actionBar";
+import { PromotionModal, GameEndModal }                  from "@/components/modals";
 import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
 import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/moveNotations";
 
@@ -229,9 +230,25 @@ export default function PassAndPlay() {
       </main>
 
 
-      <div className="lg:hidden bg-secondary dark:bg-[#181716] h-[60px] flex items-center overflow-x-scroll">
-        Menu
-      </div>
+      <ActionBar
+        className="lg:hidden h-[60px]"
+      >
+        <ActionBarButton className="border-r-2 border-border">
+          <Flag />
+        </ActionBarButton>
+
+        <ActionBarButton className="border-r-2 border-border">
+          <Share2 />
+        </ActionBarButton>
+
+        <ActionBarButton onClick={() => {game.backward(); setVersion(version + 1);}} className="border-r-2 border-border">
+          <ChevronLeft strokeWidth={3} className="scale-110" />
+        </ActionBarButton>
+
+        <ActionBarButton onClick={() => {game.forward();  setVersion(version + 1);}}>
+          <ChevronRight strokeWidth={3} className="scale-110"/>
+        </ActionBarButton>
+      </ActionBar>
 
 
       <GameEndModal
