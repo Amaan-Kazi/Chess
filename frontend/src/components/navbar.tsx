@@ -39,9 +39,13 @@ export default function Navbar({ activePage }: { activePage: string }) {
 
         {/* Links */}
         <div
-          className={`md:flex absolute md:relative top-14 left-0 right-0 bg-navbar shadow-md md:bg-transparent md:top-auto transition-all ${
-            menuOpen ? "block" : "hidden"
-          }`}
+          className={`
+            absolute md:flex md:relative
+            top-14 left-0 right-0 md:top-auto
+            bg-navbar md:bg-transparent
+            shadow-md md:shadow-none transition-all
+            ${menuOpen ? "block" : "hidden"}`
+          }
         >
           {links.map((link, index) => (
             <a
