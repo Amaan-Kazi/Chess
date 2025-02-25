@@ -39,7 +39,7 @@ export default function Navbar({ activePage }: { activePage: string }) {
 
         {/* Links */}
         <div
-          className={`md:flex absolute md:relative top-14 left-0 right-0 navbar-background md:bg-transparent md:top-auto transition-all ${
+          className={`md:flex absolute md:relative top-14 left-0 right-0 bg-navbar shadow-md md:bg-transparent md:top-auto transition-all ${
             menuOpen ? "block" : "hidden"
           }`}
         >
