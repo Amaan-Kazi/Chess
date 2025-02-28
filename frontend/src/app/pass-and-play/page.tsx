@@ -135,7 +135,7 @@ export default function PassAndPlay() {
       <Navbar activePage="Pass And Play"/>
 
       <HorizontalMoveNotations
-        className="lg:hidden"
+        className="lg:hidden border-y-2 border-border"
         notations={game.moveNotations}
         moveNo={game.moveNo}
         peek={(index: number) => {
@@ -147,7 +147,7 @@ export default function PassAndPlay() {
       <EvaluationBar
         visible={game.state !== "ongoing"}
         variant="horizontal"
-        className="lg:hidden w-full"
+        className="lg:hidden w-full border-0 border-b-2 border-border"
         evaluation={evaluation}
         mateIn={mateIn}
       />
