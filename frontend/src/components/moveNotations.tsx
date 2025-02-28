@@ -35,25 +35,27 @@ export function HorizontalMoveNotations({notations, moveNo, peek, className}: Mo
   });
   
   return (
-    <div ref={ref} className={`bg-secondary dark:bg-[#181716] h-[40px] w-full flex items-center overflow-x-scroll ${className}`}>
+    <div ref={ref} className={`bg-secondary dark:bg-[#181716] h-[40px] w-full flex items-center overflow-x-scroll flex-nowrap ${className}`}>
       {moves.map((obj, index) => {
         return (
-          <div className="flex mx-2 font-robotoMono" key={`move-${index+1}`}>
-            <div className="px-1">{index + 1}.</div>
-            
+          <div className="flex mx-2 font-robotoMono flex-shrink-0" key={`move-${index+1}`}>
+            <div className="px-1 min-w-[20px] flex-shrink-0">{index + 1}.</div>
+  
             <p
-              className={`${obj.isWhiteMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white px-1`}
+              className={`px-1 whitespace-nowrap ${obj.isWhiteMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white`}
               onClick={() => {
                 peek?.(((index + 1) * 2) - 1);
               }}
             >{obj.white}</p>
-
-            {obj.black && <p
-              className={`${obj.isBlackMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white px-1`}
-              onClick={() => {
-                peek?.((index + 1) * 2);
-              }}
-            >{obj.black}</p>}
+  
+            {obj.black && (
+              <p
+                className={`px-1 whitespace-nowrap ${obj.isBlackMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white`}
+                onClick={() => {
+                  peek?.((index + 1) * 2);
+                }}
+              >{obj.black}</p>
+            )}
           </div>
         );
       })}
