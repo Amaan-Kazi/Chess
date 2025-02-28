@@ -144,10 +144,19 @@ export default function PassAndPlay() {
         }}
       />
 
+      <EvaluationBar
+        visible={game.state !== "ongoing"}
+        variant="horizontal"
+        className="lg:hidden w-full"
+        evaluation={evaluation}
+        mateIn={mateIn}
+      />
+
 
       {/* Main */}
       <main className="flex min-h-[calc(100vh-60px-40px-60px)] max-h-[calc(100vh-60px-40px-60px)] lg:min-h-[calc(100vh-60px)] lg:max-h-[calc(100vh-60px)] justify-center items-center">
         <EvaluationBar
+          visible={game.state !== "ongoing"}
           variant="vertical"
           className="
             hidden lg:block shadow-lg border-border border-2
