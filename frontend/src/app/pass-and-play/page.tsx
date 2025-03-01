@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
 import Game from "@/chess/game";
 
 import Navbar        from "@/components/navbar";
-import ChessBoard    from "@/components/board";
+import ChessBoard    from "@/components/chessBoard";
 import PlayerDetails from "@/components/playerDetails";
 import EvaluationBar from "@/components/evaulationBar";
 import { ActionBar, ActionBarButton }                    from "@/components/actionBar";
@@ -188,7 +188,15 @@ export default function PassAndPlay() {
           />
           
           <ChessBoard
-            game={game}
+            grid={game.board.grid}
+            turn={game.board.turn}
+
+            prevMove={game.board.prevMove}
+            selection={game.selection}
+            validMoves={game.validMoves}
+
+            isCheck={game.board.isCheck(game.board.turn)}
+
             onclick={click}
             className="
               m-2 lg:mx-2 select-none shadow-xl

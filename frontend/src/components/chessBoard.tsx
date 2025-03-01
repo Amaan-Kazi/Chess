@@ -1,9 +1,27 @@
 import React, { ReactElement } from "react";
-import Game from "@/chess/game";
 
 import { motion } from "framer-motion";
 
-export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnimating, className, children }: { game: Game, onclick: (row: number, col: number) => void, style?: React.CSSProperties, turnedOver?: boolean, setIsAnimating?:(bool: boolean)=>void, className?: string, children?: ReactElement }): React.ReactElement {
+interface BoardInterface {
+  grid: (string | null)[][],
+  turn: 'w' | 'b',
+
+  prevMove: number[][],
+  selection: number[] | null,
+  validMoves: number[][],
+  isCheck: boolean,
+
+  onclick: (row: number, col: number) => void,
+  
+  turnedOver?: boolean,
+  setIsAnimating?:(bool: boolean)=>void,
+  
+  className?: string,
+  style?: React.CSSProperties,
+  children?: ReactElement
+}
+
+export default function ChessBoard({ grid, turn, prevMove, selection, validMoves, isCheck, onclick, turnedOver, setIsAnimating, className, style, children }: BoardInterface): React.ReactElement {
   const piece = {
     p: "bp",
     n: "bn",
@@ -33,21 +51,21 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         const isDarkSquare = (row + col) % 2 === 1;
         let pieceName = "";
         
-        const pieceKey = game.board.grid[row][col];
+        const pieceKey = grid[row][col];
         if (pieceKey) pieceName = piece[pieceKey as keyof typeof piece];
 
         // Check if the current square is a valid move
-        const isValidMove = game.validMoves.some(([r, c]) => r === row && c === col);
+        const isValidMove = validMoves.some(([r, c]) => r === row && c === col);
         let isSelected = false;
         let isPrevMove = false;
 
-        if (game.selection) {
-          const [r, c] = game.selection;
+        if (selection) {
+          const [r, c] = selection;
           isSelected = (r === row) && (c === col);
         }
 
-        if (game.board.prevMove.length !== 0) {
-          const [from, to]     = game.board.prevMove;
+        if (prevMove.length !== 0) {
+          const [from, to]     = prevMove;
           const [rFrom, cFrom] = from;
           const [rTo, cTo]     = to;
           isPrevMove = (rFrom === row && cFrom === col) || (rTo === row && cTo === col);
@@ -58,7 +76,7 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
         if      (isDarkSquare  && !(isSelected || isPrevMove)) backgroundColor = "bg-board-dark"; // Dark Square
         else if (!isDarkSquare && !(isSelected || isPrevMove)) backgroundColor = "bg-board-light"; // Light square
 
-        if (game.board.isCheck(game.board.turn) && ((game.board.grid[row][col] === 'K' && game.board.turn === 'w') || (game.board.grid[row][col] === 'k' && game.board.turn === 'b'))) {
+        if (isCheck && ((grid[row][col] === 'K' && turn === 'w') || (grid[row][col] === 'k' && turn === 'b'))) {
           // King Check
           if (isDarkSquare) backgroundColor = "bg-board-dark-danger";
           else              backgroundColor = "bg-board-light-danger";
@@ -98,7 +116,7 @@ export default function ChessBoard({ game, onclick, style, turnedOver, setIsAnim
               transformStyle: "preserve-3d",
             }}
           >
-            {game.board.grid[row][col] && (
+            {grid[row][col] && (
               <img
                 src={`/chess/pieces/${pieceName}.png`}
                 alt="Chess Piece"
