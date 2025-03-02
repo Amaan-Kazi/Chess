@@ -137,8 +137,10 @@ export default function Home() {
               position: "relative",
               zIndex: 1,
               cursor: "pointer",
-            }
-          }>
+            }}
+            
+            className="shadow-2xl"
+          >
             <div className="cursor-default">
               {selected === 3 && <PassAndPlayForm redirect="/pass-and-play" />}
               <Sheet open={selected === 3 && isSmallScreen} onOpenChange={() => { handleSelection(0) }} >

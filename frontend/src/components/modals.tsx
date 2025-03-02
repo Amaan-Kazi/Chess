@@ -1,5 +1,12 @@
+import { useState }         from "react";
+import { Clipboard, Check } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input }  from "@/components/ui/input";
+import { Label }  from "@/components/ui/label";
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }            from "@/components/ui/tooltip";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent }           from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function PromotionModal({ isOpen, turn, onSelection, className }: { isOpen: boolean, turn: 'w' | 'b', onSelection: (piece: "Queen" | "Knight" | "Rook" | "Bishop") => void, className?: string }) {
@@ -53,6 +60,53 @@ export function GameEndModal({ isOpen, title, description, onOpenChange, classNa
           <DialogTitle className="text-5xl font-academiaM54 tracking-wider font-thin text-center">{title}</DialogTitle>
           <DialogDescription className="text-center text-3xl text-primary">{description}</DialogDescription>
         </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function GameShareModal({ FEN, isOpen, onOpenChange, className }: { FEN: string, isOpen: boolean, onOpenChange?: () => void, className?: string }) {
+  const [ copiedFEN, setCopiedFEN ] = useState(false);
+  
+  function copyFEN() {
+    navigator.clipboard.writeText(FEN);
+    setCopiedFEN(true);
+    setTimeout(() => setCopiedFEN(false), 1000);
+  }
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className={`p-4 md:p-6 ${className}`}>
+        <DialogHeader>
+          <DialogTitle>Share game</DialogTitle>
+          <DialogDescription>Export PGN / FEN</DialogDescription>
+        </DialogHeader>
+
+        <div>
+          <Label>FEN - Forsyth Edwards Notation</Label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
+                className="border-border border-2"
+                defaultValue={FEN}
+                readOnly
+              />
+            </div>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="flex justify-center items-center border-border border-2" variant={"outline"} onClick={copyFEN}>
+                    {copiedFEN ? <Check /> : <Clipboard />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Copy to clipboard
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

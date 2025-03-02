@@ -8,7 +8,7 @@ import ChessBoard    from "@/components/chessBoard";
 import PlayerDetails from "@/components/playerDetails";
 import EvaluationBar from "@/components/evaulationBar";
 import { ActionBar, ActionBarButton }                    from "@/components/actionBar";
-import { PromotionModal, GameEndModal }                  from "@/components/modals";
+import { PromotionModal, GameEndModal, GameShareModal }  from "@/components/modals";
 import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
 import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/moveNotations";
 
@@ -21,6 +21,7 @@ export default function PassAndPlay() {
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
   const [gameEndModalClosed, setGameEndModalClosed] = useState(false);
+  const [gameShareModalOpen, setGameShareModalOpen] = useState(false);
   
   const [evaluation, setEvaluation] = useState(game.evaluation);
   const [mateIn, setMateIn] = useState(game.mateIn);
@@ -239,7 +240,7 @@ export default function PassAndPlay() {
 
           <PanelBottom>
             <PanelButton tooltip="Resign"><Flag strokeWidth={3} /></PanelButton>
-            <PanelButton tooltip="Export PGN/FEN"><Share2 strokeWidth={3} /></PanelButton>
+            <PanelButton tooltip="Export PGN/FEN" onClick={() => {setGameShareModalOpen(true); setVersion(version + 1);}}><Share2 strokeWidth={3} /></PanelButton>
             <PanelButton tooltip="Backward" onClick={() => {game.backward(); setVersion(version + 1);}}><ChevronLeft  strokeWidth={5} /></PanelButton>
             <PanelButton tooltip="Forward"  onClick={() => {game.forward();  setVersion(version + 1);}}><ChevronRight strokeWidth={5} /></PanelButton>
           </PanelBottom>
@@ -254,7 +255,7 @@ export default function PassAndPlay() {
           <Flag />
         </ActionBarButton>
 
-        <ActionBarButton className="border-r-2 border-border">
+        <ActionBarButton onClick={() => {setGameShareModalOpen(true); setVersion(version + 1);}} className="border-r-2 border-border">
           <Share2 />
         </ActionBarButton>
 
@@ -267,6 +268,13 @@ export default function PassAndPlay() {
         </ActionBarButton>
       </ActionBar>
 
+
+      <GameShareModal
+        FEN={game.board.FEN()}
+        isOpen={gameShareModalOpen}
+        onOpenChange={() => {setGameShareModalOpen(false)}}
+        className="shadow-lg border-border border-2"
+      />
 
       <GameEndModal
         isOpen={game.state !== "ongoing" && !gameEndModalClosed}
