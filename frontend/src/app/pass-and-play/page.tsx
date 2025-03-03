@@ -271,6 +271,7 @@ export default function PassAndPlay() {
 
       <GameShareModal
         FEN={game.board.FEN()}
+        PGN={game.PGN()}
         isOpen={gameShareModalOpen}
         onOpenChange={() => {setGameShareModalOpen(false)}}
         className="shadow-lg border-border border-2"

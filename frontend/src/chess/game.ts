@@ -4,6 +4,10 @@ export default class Game {
   board: Board;
   moves: Board[];
   moveNo: number;
+
+  whitePlayer: string = "White";
+  blackPlayer: string = "Black";
+  
   moveNotations: string[];
   selection: number[] | null;
   validMoves: number[][];
@@ -219,5 +223,47 @@ export default class Game {
         }
       }
     }
+  }
+
+  PGN(): string {
+    const currentDate = () => {
+      const now = new Date();
+      return `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')}`;
+    };
+
+    let result: string = "*";
+    if      (this.state === "ongoing") result = "*";
+    else if (this.state === "checkmate") {
+      if      (this.stateDescription === "White Wins") result = "1-0";
+      else if (this.stateDescription === "Black Wins") result = "0-1";
+    }
+    else result = "1/2-1/2";
+
+    let PGN: string =
+`[Event "?"]
+[Site "https://chess.amaankazi.is-a.dev"]
+[Date "${currentDate()}"]
+[Round "1"]
+[White "${this.whitePlayer}"]
+[Black "${this.blackPlayer}"]
+[Result "${result}"]`.replace("\t", "");
+
+    let notations: string = "";
+    let notationNo: number = 1;
+
+    for (let i = 0; i < this.moveNotations.length; i++) {
+      if (i % 6 === 0) notations = notations.concat("\n");
+      
+      if (i % 2 === 0) {
+        notations = notations.concat(`${notationNo}. `);
+        notationNo += 1;
+      }
+
+      notations = notations.concat(this.moveNotations[i], " ");
+    }
+
+    PGN = PGN.concat("\n", notations, result);
+    console.log(PGN);
+    return PGN;
   }
 }

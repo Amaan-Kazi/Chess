@@ -4,6 +4,7 @@ import { Clipboard, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input }  from "@/components/ui/input";
 import { Label }  from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }            from "@/components/ui/tooltip";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent }           from "@/components/ui/card";
@@ -65,7 +66,7 @@ export function GameEndModal({ isOpen, title, description, onOpenChange, classNa
   );
 }
 
-export function GameShareModal({ FEN, isOpen, onOpenChange, className }: { FEN: string, isOpen: boolean, onOpenChange?: () => void, className?: string }) {
+export function GameShareModal({ FEN, PGN, isOpen, onOpenChange, className }: { FEN: string, PGN: string, isOpen: boolean, onOpenChange?: () => void, className?: string }) {
   const [ copiedFEN, setCopiedFEN ] = useState(false);
   
   function copyFEN() {
@@ -82,12 +83,12 @@ export function GameShareModal({ FEN, isOpen, onOpenChange, className }: { FEN: 
           <DialogDescription>Export PGN / FEN</DialogDescription>
         </DialogHeader>
 
-        <div>
+        <div className="mt-1">
           <Label>FEN - Forsyth Edwards Notation</Label>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-5">
             <div className="flex-1">
               <Input
-                className="border-border border-2"
+                className="border-border border-2 bg-navbar"
                 defaultValue={FEN}
                 readOnly
               />
@@ -96,7 +97,7 @@ export function GameShareModal({ FEN, isOpen, onOpenChange, className }: { FEN: 
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button className="flex justify-center items-center border-border border-2" variant={"outline"} onClick={copyFEN}>
+                  <Button className="flex justify-center items-center border-border border-2 bg-navbar" variant={"outline"} onClick={copyFEN}>
                     {copiedFEN ? <Check /> : <Clipboard />}
                   </Button>
                 </TooltipTrigger>
@@ -105,6 +106,13 @@ export function GameShareModal({ FEN, isOpen, onOpenChange, className }: { FEN: 
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          </div>
+
+          <Label>PGN - Portable Game Notation</Label>
+          <div className="bg-navbar max-h-[250px] rounded-md border-2 border-border">
+            <ScrollArea className="h-[250px] rounded-md">
+              <pre className="whitespace-pre-wrap text-sm p-2">{PGN}</pre>
+            </ScrollArea>
           </div>
         </div>
       </DialogContent>
