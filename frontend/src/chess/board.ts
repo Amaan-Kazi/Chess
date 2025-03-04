@@ -2,10 +2,10 @@ export default class Board {
   grid: (string | null)[][];
   turn: 'w' | 'b';
   castlingRights: { white: { kingSide: boolean; queenSide: boolean }, black: { kingSide: boolean; queenSide: boolean } };
-  enPassant: number[] | null; // e.g., "e3" if black just moved a pawn two squares forward.
+  enPassant: number[] | null;
   halfMoveClock: number;
   fullMoveNumber: number;
-  gameState: "ongoing" | "checkmate" | "stalemate" | "draw";
+  gameState: "ongoing" | "checkmate" | "stalemate" | "draw" | "resigned";
   prevMove: number[][];
 
   constructor(copyBoard?: Board, FEN?: string) {
@@ -117,8 +117,13 @@ export default class Board {
   move(move: number[][]): {moveStatus:"failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition", moveNotation: string | null} {
     const [[fromRow, fromCol], [toRow, toCol], [meta]] = move;
     let metadata = meta;
-
     const copyBoard = new Board(this);
+
+    if (this.gameState !== "ongoing") return {moveStatus:"failed", moveNotation: null};
+
+    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return {moveStatus:"failed", moveNotation: null}; // Bounds check
+    if (this.grid[fromRow][fromCol] === null)                                 return {moveStatus:"failed", moveNotation: null}; // piece check
+    if (this.turn !== this.pieceColor([fromRow, fromCol]))                    return {moveStatus:"failed", moveNotation: null}; // piece color check
 
     const pieceMoves = {
       'k': this.kingMoves.bind(this),
@@ -128,220 +133,216 @@ export default class Board {
       'n': this.knightMoves.bind(this),
       'p': this.pawnMoves.bind(this),
     };
+    const copiedPieceMoves = {
+      'k': copyBoard.kingMoves.bind(copyBoard),
+      'q': copyBoard.queenMoves.bind(copyBoard),
+      'r': copyBoard.rookMoves.bind(copyBoard),
+      'b': copyBoard.bishopMoves.bind(copyBoard),
+      'n': copyBoard.knightMoves.bind(copyBoard),
+      'p': copyBoard.pawnMoves.bind(copyBoard),
+    };
 
-    if (this.gameState !== "ongoing") return {moveStatus:"failed", moveNotation: null};
+    const piece       = this.grid[fromRow][fromCol];
+    const moves       = pieceMoves[piece!.toLowerCase() as keyof typeof pieceMoves]([fromRow, fromCol]);
+    let   isValidMove = false;
+    let   capture     = false;
+    let   status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition" = "move";
+    const rows = ['8', '7', '6', '5', '4', '3', '2', '1'];
+    const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-    if (!this.isInBounds(fromRow, fromCol) || !this.isInBounds(toRow, toCol)) return {moveStatus:"failed", moveNotation: null}; // Bounds check
-    if (this.grid[fromRow][fromCol] === null)                                 return {moveStatus:"failed", moveNotation: null}; // piece check
-
-    const piece = this.grid[fromRow][fromCol];
-
-    if (this.turn === this.pieceColor([fromRow, fromCol])) { // piece color check
-      const moves = pieceMoves[piece!.toLowerCase() as keyof typeof pieceMoves]([fromRow, fromCol]);
-      let isValidMove = false;
-      let capture = false;
-      let status: "failed" | "move" | "capture" | "castle" | "promotion" | "check" | "checkmate" | "draw - stalemate" | "draw - insufficient material" | "draw - 50 move rule" | "draw - repetition" = "move";
-
-      for (const [r, c, m] of moves) {
-        if (r === toRow && c === toCol) {
-          isValidMove = true;
-          metadata = m;
-          break;
-        }
-      }
-      if (!isValidMove) return {moveStatus:"failed", moveNotation: null};
-
-      // override to original metadata in case of promotion
-      if (meta >= 300 && meta <= 303) metadata = meta;
-
-      // Piece Captured
-      if (this.grid[toRow][toCol] !== null) { 
-        status = "capture";
-        capture = true;
-      }      
-
-      // Make the move itself
-      this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
-      this.grid[fromRow][fromCol] = null;
-
-      // Pawn Double Move
-      this.enPassant = null;
-      if (metadata === 100) this.enPassant = [(fromRow + toRow) / 2, fromCol]; // row is in between from row and to row
-
-      // En passant
-      if (metadata === 101) {
-        this.grid[fromRow][toCol] = null; // capture the piece
-        capture = true;
-        status = "capture";
-      }
-        
-      // Promotion
-      if (metadata >= 300 && metadata <= 303) {
-        if      (metadata === 300) this.grid[toRow][toCol] = this.turn === 'w' ? 'Q' : 'q';
-        else if (metadata === 301) this.grid[toRow][toCol] = this.turn === 'w' ? 'N' : 'n';
-        else if (metadata === 302) this.grid[toRow][toCol] = this.turn === 'w' ? 'R' : 'r';
-        else if (metadata === 303) this.grid[toRow][toCol] = this.turn === 'w' ? 'B' : 'b';
-
-        status = "promotion";
-      }
-
-      // Castle
-      if (metadata === 200) { // King Side
-        this.grid[fromRow][7] = null;
-        this.grid[fromRow][5] = this.turn === 'w' ? 'R' : 'r';
-        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
-        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
-      }
-      if (metadata === 201) { // Queen Side
-        this.grid[fromRow][0] = null;
-        this.grid[fromRow][3] = this.turn === 'w' ? 'R' : 'r';
-        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
-        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
-      }
-
-      // castling rights
-      if (fromRow === (this.turn === 'w' ? 7 : 0)) { // Rook moved
-        if      (fromCol === 0) this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
-        else if (fromCol === 7) this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
-      }
-      if (toRow === (this.turn === 'b' ? 7 : 0)) { // Rook Captured
-        if      (toCol === 0) this.castlingRights[this.turn === 'b' ? 'white' : 'black'].queenSide = false;
-        else if (toCol === 7) this.castlingRights[this.turn === 'b' ? 'white' : 'black'].kingSide  = false;
-      }
-      if (piece.toLowerCase() === 'k') { // King Moved
-        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
-        this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
-      }
-
-      // after move - update counters, turn, check for checkmate and draws
-      if (this.turn === 'b') this.fullMoveNumber++;
-      this.halfMoveClock = (capture || piece.toLowerCase() === 'p') ? 0 : this.halfMoveClock + 1; // set to 0 when a pawn is moved or piece is captured
-      this.turn = this.turn === 'w' ? 'b' : 'w';
-      this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
-
-      if (this.isCheck(this.turn))   status = "check";
-      if (this.halfMoveClock >= 100) status = "draw - 50 move rule";
-
-      if (this.validMoves().length === 0) {
-        if (this.isCheck(this.turn)) {
-          this.gameState = "checkmate";
-          status = "checkmate";
-        }
-        else {
-          this.gameState = "stalemate";
-          status = "draw - stalemate";
-        }
-      }
-
-      const pieces = {
-        K: 0,
-        Q: 0,
-        R: 0,
-        B: 0,
-        N: 0,
-        P: 0,
-        k: 0,
-        q: 0,
-        r: 0,
-        b: 0,
-        n: 0,
-        p: 0,
-        total: 0,
-      }
-      for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-          if (this.grid[i][j] !== null) {
-            pieces[this.grid![i][j] as keyof typeof pieces]++;
-            pieces.total++;
-          }
-        }
-      }
-
-      if (pieces.total <= 2) status = "draw - insufficient material";
-      if (pieces.total === 3) {
-        if      (pieces.b === 1 || pieces.B === 1) status = "draw - insufficient material";
-        else if (pieces.n === 1 || pieces.N === 1) status = "draw - insufficient material";
-      }
-      if (pieces.total === 4) {
-        if      (pieces.b === 1 && pieces.B === 1)                                         status = "draw - insufficient material";
-        else if (pieces.n === 1 && pieces.N === 1)                                         status = "draw - insufficient material";
-        else if ((pieces.b === 1 && pieces.N === 1) || (pieces.n === 1 && pieces.B === 1)) status = "draw - insufficient material";
-      }
-      if (status === "draw - insufficient material") this.gameState = "draw";
-
-      const copiedPieceMoves = {
-        'k': copyBoard.kingMoves.bind(copyBoard),
-        'q': copyBoard.queenMoves.bind(copyBoard),
-        'r': copyBoard.rookMoves.bind(copyBoard),
-        'b': copyBoard.bishopMoves.bind(copyBoard),
-        'n': copyBoard.knightMoves.bind(copyBoard),
-        'p': copyBoard.pawnMoves.bind(copyBoard),
-      };
-
-      const rows = ['8', '7', '6', '5', '4', '3', '2', '1'];
-      const cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-
-      const notation = {
-        piece: "", // Pawn
-        fromCol: "",
-        fromRow: "",
-        capture: "", // x when capture
-        toRow: rows[toRow],
-        toCol: cols[toCol],
-        promotion: "", // =Q / =N / =R / =B when promoting to respective piece
-        attribute: "", // + when check, # when checkmate
-      }
-
-      if (piece.toUpperCase() !== 'P') notation.piece = piece.toUpperCase(); // pawns dont have a piece prefix in algebraic notation
-      if (capture) { // x on capture
-        if (piece.toUpperCase() === 'P') notation.fromCol = cols[fromCol]; // pawns prefix column on every capture regardless of ambiguity
-        notation.capture = "x";
-      }
-
-      for (let i = 0; i < 8; i++) { // Ambiguity resolution - row
-        if (i === fromRow) continue;
-        if (copyBoard.grid[i][fromCol] === 'K' || copyBoard.grid[i][fromCol] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
-        
-        if (copyBoard.grid[i][fromCol] === piece && copyBoard.grid[i][fromCol] !== null) {
-          for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([i, fromCol])) {
-            if (tRow === toRow && tCol === toCol) {
-              notation.fromRow = rows[fromRow];
-              break;
-            }
-          }
-        }
-      }
-
-      for (let i = 0; i < 8; i++) { // Ambiguity resolution - column
-        if (i === fromCol) continue;
-        if (copyBoard.grid[fromRow][i] === 'K' || copyBoard.grid[fromRow][i] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
-        
-        if (copyBoard.grid[fromRow][i] === piece && copyBoard.grid[fromRow][i] !== null) {
-          for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([fromRow, i])) {
-            if (tRow === toRow && tCol === toCol) {
-              notation.fromCol = cols[fromCol];
-              break;
-            }
-          }
-        }
-      }
-
-      if (this.isCheck(this.turn)) notation.attribute = "+"; // Check
-      if (status === "checkmate") notation.attribute = "#";  // Checkmate
-
-      if      (metadata === 300) notation.promotion = "=Q"; // Queen
-      else if (metadata === 301) notation.promotion = "=N"; // Knight
-      else if (metadata === 302) notation.promotion = "=R"; // Rook
-      else if (metadata === 303) notation.promotion = "=B"; // Bishop
-
-      let mNotation = `${notation.piece}${notation.fromCol}${notation.fromRow}${notation.capture}${notation.toCol}${notation.toRow}${notation.promotion}${notation.attribute}`;
-      if      (metadata === 200) mNotation = `O-O${notation.attribute}`;   // king side castle
-      else if (metadata === 201) mNotation = `O-O-O${notation.attribute}`; // queen side castle
-
-      return {moveStatus: status, moveNotation: mNotation};
+    const notation = {
+      piece: "", // Pawn
+      fromCol: "",
+      fromRow: "",
+      capture: "", // x when capture
+      toRow: rows[toRow],
+      toCol: cols[toCol],
+      promotion: "", // =Q / =N / =R / =B when promoting to respective piece
+      attribute: "", // + when check, # when checkmate
     }
 
-    return {moveStatus:"failed", moveNotation: null};
+    const pieces = {
+      K: 0,
+      Q: 0,
+      R: 0,
+      B: 0,
+      N: 0,
+      P: 0,
+      k: 0,
+      q: 0,
+      r: 0,
+      b: 0,
+      n: 0,
+      p: 0,
+      total: 0,
+    }
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (this.grid[i][j] !== null) {
+          pieces[this.grid![i][j] as keyof typeof pieces]++;
+          pieces.total++;
+        }
+      }
+    }
+
+
+    // loop over all valid moves and check whether given move is in it
+    for (const [r, c, m] of moves) {
+      if (r === toRow && c === toCol) {
+        isValidMove = true;
+        metadata = m;
+        break;
+      }
+    }
+    if (!isValidMove) return {moveStatus:"failed", moveNotation: null};
+
+    // override to original metadata in case of promotion
+    if (meta >= 300 && meta <= 303) metadata = meta;
+
+    // Piece Captured
+    if (this.grid[toRow][toCol] !== null) { 
+      status = "capture";
+      capture = true;
+    }      
+
+    // Make the move itself
+    this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
+    this.grid[fromRow][fromCol] = null;
+
+
+    // Pawn Double Move
+    this.enPassant = null;
+    if (metadata === 100) this.enPassant = [(fromRow + toRow) / 2, fromCol]; // row is in between from row and to row
+
+    // En passant
+    if (metadata === 101) {
+      this.grid[fromRow][toCol] = null; // capture the piece
+      capture = true;
+      status = "capture";
+    }
+      
+    // Promotion
+    if (metadata >= 300 && metadata <= 303) {
+      if      (metadata === 300) this.grid[toRow][toCol] = this.turn === 'w' ? 'Q' : 'q';
+      else if (metadata === 301) this.grid[toRow][toCol] = this.turn === 'w' ? 'N' : 'n';
+      else if (metadata === 302) this.grid[toRow][toCol] = this.turn === 'w' ? 'R' : 'r';
+      else if (metadata === 303) this.grid[toRow][toCol] = this.turn === 'w' ? 'B' : 'b';
+
+      status = "promotion";
+    }
+
+    // Castle
+    if (metadata === 200) { // King Side
+      this.grid[fromRow][7] = null;
+      this.grid[fromRow][5] = this.turn === 'w' ? 'R' : 'r';
+      this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+      this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+    }
+    if (metadata === 201) { // Queen Side
+      this.grid[fromRow][0] = null;
+      this.grid[fromRow][3] = this.turn === 'w' ? 'R' : 'r';
+      this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+      this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+    }
+
+    // castling rights
+    if (fromRow === (this.turn === 'w' ? 7 : 0)) { // Rook moved
+      if      (fromCol === 0) this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+      else if (fromCol === 7) this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+    }
+    if (toRow === (this.turn === 'b' ? 7 : 0)) { // Rook Captured
+      if      (toCol === 0) this.castlingRights[this.turn === 'b' ? 'white' : 'black'].queenSide = false;
+      else if (toCol === 7) this.castlingRights[this.turn === 'b' ? 'white' : 'black'].kingSide  = false;
+    }
+    if (piece.toLowerCase() === 'k') { // King Moved
+      this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
+      this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
+    }
+
+
+    // after move - update counters, turn, check for checkmate and draws
+    if (this.turn === 'b') this.fullMoveNumber++;
+    this.halfMoveClock = (capture || piece.toLowerCase() === 'p') ? 0 : this.halfMoveClock + 1; // set to 0 when a pawn is moved or piece is captured
+    this.turn = this.turn === 'w' ? 'b' : 'w';
+    this.prevMove = [[fromRow, fromCol], [toRow, toCol]];
+
+    if (this.isCheck(this.turn))   status = "check";
+    if (this.halfMoveClock >= 100) status = "draw - 50 move rule";
+
+    if (this.validMoves().length === 0) {
+      if (this.isCheck(this.turn)) {
+        this.gameState = "checkmate";
+        status = "checkmate";
+      }
+      else {
+        this.gameState = "stalemate";
+        status = "draw - stalemate";
+      }
+    }
+
+    if (pieces.total <= 2) status = "draw - insufficient material";
+    if (pieces.total === 3) {
+      if      (pieces.b === 1 || pieces.B === 1) status = "draw - insufficient material";
+      else if (pieces.n === 1 || pieces.N === 1) status = "draw - insufficient material";
+    }
+    if (pieces.total === 4) {
+      if      (pieces.b === 1 && pieces.B === 1)                                         status = "draw - insufficient material";
+      else if (pieces.n === 1 && pieces.N === 1)                                         status = "draw - insufficient material";
+      else if ((pieces.b === 1 && pieces.N === 1) || (pieces.n === 1 && pieces.B === 1)) status = "draw - insufficient material";
+    }
+    if (status === "draw - insufficient material") this.gameState = "draw";
+
+
+    // Ambiguity Resolution in move notations
+    for (let i = 0; i < 8; i++) { // Ambiguity resolution - row
+      if (i === fromRow) continue;
+      if (copyBoard.grid[i][fromCol] === 'K' || copyBoard.grid[i][fromCol] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
+      
+      if (copyBoard.grid[i][fromCol] === piece && copyBoard.grid[i][fromCol] !== null) {
+        for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([i, fromCol])) {
+          if (tRow === toRow && tCol === toCol) {
+            notation.fromRow = rows[fromRow];
+            break;
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < 8; i++) { // Ambiguity resolution - column
+      if (i === fromCol) continue;
+      if (copyBoard.grid[fromRow][i] === 'K' || copyBoard.grid[fromRow][i] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
+      
+      if (copyBoard.grid[fromRow][i] === piece && copyBoard.grid[fromRow][i] !== null) {
+        for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([fromRow, i])) {
+          if (tRow === toRow && tCol === toCol) {
+            notation.fromCol = cols[fromCol];
+            break;
+          }
+        }
+      }
+    }
+
+
+    // Move Notation
+    if (piece.toUpperCase() !== 'P') notation.piece = piece.toUpperCase(); // pawns dont have a piece prefix in algebraic notation
+    if (capture) { // x on capture
+      if (piece.toUpperCase() === 'P') notation.fromCol = cols[fromCol]; // pawns prefix column on every capture regardless of ambiguity
+      notation.capture = "x";
+    }
+
+    if (this.isCheck(this.turn)) notation.attribute = "+"; // Check
+    if (status === "checkmate") notation.attribute = "#";  // Checkmate
+
+    if      (metadata === 300) notation.promotion = "=Q"; // Queen
+    else if (metadata === 301) notation.promotion = "=N"; // Knight
+    else if (metadata === 302) notation.promotion = "=R"; // Rook
+    else if (metadata === 303) notation.promotion = "=B"; // Bishop
+
+    let mNotation = `${notation.piece}${notation.fromCol}${notation.fromRow}${notation.capture}${notation.toCol}${notation.toRow}${notation.promotion}${notation.attribute}`;
+    if      (metadata === 200) mNotation = `O-O${notation.attribute}`;   // king side castle
+    else if (metadata === 201) mNotation = `O-O-O${notation.attribute}`; // queen side castle
+
+    return {moveStatus: status, moveNotation: mNotation};
   }
 
 
