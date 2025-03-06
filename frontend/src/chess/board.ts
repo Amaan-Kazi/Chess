@@ -293,31 +293,43 @@ export default class Board {
     if (status === "draw - insufficient material") this.gameState = "draw";
 
 
-    // Ambiguity Resolution in move notations
-    for (let i = 0; i < 8; i++) { // Ambiguity resolution - row
-      if (i === fromRow) continue;
-      if (copyBoard.grid[i][fromCol] === 'K' || copyBoard.grid[i][fromCol] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
-      
-      if (copyBoard.grid[i][fromCol] === piece && copyBoard.grid[i][fromCol] !== null) {
-        for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([i, fromCol])) {
-          if (tRow === toRow && tCol === toCol) {
-            notation.fromRow = rows[fromRow];
-            break;
+    // Ambiguity Resolution in Move Notation
+    if (piece.toLowerCase() !== 'k') {
+      const ambiguousCandidates: {row: number, col: number}[] = [];
+
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          if (i === fromRow && j === fromCol) continue; // Ignore the piece that actually moved
+          if (copyBoard.grid[i][j] !== piece || copyBoard.grid[i][j] === null) continue;
+
+          // if the same piece on another square can move to the target, then it is an ambiguous candidate
+          for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([i, j])) {
+            if (tRow === toRow && tCol === toCol) {
+              ambiguousCandidates.push({row: i, col: j});
+              break;
+            }
           }
         }
       }
-    }
 
-    for (let i = 0; i < 8; i++) { // Ambiguity resolution - column
-      if (i === fromCol) continue;
-      if (copyBoard.grid[fromRow][i] === 'K' || copyBoard.grid[fromRow][i] === 'k' || piece === 'k' || piece === 'K') continue; // DONT MESS WITH THE KING
-      
-      if (copyBoard.grid[fromRow][i] === piece && copyBoard.grid[fromRow][i] !== null) {
-        for (const [tRow, tCol] of copiedPieceMoves[piece.toLowerCase() as keyof typeof copiedPieceMoves]([fromRow, i])) {
-          if (tRow === toRow && tCol === toCol) {
-            notation.fromCol = cols[fromCol];
-            break;
-          }
+      if (ambiguousCandidates.length > 0) {
+        // some() is a method in array, which determines whether the condition in callback is true for any element in the array
+        const fileConflict = ambiguousCandidates.some(candidate => candidate.col === fromCol);
+        const rankConflict = ambiguousCandidates.some(candidate => candidate.row === fromRow);
+
+        // According to PGN rules:
+        // - If the moving piece’s file is unique among ambiguous pieces, use the file.
+        // - Otherwise if the rank is unique, use the rank.
+        // - If both file and rank are shared with at least one candidate, use both.
+        if (fileConflict && rankConflict) {
+          notation.fromCol = cols[fromCol];
+          notation.fromRow = rows[fromRow];
+        }
+        else if (fileConflict) {
+          notation.fromRow = rows[fromRow];
+        }
+        else {
+          notation.fromCol = cols[fromCol];
         }
       }
     }
