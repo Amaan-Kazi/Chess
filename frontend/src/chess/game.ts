@@ -18,14 +18,16 @@ export default class Game {
   evaluation: number;
   mateIn: number | null;
   stockfish: Worker | null;
-
-  moveAudio?:        HTMLAudioElement;
-  illegalMoveAudio?: HTMLAudioElement;
-  captureAudio?:     HTMLAudioElement;
-  gameEndAudio?:     HTMLAudioElement;
-  checkAudio?:       HTMLAudioElement;
-  castleAudio?:      HTMLAudioElement;
-  promotionAudio?:   HTMLAudioElement;
+  
+  sound: {
+    moveAudio?:        HTMLAudioElement,
+    illegalMoveAudio?: HTMLAudioElement,
+    captureAudio?:     HTMLAudioElement,
+    gameEndAudio?:     HTMLAudioElement,
+    checkAudio?:       HTMLAudioElement,
+    castleAudio?:      HTMLAudioElement,
+    promotionAudio?:   HTMLAudioElement,
+  } = {};
 
   constructor(stockfish: Worker | null) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -40,13 +42,15 @@ export default class Game {
     this.stateDescription = "";
 
     if (typeof window !== "undefined") {
-      this.moveAudio        = new Audio("/chess/sounds/move-self.mp3");
-      this.illegalMoveAudio = new Audio("/chess/sounds/illegal.mp3");
-      this.captureAudio     = new Audio("/chess/sounds/capture.mp3");
-      this.castleAudio      = new Audio("/chess/sounds/castle.mp3");
-      this.checkAudio       = new Audio("/chess/sounds/move-check.mp3");
-      this.gameEndAudio     = new Audio("/chess/sounds/game-end.mp3");
-      this.promotionAudio   = new Audio("/chess/sounds/promote.mp3");
+      this.sound = {
+        moveAudio:         new Audio("/chess/sounds/move-self.mp3"),
+        illegalMoveAudio:  new Audio("/chess/sounds/illegal.mp3"),
+        captureAudio:      new Audio("/chess/sounds/capture.mp3"),
+        castleAudio:       new Audio("/chess/sounds/castle.mp3"),
+        checkAudio:        new Audio("/chess/sounds/move-check.mp3"),
+        gameEndAudio:      new Audio("/chess/sounds/game-end.mp3"),
+        promotionAudio:    new Audio("/chess/sounds/promote.mp3"),
+      }
     }
 
     this.evaluation = 0;
@@ -99,20 +103,20 @@ export default class Game {
             this.moveNotations.push(moveNotation!);
 
             if (typeof window !== "undefined") {
-              if      (moveStatus === "move")      this.moveAudio?.play();
-              else if (moveStatus === "capture")   this.captureAudio?.play();
-              else if (moveStatus === "castle")    this.castleAudio?.play();
-              else if (moveStatus === "check")     this.checkAudio?.play();
-              else if (moveStatus === "promotion") this.promotionAudio?.play();
+              if      (moveStatus === "move")      this.sound.moveAudio?.play();
+              else if (moveStatus === "capture")   this.sound.captureAudio?.play();
+              else if (moveStatus === "castle")    this.sound.castleAudio?.play();
+              else if (moveStatus === "check")     this.sound.checkAudio?.play();
+              else if (moveStatus === "promotion") this.sound.promotionAudio?.play();
               else if (moveStatus === "checkmate") {
                 this.state = "checkmate";
                 this.stateDescription = `${this.board.turn === 'b' ? "White" : "Black"} Wins`
-                this.gameEndAudio?.play();
+                this.sound.gameEndAudio?.play();
               }
               else if (moveStatus.startsWith("draw - ")) {
                 this.state = "draw";
                 this.stateDescription = "By " + moveStatus.slice(7);
-                this.gameEndAudio?.play();
+                this.sound.gameEndAudio?.play();
               }
             }
 
@@ -122,7 +126,7 @@ export default class Game {
               this.evaluatePosition();
             }
           }
-          else if (typeof window !== "undefined") this.illegalMoveAudio?.play();
+          else if (typeof window !== "undefined") this.sound.illegalMoveAudio?.play();
 
           break;
         }
