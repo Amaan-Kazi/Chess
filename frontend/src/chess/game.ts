@@ -29,7 +29,7 @@ export default class Game {
     promotionAudio?:   HTMLAudioElement,
   } = {};
 
-  constructor(stockfish: Worker | null) {
+  constructor(stockfish: Worker | null, PGN?: string) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNo = 0;
@@ -40,6 +40,33 @@ export default class Game {
 
     this.state = "ongoing";
     this.stateDescription = "";
+
+    if (PGN) {
+      const metadata: { white?: string, black?: string } = {};
+      
+      PGN = PGN.replace(/\[(.*?)\]/g, (match: string, content: string) => {
+        const [key, value]: string[] = content.split(' "');
+        metadata[key.trim() as keyof typeof metadata] = value.replace(/"$/, '').trim();
+        return ''; // Remove metadata from the PGN
+      }).trim();
+      
+      PGN = PGN
+        .replace(/\{[^}]*\}/g, '')                  // Remove comments          {}
+        .replace(/\([^)]*\)/g, '')                  // Remove alternative lines ()
+        .replace(/\d+\./g, '')                      // Remove move numbers      1. 2. 3.
+        .replace(/\b(1-0|0-1|1\/2-1\/2|\*)\b/g, '') // Remove Result            * 1/0 1/2-1/2 0/1
+      .trim();
+
+      const notations = PGN.split(" ");
+      const moveNotations: string[] = [];
+
+      for (const notation of notations) {
+        if (/^[A-Za-z]/.test(notation)) moveNotations.push(notation);
+      }
+
+      console.log(metadata);
+      console.log(moveNotations);
+    }
 
     if (typeof window !== "undefined") {
       this.sound = {
@@ -122,7 +149,7 @@ export default class Game {
 
             if (this.stockfish)
             {
-              console.clear();
+              // console.clear();
               this.evaluatePosition();
             }
           }
@@ -133,14 +160,15 @@ export default class Game {
       }
     }
 
-    // Empty Square
+    // Empty Square Clicked
     if (!piece) {
       this.selection = null;
       this.validMoves = [];
       return;
     }
 
-    if (this.board.pieceColor(pos) == this.board.turn) { // selected piece color = player turn color
+    // if selected piece color = player turn color, then get and store all valid moves
+    if (this.board.pieceColor(pos) == this.board.turn) {
       this.selection = pos;
       this.validMoves = pieceMoves[`${piece!.toLowerCase()}` as keyof typeof pieceMoves]([row, col]);
       return;
@@ -152,6 +180,7 @@ export default class Game {
     }
   }
 
+  
   backward(): void {
     if (this.moves.length <= 1) return;
 
@@ -162,7 +191,7 @@ export default class Game {
       this.moveNo--;
       this.board = new Board(this.moves[this.moveNo]);
 
-      console.clear();
+      // console.clear();
       this.evaluatePosition();
     }
   }
@@ -177,7 +206,7 @@ export default class Game {
       this.moveNo++;
       this.board = new Board(this.moves[this.moveNo]);
       
-      console.clear();
+      // console.clear();
       this.evaluatePosition();
     }
   }
@@ -189,13 +218,13 @@ export default class Game {
     this.moveNo = index;
     this.board = new Board(this.moves[this.moveNo]);
 
-    console.clear();
+    // console.clear();
     this.evaluatePosition();
   }
 
 
   evaluatePosition() {
-    console.log(this.board.FEN())
+    // console.log(this.board.FEN())
     this.stockfish?.postMessage("ucinewgame");
     this.stockfish?.postMessage(`position fen ${this.board.FEN()}`);
     this.stockfish?.postMessage("go depth 10");
@@ -203,7 +232,7 @@ export default class Game {
 
   handleStockfishResponse(event: MessageEvent) {
     const data = event.data;
-    console.log(data);
+    // console.log(data);
 
     // Handle Stockfish evaluation response
     if (data.startsWith("info") && data.includes("score")) {
@@ -215,19 +244,20 @@ export default class Game {
           this.evaluation = Math.max(-10, Math.min(10, (parseInt(value, 10) / 100))); // Convert centipawns to pawn units
           if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
           this.mateIn = null;
-          console.log("Evaluation: ", this.evaluation);
+          // console.log("Evaluation: ", this.evaluation);
         } else if (type === "mate") {
           // Mate in X moves (use a very high score to indicate win/loss)
           const mateIn = parseInt(value, 10);
           this.mateIn = mateIn < 0 ? mateIn * -1 : mateIn;
-          console.log("Mate in ", mateIn);
+          // console.log("Mate in ", mateIn);
           this.evaluation = mateIn > 0 ? 10 : -10; // Positive for White, negative for Black
           if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
-          console.log("Evaluation: ", this.evaluation);
+          // console.log("Evaluation: ", this.evaluation);
         }
       }
     }
   }
+
 
   PGN(): string {
     const currentDate = () => {
@@ -267,7 +297,6 @@ export default class Game {
     }
 
     PGN = PGN.concat("\n", notations, result);
-    console.log(PGN);
     return PGN;
   }
 }
