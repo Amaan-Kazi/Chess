@@ -14,19 +14,7 @@ import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/move
 
 
 export default function PassAndPlay() {
-  const [game, setGame] = useState(new Game(null, `
-    [Event "?"]
-    [Site "?"]
-    [Date "????.??.??"]
-    [Round "?"]
-    [White "White Player"]
-    [Black "Black Player"]
-    [Result "*"]
-    [Link "https://www.chess.com/analysis/game/pgn/3hTNnrPDQr?tab=analysis&move=5"]
-
-    1. e4 d5 $3 2. e5 $9 f5 $4 $41 3. exf6 e5 $37 4. fxg7 $13 Be7 $256 5. gxh8=Q $256 Bf6 6.
-    Qxg8+ Ke7 $4 {asdasdasd} (6... Kd7 7. Qxd5+ Ke7) 7. Qxd8+ Kf7 *
-  `));
+  const [game, setGame] = useState(new Game());
   const [version, setVersion] = useState(0); // manually trigger re renders
   const [settings, setSettings] = useState({white: 'White', black: 'Black', flipBoard: true, flipPiece: false, allowUndo: true});
   
@@ -53,14 +41,14 @@ export default function PassAndPlay() {
   // add stockfish to game for evaluation only when loaded client side
   useEffect(() => {
     if (typeof window !== "undefined") {
-      let worker: Worker | null;
+      let worker: Worker | undefined;
 
       try {
         worker = new Worker("/stockfish.js");
       }
       catch (error) {
         console.log(error);
-        worker = null;
+        worker = undefined;
       }
 
       const gameInstance = new Game(worker);
