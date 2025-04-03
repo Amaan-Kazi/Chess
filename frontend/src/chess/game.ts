@@ -29,7 +29,7 @@ export default class Game {
     promotionAudio?:   HTMLAudioElement,
   } = {};
 
-  constructor(stockfish?: Worker, PGN?: string) {
+  constructor(stockfish?: Worker, PGN?: string, white?: string, black?: string) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNo = 0;
@@ -41,14 +41,20 @@ export default class Game {
     this.state = "ongoing";
     this.stateDescription = "";
 
+    if (white) this.whitePlayer = white;
+    if (black) this.blackPlayer = black;
+
     if (PGN) {
-      const metadata: { white?: string, black?: string } = {};
+      const metadata: { White?: string, Black?: string } = {};
       
       PGN = PGN.replace(/\[(.*?)\]/g, (match: string, content: string) => {
         const [key, value]: string[] = content.split(' "');
         metadata[key.trim() as keyof typeof metadata] = value.replace(/"$/, '').trim();
         return ''; // Remove metadata from the PGN
       }).trim();
+
+      if (metadata.Black) this.blackPlayer = metadata.Black;
+      if (metadata.White) this.whitePlayer = metadata.White;
       
       PGN = PGN
         .replace(/\{[^}]*\}/g, '')                  // Remove comments          {}
@@ -412,7 +418,7 @@ export default class Game {
   }
 
 
-  PGN(): string {
+  PGN(white: string, black: string): string {
     const currentDate = () => {
       const now = new Date();
       return `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')}`;
@@ -431,8 +437,8 @@ export default class Game {
 [Site "https://chess.amaankazi.is-a.dev"]
 [Date "${currentDate()}"]
 [Round "1"]
-[White "${this.whitePlayer}"]
-[Black "${this.blackPlayer}"]
+[White "${white}"]
+[Black "${black}"]
 [Result "${result}"]`.replace("\t", "");
 
     let notations: string = "";

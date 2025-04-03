@@ -14,7 +14,7 @@ import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/move
 
 
 export default function PassAndPlay() {
-  const [game, setGame] = useState(new Game());
+  const [game, setGame] = useState(new Game(undefined));
   const [version, setVersion] = useState(0); // manually trigger re renders
   const [settings, setSettings] = useState({white: 'White', black: 'Black', flipBoard: true, flipPiece: false, allowUndo: true});
   
@@ -66,8 +66,14 @@ export default function PassAndPlay() {
     
     if (savedSettings !== undefined) setSettings(savedSettings);
     else setSettings({white: 'White', black: 'Black', flipBoard: true, flipPiece: false, allowUndo: true});
-    
-    console.log(savedSettings);
+
+    game.whitePlayer = savedSettings.white;
+    game.blackPlayer = savedSettings.black;
+
+    console.log(settings);
+    setGame(game);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // forward or backward moves using arrow keys
@@ -174,7 +180,7 @@ export default function PassAndPlay() {
         ">
           <PlayerDetails
             variant="player"
-            name={settings.black}
+            name={game.blackPlayer}
             
             grid={game.board.grid}
             color='b'
@@ -208,7 +214,7 @@ export default function PassAndPlay() {
 
           <PlayerDetails
             variant="player"
-            name={settings.white}
+            name={game.whitePlayer}
 
             grid={game.board.grid}
             isActive={game.board.turn === 'w'}
@@ -271,7 +277,7 @@ export default function PassAndPlay() {
 
       <GameShareModal
         FEN={game.board.FEN()}
-        PGN={game.PGN()}
+        PGN={game.PGN(game.whitePlayer, game.blackPlayer)}
         isOpen={gameShareModalOpen}
         onOpenChange={() => {setGameShareModalOpen(false)}}
         className="shadow-lg border-border border-2"

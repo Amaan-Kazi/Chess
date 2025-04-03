@@ -12,7 +12,7 @@ import Navbar from "@/components/navbar";
 import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
-  const [game, setGame] = useState(new Game(null));
+  const [game, setGame] = useState(new Game(undefined));
   const [selected, setSelected] = useState(0);
   const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
   
