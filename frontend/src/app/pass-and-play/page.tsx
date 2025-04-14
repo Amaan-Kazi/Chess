@@ -207,7 +207,7 @@ export default function PassAndPlay() {
             onclick={click}
             className="
               m-2 lg:mx-2 select-none shadow-xl
-              w-[min(96%,calc(90/100*(100vh-60px-40px-60px)))]
+              w-[min(96%,calc(90/100*(100vh-60px-40px-60px-60px)))]
               lg:w-[min(90%,calc(90/100*(100vh-60px)))]
             "
           />
