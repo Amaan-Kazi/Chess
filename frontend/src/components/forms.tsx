@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useMediaQuery } from "react-responsive";
+
 import {
   Form,
   FormControl,
@@ -22,20 +24,21 @@ import { Switch } from "@/components/ui/switch";
 const passAndPlaySchema = z.object({
   white: z.string().min(2, {message: "Name must be atleast 2 characters"}).max(50, {message: "Name can be 50 characters at most"}),
   black: z.string().min(2, {message: "Name must be atleast 2 characters"}).max(50, {message: "Name can be 50 characters at most"}),
-  flipBoard: z.boolean(),
+  boardRotates: z.boolean(),
   flipPiece: z.boolean(),
   allowUndo: z.boolean(),
 });
 
 export function PassAndPlayForm({ redirect }: { redirect?: string }) { 
   const router = useRouter();
+  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
 
   const form = useForm<z.infer<typeof passAndPlaySchema>>({
     resolver: zodResolver(passAndPlaySchema),
     defaultValues: {
       white: "White",
       black: "Black",
-      flipBoard: true,
+      boardRotates: isSmallScreen,
       flipPiece: false,
       allowUndo: true,
     },
@@ -95,13 +98,13 @@ export function PassAndPlayForm({ redirect }: { redirect?: string }) {
 
           <FormField
             control={form.control}
-            name="flipBoard"
+            name="boardRotates"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between">
                 <div className="space-y-0.5">
-                  <FormLabel>Flip Board</FormLabel>
+                  <FormLabel>Board Rotates</FormLabel>
                   <FormDescription>
-                    Flip the board on each turn
+                    Rotate the board on each turn
                   </FormDescription>
                 </div>
                 <FormControl>

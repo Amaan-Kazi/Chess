@@ -12,11 +12,14 @@ import { PromotionModal, GameEndModal, GameShareModal }  from "@/components/moda
 import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
 import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/moveNotations";
 
+import { useMediaQuery } from "react-responsive";
+
 
 export default function PassAndPlay() {
+  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
   const [game, setGame] = useState(new Game(undefined));
   const [version, setVersion] = useState(0); // manually trigger re renders
-  const [settings, setSettings] = useState({white: 'White', black: 'Black', flipBoard: true, flipPiece: false, allowUndo: true});
+  const [settings, setSettings] = useState({white: 'White', black: 'Black', boardRotates: isSmallScreen, flipPiece: false, allowUndo: true});
   
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
@@ -65,7 +68,7 @@ export default function PassAndPlay() {
     const savedSettings = JSON.parse(localStorage.getItem("PassAndPlay") || "{}").settings;
     
     if (savedSettings !== undefined) setSettings(savedSettings);
-    else setSettings({white: 'White', black: 'Black', flipBoard: true, flipPiece: false, allowUndo: true});
+    else setSettings({white: 'White', black: 'Black', boardRotates: isSmallScreen, flipPiece: false, allowUndo: true});
 
     game.whitePlayer = savedSettings.white;
     game.blackPlayer = savedSettings.black;
