@@ -1,9 +1,10 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useRef, useState, useEffect } from "react";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface BoardInterface {
   grid: (string | null)[][],
+  idGrid: Uint8Array,
   turn: 'w' | 'b',
 
   prevMove: number[][],
@@ -19,10 +20,26 @@ interface BoardInterface {
   className?: string,
   style?: React.CSSProperties,
   children?: ReactElement
-}
+};
 
-export default function ChessBoard({ grid, turn, prevMove, selection, validMoves, isCheck, onclick, turnedOver, setIsAnimating, className, style, children }: BoardInterface): React.ReactElement {
-  const piece = {
+export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, validMoves, isCheck, onclick, turnedOver, setIsAnimating, className, style, children }: BoardInterface) {
+  const boardRef = useRef<HTMLDivElement>(null);
+  const [squareSize, setSquareSize] = useState(0);
+
+  useEffect(() => {
+    const resize = () => {
+      if (boardRef.current) {
+        setSquareSize(boardRef.current.offsetWidth / 8);
+      }
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+  
+  const pieces = {
     p: "bp",
     n: "bn",
     b: "bb",
@@ -42,17 +59,15 @@ export default function ChessBoard({ grid, turn, prevMove, selection, validMoves
   
   return (
     <div
-      className={`grid grid-cols-8 grid-rows-8 aspect-square ${className}`}
+      ref={boardRef}
+      className={`relative grid grid-cols-8 grid-rows-8 aspect-square ${className}`}
       style={style}
     >
       {Array.from({ length: 8 * 8 }).map((_, index) => {
         const row = Math.floor(index / 8);
         const col = index % 8;
         const isDarkSquare = (row + col) % 2 === 1;
-        let pieceName = "";
-        
         const pieceKey = grid[row][col];
-        if (pieceKey) pieceName = piece[pieceKey as keyof typeof piece];
 
         // Check if the current square is a valid move
         const isValidMove = validMoves.some(([r, c]) => r === row && c === col);
@@ -87,7 +102,7 @@ export default function ChessBoard({ grid, turn, prevMove, selection, validMoves
 
         return (
           <motion.div
-            key={`${row}-${col}`}
+            key={`square-${row}-${col}`}
             onClick={() => {if (!turnedOver) onclick(row, col)}}
             className={`
               relative flex justify-center items-center z-10 ${backgroundColor}
@@ -116,14 +131,6 @@ export default function ChessBoard({ grid, turn, prevMove, selection, validMoves
               transformStyle: "preserve-3d",
             }}
           >
-            {grid[row][col] && (
-              <img
-                src={`/chess/pieces/${pieceName}.png`}
-                alt="Chess Piece"
-                className="w-full h-full"
-              />
-            )}
-
             {/* Overlay a semi-transparent circle */}
             {isValidMove && !pieceKey && (
               <div
@@ -152,13 +159,53 @@ export default function ChessBoard({ grid, turn, prevMove, selection, validMoves
             {row == 7 && <div className={`absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>}
             {col == 0 && <div className={`absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>}
           </motion.div>
-        );
+        )
       })}
 
-      {/* Div hidden behind the board, revealed by turn over animation */}
+
+      {/* Animated Piece Layer */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <AnimatePresence>
+          {grid.flatMap((gridRow, row) => {
+            return gridRow.map((piece, col) => {
+              if (!piece) return null;
+
+              const top  = row * squareSize;
+              const left = col * squareSize;
+
+              return (
+                <motion.img
+                  key={`${idGrid[row * 8 + col]}`}
+                  src={`chess/pieces/${pieces[piece as keyof typeof pieces]}.png`}
+                  alt={piece}
+                  className="absolute z-50"
+                  style={{
+                    width:  squareSize,
+                    height: squareSize,
+                    top,
+                    left
+                  }}
+                  animate={{
+                    top,
+                    left,
+                    opacity: turnedOver ? 0 : 1
+                  }}
+                  transition={{
+                    duration: 0.05,
+                    ease: "linear"
+                  }}
+                />
+              );
+            });
+          })}
+        </AnimatePresence>
+      </div>
+
+
+      {/* Hidden Layer [Revealed by turn over] */}
       <div className={`absolute ${turnedOver ? "z-100 visible" : "z-0 hidden"} w-full h-full p-3 flex flex-col justify-center`}>
         {children}
       </div>
     </div>
-  );
+  )
 }

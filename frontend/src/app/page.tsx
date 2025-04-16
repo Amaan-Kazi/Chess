@@ -118,6 +118,7 @@ export default function Home() {
         <div className="hidden xl:flex xl:flex-col xl:justify-center">
           <ChessBoard
             grid={game.board.grid}
+            idGrid={game.board.idGrid}
             turn={game.board.turn}
 
             prevMove={game.board.prevMove}

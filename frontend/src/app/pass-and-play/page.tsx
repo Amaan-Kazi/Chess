@@ -82,19 +82,18 @@ export default function PassAndPlay() {
   // forward or backward moves using arrow keys
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      setVersion(version + 1);
       if (showPromotionModal === true) return; // Dont allow when promotion modal is open
       
       const now = Date.now();
-      if (now - lastPeek.current < 150) return; // Enforce cooldown
+      if (now - lastPeek.current < 60) return; // Enforce cooldown
 
       if (event.key === "ArrowLeft") {
         game.backward();
-        setVersion(version+1);
+        setVersion((v) => v + 1);
       }
       else if (event.key === "ArrowRight") {
         game.forward();
-        setVersion(version+1);
+        setVersion((v) => v + 1);
       }
 
       lastPeek.current = now;
@@ -105,7 +104,8 @@ export default function PassAndPlay() {
 
     // Cleanup the event listener when the component unmounts
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [game, version, showPromotionModal]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const click = (row: number, col: number) => {
     // Pawn Promotion
@@ -178,6 +178,7 @@ export default function PassAndPlay() {
         />
         
         <div className="
+          flex flex-col items-center lg:items-normal
           w-[min(100%,calc(90/100*(100vh-60px-40px-60px)))]
           lg:w-[min(100%,calc(90/100*(100vh-60px)))]
         ">
@@ -199,6 +200,7 @@ export default function PassAndPlay() {
           
           <ChessBoard
             grid={game.board.grid}
+            idGrid={game.board.idGrid}
             turn={game.board.turn}
 
             prevMove={game.board.prevMove}
