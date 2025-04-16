@@ -1,22 +1,29 @@
 export default class Board {
   grid: (string | null)[][];
+  idGrid: Uint8Array;
+  nextId: number;
+
   turn: 'w' | 'b';
   castlingRights: { white: { kingSide: boolean; queenSide: boolean }, black: { kingSide: boolean; queenSide: boolean } };
   enPassant: number[] | null;
   halfMoveClock: number;
   fullMoveNumber: number;
+  
   gameState: "ongoing" | "checkmate" | "stalemate" | "draw" | "resigned";
   prevMove: number[][];
 
   constructor(copyBoard?: Board, FEN?: string) {
     if (copyBoard) {
-      this.grid = JSON.parse(JSON.stringify(copyBoard.grid)); // Deep copy of the grids
+      // Deep copy of the grids
+      this.grid = JSON.parse(JSON.stringify(copyBoard.grid));
+      this.idGrid = new Uint8Array(copyBoard.idGrid);
 
       this.castlingRights = {
         white: { kingSide: copyBoard.castlingRights.white.kingSide, queenSide: copyBoard.castlingRights.white.queenSide },
         black: { kingSide: copyBoard.castlingRights.black.kingSide, queenSide: copyBoard.castlingRights.black.queenSide },
       };
 
+      this.nextId          = copyBoard.nextId;
       this.turn            = copyBoard.turn;
       this.enPassant       = copyBoard.enPassant;
       this.halfMoveClock   = copyBoard.halfMoveClock;
@@ -39,6 +46,9 @@ export default class Board {
       const rows: string[] = piecePlacement.split('/');
       this.grid = Array(8).fill(null).map(() => Array(8).fill(null));
 
+      this.idGrid = new Uint8Array(8 * 8);
+      this.nextId = 1;
+
       // Parse piece placement
       for (let i = 0; i < 8; i++) {
         let col = 0;
@@ -49,6 +59,8 @@ export default class Board {
           } else {
             // Handle piece characters
             this.grid[i][col] = char;
+            this.idGrid[i * 8 + col] = this.nextId;
+            this.nextId++;
             col++;
           }
         }
@@ -78,7 +90,10 @@ export default class Board {
       this.gameState       = "ongoing";
       this.prevMove        = [];
     }
-    else {      
+    else {
+      this.nextId = 1;
+      this.idGrid = new Uint8Array(8 * 8);
+
       this.grid = [
         ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
         Array(8).fill('p'),
@@ -86,6 +101,15 @@ export default class Board {
         Array(8).fill('P'),
         ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
       ];
+
+      this.grid.map((row, i) => {
+        row.map((value, j) => {
+          if (value) {
+            this.idGrid[i * 8 + j] = this.nextId;
+            this.nextId++;
+          }
+        });
+      });
 
       this.castlingRights = {
         white: { kingSide: true, queenSide: true },
@@ -209,6 +233,9 @@ export default class Board {
     this.grid[toRow][toCol] = this.grid[fromRow][fromCol];
     this.grid[fromRow][fromCol] = null;
 
+    this.idGrid[toRow * 8 + toCol]  = this.idGrid[fromRow * 8 + fromCol];
+    this.idGrid[fromRow * 8 + fromCol] = 0;
+
 
     // Pawn Double Move
     this.enPassant = null;
@@ -217,6 +244,8 @@ export default class Board {
     // En passant
     if (metadata === 101) {
       this.grid[fromRow][toCol] = null; // capture the piece
+      this.idGrid[fromRow * 8 + toCol] = 0;
+
       capture = true;
       status = "capture";
     }
@@ -235,12 +264,20 @@ export default class Board {
     if (metadata === 200) { // King Side
       this.grid[fromRow][7] = null;
       this.grid[fromRow][5] = this.turn === 'w' ? 'R' : 'r';
+
+      this.idGrid[fromRow * 8 + 5] = this.idGrid[fromRow * 8 + 7];
+      this.idGrid[fromRow * 8 + 7] = 0;
+
       this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
       this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
     }
     if (metadata === 201) { // Queen Side
       this.grid[fromRow][0] = null;
       this.grid[fromRow][3] = this.turn === 'w' ? 'R' : 'r';
+
+      this.idGrid[fromRow * 8 + 3] = this.idGrid[fromRow * 8 + 0];
+      this.idGrid[fromRow * 8 + 0] = 0;
+
       this.castlingRights[this.turn === 'w' ? 'white' : 'black'].queenSide = false;
       this.castlingRights[this.turn === 'w' ? 'white' : 'black'].kingSide  = false;
     }
@@ -353,6 +390,15 @@ export default class Board {
     let mNotation = `${notation.piece}${notation.fromCol}${notation.fromRow}${notation.capture}${notation.toCol}${notation.toRow}${notation.promotion}${notation.attribute}`;
     if      (metadata === 200) mNotation = `O-O${notation.attribute}`;   // king side castle
     else if (metadata === 201) mNotation = `O-O-O${notation.attribute}`; // queen side castle
+
+    // ID Grid Logging
+    // const idGridArray: number[][] = Array.from({ length: 8 }, () => Array(8).fill(0));
+    // for (let i = 0; i < 8; i++) {
+    //   for (let j = 0; j < 8; j++) {
+    //     idGridArray[i][j] = this.idGrid[i * 8 + j];
+    //   }
+    // }
+    // console.table(idGridArray);
 
     return {moveStatus: status, moveNotation: mNotation};
   }
