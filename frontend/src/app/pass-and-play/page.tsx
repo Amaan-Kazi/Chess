@@ -31,6 +31,12 @@ export default function PassAndPlay() {
 
   const lastPeek = useRef(0);
 
+  // maybe store sounds in game so they can be used again in forward and backward
+  // allow holding down the forward and backward button on pc and mobile
+  // fix stockfish
+  // drag and drop movement
+  // board rotatin and flip with row and col numbering
+
   // Update evaluation whenever game updates
   useEffect(() => {
     const interval = setInterval(() => {
