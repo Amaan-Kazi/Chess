@@ -125,8 +125,6 @@ function Piece({row, col, idGrid, piece, isDragged, squareSize, turnedOver}: Pie
     K: "wk",
   };
 
-  console.log(isDragged)
-
   return (
     <motion.img
       key={`${idGrid[row * 8 + col]}`}
@@ -147,7 +145,7 @@ function Piece({row, col, idGrid, piece, isDragged, squareSize, turnedOver}: Pie
         opacity: turnedOver ? 0 : 1
       }}
       transition={{
-        duration: 0.05,
+        duration: isDragged ? 0 : 0.05,
         ease: "linear"
       }}
       {...listeners}
