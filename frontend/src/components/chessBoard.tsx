@@ -131,7 +131,7 @@ function Piece({row, col, idGrid, piece, isDragged, squareSize, turnedOver}: Pie
       ref={setNodeRef}
       src={`chess/pieces/${pieces[piece as keyof typeof pieces]}.png`}
       alt={piece}
-      className="absolute z-50"
+      className="absolute z-50 touch-none"
       style={{
         width:  squareSize,
         height: squareSize,
