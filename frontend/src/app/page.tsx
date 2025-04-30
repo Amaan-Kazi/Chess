@@ -132,6 +132,9 @@ export default function Home() {
             turnedOver={turnedOver}
             setIsAnimating={setIsAnimating}
 
+            isRotated={false}
+            isFlipped={false}
+
             style={{
               aspectRatio: "1 / 1",     // Maintain square aspect ratio
               width: "min(40vw, 60vh)", // Ensure it fits within both width and height

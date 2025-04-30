@@ -6,6 +6,8 @@ import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
 interface SquareInterface {
   row: number, 
   col: number,
+
+  isRotated: boolean,
   
   turnedOver?: boolean,
   isValidMove: boolean,
@@ -18,7 +20,7 @@ interface SquareInterface {
   setIsAnimating?:(bool: boolean) => void,
 }
 
-function Square({row, col, turnedOver, isValidMove, isDarkSquare, backgroundColor, pieceKey, onclick, setIsAnimating}: SquareInterface) {
+function Square({row, col, isRotated, turnedOver, isValidMove, isDarkSquare, backgroundColor, pieceKey, onclick, setIsAnimating}: SquareInterface) {
   const {setNodeRef} = useDroppable({
     id: `square-${row}-${col}`
   });
@@ -83,8 +85,14 @@ function Square({row, col, turnedOver, isValidMove, isDarkSquare, backgroundColo
         />
       )}
 
-      {row == 7 && <div className={`absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>}
-      {col == 0 && <div className={`absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>}
+      { isRotated
+        ? row == 0 && <div className={`rotate-180 absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
+        : row == 7 && <div className={`rotate-0   absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
+      }
+      { isRotated
+        ? col == 7 && <div className={`rotate-180 absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
+        : col == 0 && <div className={`rotate-0   absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
+      }
     </motion.div>
   );
 }
@@ -97,12 +105,14 @@ interface PieceInterface {
   idGrid: Uint8Array,
   piece: string,
 
+  isRotated: boolean,
+
   isDragged: boolean,
   squareSize: number,
   turnedOver?: boolean
 }
 
-function Piece({row, col, idGrid, piece, isDragged, squareSize, turnedOver}: PieceInterface) {
+function Piece({row, col, idGrid, piece, isRotated, isDragged, squareSize, turnedOver}: PieceInterface) {
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
     id: `square-${row}-${col}`,
   });
@@ -126,31 +136,45 @@ function Piece({row, col, idGrid, piece, isDragged, squareSize, turnedOver}: Pie
   };
 
   return (
-    <motion.img
+    <motion.div
       key={`${idGrid[row * 8 + col]}`}
       ref={setNodeRef}
-      src={`chess/pieces/${pieces[piece as keyof typeof pieces]}.png`}
-      alt={piece}
       className="absolute z-50 touch-none"
+
       style={{
         width:  squareSize,
         height: squareSize,
         top,
         left,
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined
+        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
       }}
+
       animate={{
         top,
         left,
         opacity: turnedOver ? 0 : 1
       }}
+
       transition={{
         duration: isDragged ? 0 : 0.05,
         ease: "linear"
       }}
+
       {...listeners}
       {...attributes}
-    />
+    >
+      <img
+        src={`chess/pieces/${pieces[piece as keyof typeof pieces]}.png`}
+        alt={piece}
+
+        className={isRotated ? "rotate-180" : ""}
+
+        style={{
+          width:  squareSize,
+          height: squareSize,
+        }}
+      />
+    </motion.div>
   );
 }
 
@@ -169,16 +193,24 @@ interface BoardInterface {
   
   turnedOver?: boolean,
   setIsAnimating?:(bool: boolean) => void,
+
+  isRotated: boolean,
+  isFlipped: boolean,
   
   className?: string,
   style?: React.CSSProperties,
   children?: ReactElement
 };
 
-export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, validMoves, isCheck, onclick, turnedOver, setIsAnimating, className, style, children }: BoardInterface) {
+export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, validMoves, isCheck, onclick, turnedOver, setIsAnimating, isRotated, isFlipped, className, style, children }: BoardInterface) {
   const boardRef = useRef<HTMLDivElement>(null);
   const [squareSize, setSquareSize] = useState(0);
   const isDragRef = useRef(false);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {setMounted(true)}, []);
+
+  console.log("isFlipped:", isFlipped);
 
   useEffect(() => {
     const resize = () => {
@@ -191,7 +223,7 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
     window.addEventListener("resize", resize);
     
     return () => window.removeEventListener("resize", resize);
-  }, []);
+  }, [mounted]);
 
   const click = (row: number, col: number) => {
     if (isDragRef.current) return;
@@ -262,6 +294,8 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
             row={row}
             col={col}
 
+            isRotated={isRotated}
+
             turnedOver={turnedOver}
             isDarkSquare={isDarkSquare}
             isValidMove={isValidMove}
@@ -279,6 +313,8 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
         <div className="absolute top-0 left-0 w-full h-full">
           <AnimatePresence>
             {grid.flatMap((gridRow, row) => {
+              if (!mounted) return null;
+
               return gridRow.map((piece, col) => {
                 if (!piece) return null;
                 
@@ -289,6 +325,8 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
 
                   piece={piece}
                   idGrid={idGrid}
+
+                  isRotated={isRotated}
 
                   isDragged={isDragRef.current}
                   squareSize={squareSize}
