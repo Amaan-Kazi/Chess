@@ -7,7 +7,8 @@ printf "Building Documentation [VitePress]"
 printf "\n----------------------------------\n\n"
 
 cd docs
-npx vitepress build
+npm install
+npm run docs:build
 cd ..
 
 
