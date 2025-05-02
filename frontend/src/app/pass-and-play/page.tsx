@@ -193,7 +193,7 @@ export default function PassAndPlay() {
             className="
               m-2
               h-[calc(6/100*(100vh-60px))]
-              w-[min(96%,calc(90/100*(100vh-60px-40px-60px)))]
+              w-[min(96%,calc(80/100*(100vh-60px-40px-60px)))]
               lg:w-[min(90%,calc(90/100*(100vh-60px)))]
             "
           />
@@ -214,7 +214,7 @@ export default function PassAndPlay() {
 
             onclick={click}
             className="
-              m-2 lg:mx-2 select-none shadow-xl
+              lg:mx-2 select-none shadow-xl
               w-[min(96%,calc(90/100*(100vh-60px-40px-60px-60px)))]
               lg:w-[min(90%,calc(90/100*(100vh-60px)))]
             "
@@ -231,7 +231,7 @@ export default function PassAndPlay() {
             className="
               m-2
               h-[calc(6/100*(100vh-60px))]
-              w-[min(96%,calc(90/100*(100vh-60px-40px-60px)))]
+              w-[min(96%,calc(80/100*(100vh-60px-40px-60px)))]
               lg:w-[min(90%,calc(90/100*(100vh-60px)))]
             "
           />
@@ -239,7 +239,7 @@ export default function PassAndPlay() {
 
 
         {/* Side Panel */}
-        <Panel title="Pass And Play" className="hidden lg:flex w-[25%] h-[81.75%] max-h-[81.75%] border-border border-2 shadow-lg">
+        <Panel title="Pass And Play" className="hidden lg:flex w-[27.5%] 2xl:w-[30%] h-[96%] border-border border-2 shadow-lg">
           <PanelContent>
             <TabularMoveNotaions
               className="h-full text-foreground border-t-2"

@@ -104,11 +104,11 @@ export function TabularMoveNotaions({notations, moveNo, peek, className}: MoveNo
           {moves.map((obj, index) => {
             return (
               <TableRow key={`move-${index+1}`}>
-                <TableCell className="font-robotoMono w-[20%] pl-2">{index + 1}</TableCell>
+                <TableCell className="font-robotoMono w-[20%] pl-2 text-base">{index + 1}</TableCell>
                 
                 <TableCell className="w-[40%]">
                   <p
-                    className={`${obj.isWhiteMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                    className={`${obj.isWhiteMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3 text-base`}
                     onClick={() => {
                       peek?.(((index + 1) * 2) - 1);
                     }}
@@ -117,7 +117,7 @@ export function TabularMoveNotaions({notations, moveNo, peek, className}: MoveNo
                 
                 {obj.black ? <TableCell className="w-[40%]">
                   <p 
-                    className={`${obj.isBlackMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3`}
+                    className={`${obj.isBlackMove && "bg-gray-700 hover:bg-gray-700 text-white"} hover:cursor-pointer hover:bg-gray-500 hover:text-white w-fit px-3 text-base`}
                     onClick={() => {
                       peek?.((index + 1) * 2);
                     }}
