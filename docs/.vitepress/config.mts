@@ -2,28 +2,54 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: "en-US",
   title: "Chess",
   description: "A feature rich chess website with online play, bot and local play",
 
+  srcDir: "./src",
   base: "/docs/",
   cleanUrls: true,
+  lastUpdated: true,
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/overview' }
+      { text: 'Docs Home', link: '/' },
     ],
+
+    editLink: {
+      pattern: "https://github.com/Amaan-Kazi/Chess/tree/main/docs/:path",
+      text: "Edit this page on GitHub"
+    },
+
+    search: {
+      provider: "local"
+    },
 
     sidebar: [
       {
-        text: 'Examples',
         items: [
           { text: 'Overview', link: '/overview' },
-          { text: 'Build Instructions', link: '/build-instructions' }
+          { text: 'Build Instructions', link: '/build-instructions' },
+          { text: 'Hosting', link: '/' }
         ]
       },
-      
+      {
+        text: 'Frontend',
+        collapsed: false,
+        items: [
+          { text: 'Game & Board Classes', link: '/' },
+          { text: 'Chess Board', link: '/' },
+          { text: 'Minimax Algorithm', link: '/' }
+        ]
+      },
+      {
+        text: 'Backend',
+        collapsed: false,
+        items: [
+          { text: 'Web Sockets', link: '/' }
+        ]
+      },
     ],
 
     socialLinks: [

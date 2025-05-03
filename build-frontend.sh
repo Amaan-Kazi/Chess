@@ -11,12 +11,7 @@ npm install
 npm run docs:build
 cd ..
 
-
 # Copying documentation to frontend
-printf "\n\n---------------------------------\n"
-printf "Copying documentation to frontend"
-printf "\n---------------------------------\n\n"
-
 rm -rf frontend/public/docs
 mkdir -p frontend/public/docs
 cp -r docs/.vitepress/dist/* frontend/public/docs
