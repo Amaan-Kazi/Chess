@@ -31,7 +31,7 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/overview' },
           { text: 'Build Instructions', link: '/build-instructions' },
-          { text: 'Hosting', link: '/' }
+          { text: 'Hosting', link: '/hosting' }
         ]
       },
       {
