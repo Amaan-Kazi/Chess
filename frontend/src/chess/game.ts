@@ -7,6 +7,7 @@ export default class Game {
 
   whitePlayer: string = "White";
   blackPlayer: string = "Black";
+  metadata: object;
   
   moveNotations: string[];
   selection: number[] | null;
@@ -44,17 +45,26 @@ export default class Game {
     if (white) this.whitePlayer = white;
     if (black) this.blackPlayer = black;
 
+    this.metadata = {};
+
     if (PGN) {
       const metadata: { White?: string, Black?: string } = {};
       
       PGN = PGN.replace(/\[(.*?)\]/g, (match: string, content: string) => {
-        const [key, value]: string[] = content.split(' "');
+        const parts: string[] = content.split(' "');
+        if (parts.length !== 2) return '';
+        
+        const [key, value] = parts;
+        if (value.includes('?')) return '';
+
         metadata[key.trim() as keyof typeof metadata] = value.replace(/"$/, '').trim();
         return ''; // Remove metadata from the PGN
       }).trim();
 
       if (metadata.Black) this.blackPlayer = metadata.Black;
       if (metadata.White) this.whitePlayer = metadata.White;
+
+      this.metadata = metadata;
       
       PGN = PGN
         .replace(/\{[^}]*\}/g, '')                  // Remove comments          {}

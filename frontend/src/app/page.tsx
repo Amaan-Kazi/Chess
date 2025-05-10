@@ -52,6 +52,7 @@ export default function Home() {
       })
       .then((PGN) => {
         setGame(new Game(undefined, PGN));
+        console.log(`Loaded game from file: /chess/games/${gameNo}.pgn\n\n` + PGN)
       })
       .catch((error) => {
         console.error("Error loading FEN array:", error);
@@ -73,11 +74,20 @@ export default function Home() {
   
   const click = (row: number, col: number) => {
     console.log(`clicked ${row}, ${col}`);
+    const description: string[] = [];
+
+    for (const [key, value] of Object.entries(game.metadata)) {
+      if (key === "White" || key === "Black") continue;
+      description.push(`${key}: ${value}`);
+    }
+
     toast({
       className: "shadow-lg",
       variant: "default",
-      title: "title",
-      description: "description",
+      title: `${game.whitePlayer} - ${game.blackPlayer}`,
+      description: description.map((desc, index) => {
+        return <div key={index}>{desc}<br/></div>
+      }),
     });
   }
 
@@ -129,7 +139,7 @@ export default function Home() {
             setIsAnimating={setIsAnimating}
 
             isRotated={false}
-            isFlipped={false}
+            isFlipped={game.metadata["Result" as keyof typeof game.metadata] === "0-1"}
 
             style={{
               aspectRatio: "1 / 1",     // Maintain square aspect ratio
