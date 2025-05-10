@@ -4,7 +4,6 @@ import { useMediaQuery } from 'react-responsive';
 import { useToast } from "@/hooks/use-toast";
 
 import Game from "@/chess/game"
-import Board from "@/chess/board"
 import ChessBoard from "@/components/chessBoard";
 import { WideButton, WideButtonDescription, WideButtonImage, WideButtonTitle } from "@/components/wideButton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, } from "@/components/ui/sheet"
@@ -15,10 +14,8 @@ export default function Home() {
   const [game, setGame] = useState(new Game(undefined));
   const [selected, setSelected] = useState(0);
   const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
-  
-  const [fenArray, setFenArray] = useState([]);
-  const [gameDetails, setGameDetails] = useState({ name: "", event: "" })
-  const [move, setMove] = useState(0);
+
+  const [version, setversion] = useState(0);
 
   const [turnedOver, setTurnedOver] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
@@ -41,47 +38,46 @@ export default function Home() {
     }
   }
 
+  
   useEffect(() => {
+    const gameNo = Math.floor(Math.random() * 9) + 1;
+    
     // Fetch the JSON file from the public folder
-    fetch("/chess/games.json")
+    fetch(`/chess/games/${gameNo}.pgn`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to load JSON file");
+          throw new Error(`Failed to load file: /chess/games/${gameNo}.pgn`);
         }
-        return response.json();
+        return response.text();
       })
-      .then((data) => {
-        // randomize game
-        const index = Math.floor(Math.random() * data.games.length);
-        console.log("Loaded Game:", data.games[index].name + ",", data.games[index].event);
-        setFenArray(data.games[index].FEN); // Extract the FEN array
-        setGameDetails({ name: data.games[index].name, event: data.games[index].event });
+      .then((PGN) => {
+        setGame(new Game(undefined, PGN));
       })
       .catch((error) => {
         console.error("Error loading FEN array:", error);
       });
   }, []);
 
+
   useEffect(() => {
     const interval = setInterval(() => {
-      if (fenArray.length != 0) {
-        game.board = new Board(undefined, fenArray[move < fenArray.length ? move : fenArray.length - 1]);
-        setGame(game);
-        setMove(move + 1);
-      } else {setMove(move+1)}
+      game.forward();
+      setGame(game);
+      setversion(version + 1);
     }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
 
     // Cleanup on unmount
     return () => clearInterval(interval);
-  }, [move, fenArray, game]);
+  }, [game, version]);
 
+  
   const click = (row: number, col: number) => {
     console.log(`clicked ${row}, ${col}`);
     toast({
       className: "shadow-lg",
       variant: "default",
-      title: gameDetails.name,
-      description: gameDetails.event,
+      title: "title",
+      description: "description",
     });
   }
 

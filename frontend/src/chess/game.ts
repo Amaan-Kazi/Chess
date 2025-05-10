@@ -226,6 +226,8 @@ export default class Game {
           }
         }
       }
+
+      this.peek(0);
     }
 
     if (typeof window !== "undefined") {
