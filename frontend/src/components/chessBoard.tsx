@@ -8,6 +8,7 @@ interface SquareInterface {
   col: number,
 
   isRotated: boolean,
+  isFlipped: boolean,
   
   turnedOver?: boolean,
   isValidMove: boolean,
@@ -20,7 +21,7 @@ interface SquareInterface {
   setIsAnimating?:(bool: boolean) => void,
 }
 
-function Square({row, col, isRotated, turnedOver, isValidMove, isDarkSquare, backgroundColor, pieceKey, onclick, setIsAnimating}: SquareInterface) {
+function Square({row, col, isRotated, isFlipped, turnedOver, isValidMove, isDarkSquare, backgroundColor, pieceKey, onclick, setIsAnimating}: SquareInterface) {
   const {setNodeRef} = useDroppable({
     id: `square-${row}-${col}`
   });
@@ -35,10 +36,10 @@ function Square({row, col, isRotated, turnedOver, isValidMove, isDarkSquare, bac
       onClick={() => {if (!turnedOver) onclick(row, col)}}
       className={`
         relative flex justify-center items-center z-10 ${backgroundColor}
-        ${(row == 0 && col == 0) && "rounded-tl-sm"}
-        ${(row == 0 && col == 7) && "rounded-tr-sm"}
-        ${(row == 7 && col == 0) && "rounded-bl-sm"}
-        ${(row == 7 && col == 7) && "rounded-br-sm"}
+        ${(row == 0 && col == 0) ? isFlipped ? "rounded-br-sm" : "rounded-tl-sm" : ""}
+        ${(row == 0 && col == 7) ? isFlipped ? "rounded-bl-sm" : "rounded-tr-sm" : ""}
+        ${(row == 7 && col == 0) ? isFlipped ? "rounded-tr-sm" : "rounded-bl-sm" : ""}
+        ${(row == 7 && col == 7) ? isFlipped ? "rounded-tl-sm" : "rounded-br-sm" : ""}
       `}
       animate={{
         rotateX: turnedOver ? 180 : 0,
@@ -86,12 +87,20 @@ function Square({row, col, isRotated, turnedOver, isValidMove, isDarkSquare, bac
       )}
 
       { isRotated
-        ? row == 0 && <div className={`rotate-180 absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
-        : row == 7 && <div className={`rotate-0   absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
+        ? isFlipped
+          ? row == 7 && <div className={`rotate-180 absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
+          : row == 0 && <div className={`rotate-180 absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
+        : isFlipped
+          ? row == 0 && <div className={`rotate-0   absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
+          : row == 7 && <div className={`rotate-0   absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{cols[col]}</div>
       }
       { isRotated
-        ? col == 7 && <div className={`rotate-180 absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
-        : col == 0 && <div className={`rotate-0   absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
+        ? isFlipped
+          ? col == 0 && <div className={`rotate-180 absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
+          : col == 7 && <div className={`rotate-180 absolute -bottom-px right-px text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
+        : isFlipped
+          ? col == 7 && <div className={`rotate-0   absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
+          : col == 0 && <div className={`rotate-0   absolute -top-px    left-px  text-xs md:text-sm font-semibold ${isDarkSquare ? "text-board-light" : "text-board-dark"}`}>{rows[row]}</div>
       }
     </motion.div>
   );
@@ -106,19 +115,20 @@ interface PieceInterface {
   piece: string,
 
   isRotated: boolean,
+  isFlipped: boolean,
 
   isDragged: boolean,
   squareSize: number,
   turnedOver?: boolean
 }
 
-function Piece({row, col, idGrid, piece, isRotated, isDragged, squareSize, turnedOver}: PieceInterface) {
+function Piece({row, col, idGrid, piece, isRotated, isFlipped, isDragged, squareSize, turnedOver}: PieceInterface) {
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
     id: `square-${row}-${col}`,
   });
 
-  const top  = row * squareSize;
-  const left = col * squareSize;
+  const top  = isFlipped ? (7 - row) * squareSize : row * squareSize;
+  const left = isFlipped ? (7 - col) * squareSize : col * squareSize;
 
   const pieces = {
     p: "bp",
@@ -210,7 +220,7 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
   const [mounted, setMounted] = useState(false);
   useEffect(() => {setMounted(true)}, []);
 
-  console.log("isFlipped:", isFlipped);
+  // console.log("isFlipped:", isFlipped);
 
   useEffect(() => {
     const resize = () => {
@@ -227,6 +237,7 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
 
   const click = (row: number, col: number) => {
     if (isDragRef.current) return;
+    console.log("Click:", row, col);
     onclick(row, col);
   }
   
@@ -235,11 +246,13 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
       onDragStart={(event) => {
         const [, row, col] = String(event.active.id).split("-");
         isDragRef.current = true;
+        console.log("Drag Start:", row, col);
         onclick(Number(row), Number(col));
       }}
       onDragEnd={(event) => {
         if (event.over){
           const [, row, col] = String(event.over.id).split("-");
+          console.log("Drag End:  ", row, col);
           onclick(Number(row), Number(col));
         }
         
@@ -253,8 +266,8 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
         style={style}
       >
         {Array.from({ length: 8 * 8 }).map((_, index) => {
-          const row = Math.floor(index / 8);
-          const col = index % 8;
+          const row = isFlipped ? 7 - Math.floor(index / 8) : Math.floor(index / 8);
+          const col = isFlipped ? 7 - (index % 8) : index % 8;
           const isDarkSquare = (row + col) % 2 === 1;
           const pieceKey = grid[row][col];
 
@@ -295,6 +308,7 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
             col={col}
 
             isRotated={isRotated}
+            isFlipped={isFlipped}
 
             turnedOver={turnedOver}
             isDarkSquare={isDarkSquare}
@@ -327,6 +341,7 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
                   idGrid={idGrid}
 
                   isRotated={isRotated}
+                  isFlipped={isFlipped}
 
                   isDragged={isDragRef.current}
                   squareSize={squareSize}
