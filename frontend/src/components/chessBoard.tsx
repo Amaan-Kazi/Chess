@@ -220,8 +220,6 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
   const [mounted, setMounted] = useState(false);
   useEffect(() => {setMounted(true)}, []);
 
-  // console.log("isFlipped:", isFlipped);
-
   useEffect(() => {
     const resize = () => {
       if (boardRef.current) {
@@ -237,7 +235,6 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
 
   const click = (row: number, col: number) => {
     if (isDragRef.current) return;
-    console.log("Click:", row, col);
     onclick(row, col);
   }
   
@@ -246,13 +243,11 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
       onDragStart={(event) => {
         const [, row, col] = String(event.active.id).split("-");
         isDragRef.current = true;
-        console.log("Drag Start:", row, col);
         onclick(Number(row), Number(col));
       }}
       onDragEnd={(event) => {
         if (event.over){
           const [, row, col] = String(event.over.id).split("-");
-          console.log("Drag End:  ", row, col);
           onclick(Number(row), Number(col));
         }
         

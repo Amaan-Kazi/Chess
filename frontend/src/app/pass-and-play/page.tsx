@@ -16,9 +16,14 @@ import { useMediaQuery } from "react-responsive";
 
 
 export default function PassAndPlay() {
+  const [, setVersion] = useState(0); // manually trigger re renders
+
+  const update = () => {
+    setVersion(v => v + 1);
+  }
+  
   const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
-  const [game, setGame] = useState(new Game(undefined));
-  const [version, setVersion] = useState(0); // manually trigger re renders
+  const [game, setGame] = useState(new Game(update, undefined));
   const [settings, setSettings] = useState({white: 'White', black: 'Black', boardRotates: isSmallScreen, flipPiece: false, allowUndo: true});
   
   const [showPromotionModal, setShowPromotionModal] = useState(false);
@@ -30,6 +35,7 @@ export default function PassAndPlay() {
   const [mateIn, setMateIn] = useState(game.mateIn);
 
   const lastPeek = useRef(0);
+  
 
   // Update evaluation whenever game updates
   useEffect(() => {
@@ -54,7 +60,7 @@ export default function PassAndPlay() {
         worker = undefined;
       }
 
-      const gameInstance = new Game(worker);
+      const gameInstance = new Game(update, worker);
       setGame(gameInstance);
 
       return () => {
@@ -87,14 +93,8 @@ export default function PassAndPlay() {
       const now = Date.now();
       if (now - lastPeek.current < 60) return; // Enforce cooldown
 
-      if (event.key === "ArrowLeft") {
-        game.backward();
-        setVersion((v) => v + 1);
-      }
-      else if (event.key === "ArrowRight") {
-        game.forward();
-        setVersion((v) => v + 1);
-      }
+      if      (event.key === "ArrowLeft")  game.backward();
+      else if (event.key === "ArrowRight") game.forward();
 
       lastPeek.current = now;
     };
@@ -122,7 +122,6 @@ export default function PassAndPlay() {
     }
 
     game.select([row, col, 999]);
-    setVersion(version + 1);
   };
 
   const promotion = (piece: "Queen" | "Knight" | "Rook" | "Bishop") => {
@@ -134,7 +133,6 @@ export default function PassAndPlay() {
     };
 
     game.select([promotionTarget![0], promotionTarget![1], pieceCode[piece]]);
-    setVersion(version + 1);
 
     setShowPromotionModal(false);
     setPromotionTarget(null);
@@ -148,10 +146,7 @@ export default function PassAndPlay() {
         className="lg:hidden border-y-2 border-border"
         notations={game.moveNotations}
         moveNo={game.moveNo}
-        peek={(index: number) => {
-          game.peek(index);
-          setVersion(version+1);
-        }}
+        peek={game.peek.bind(game)}
       />
 
       <EvaluationBar
@@ -245,18 +240,15 @@ export default function PassAndPlay() {
               className="h-full text-foreground border-t-2"
               notations={game.moveNotations}
               moveNo={game.moveNo}
-              peek={(index: number) => {
-                game.peek(index);
-                setVersion(version+1);
-              }}
+              peek={game.peek.bind(game)}
             />
           </PanelContent>
 
           <PanelBottom>
             <PanelButton tooltip="Resign"><Flag strokeWidth={3} /></PanelButton>
-            <PanelButton tooltip="Export PGN/FEN" onClick={() => {setGameShareModalOpen(true); setVersion(version + 1);}}><Share2 strokeWidth={3} /></PanelButton>
-            <PanelButton tooltip="Backward" onClick={() => {game.backward(); setVersion(version + 1);}}><ChevronLeft  strokeWidth={5} /></PanelButton>
-            <PanelButton tooltip="Forward"  onClick={() => {game.forward();  setVersion(version + 1);}}><ChevronRight strokeWidth={5} /></PanelButton>
+            <PanelButton tooltip="Export PGN/FEN" onClick={() => {setGameShareModalOpen(true);}}><Share2 strokeWidth={3} /></PanelButton>
+            <PanelButton tooltip="Backward" onClick={game.backward.bind(game)}><ChevronLeft  strokeWidth={5} /></PanelButton>
+            <PanelButton tooltip="Forward"  onClick={game.forward.bind(game) }><ChevronRight strokeWidth={5} /></PanelButton>
           </PanelBottom>
         </Panel>
       </main>
@@ -269,15 +261,15 @@ export default function PassAndPlay() {
           <Flag />
         </ActionBarButton>
 
-        <ActionBarButton onClick={() => {setGameShareModalOpen(true); setVersion(version + 1);}} className="border-r-2 border-border">
+        <ActionBarButton onClick={() => {setGameShareModalOpen(true);}} className="border-r-2 border-border">
           <Share2 />
         </ActionBarButton>
 
-        <ActionBarButton onClick={() => {game.backward(); setVersion(version + 1);}} className="border-r-2 border-border">
+        <ActionBarButton onClick={game.backward.bind(game)} className="border-r-2 border-border">
           <ChevronLeft strokeWidth={3} className="scale-110" />
         </ActionBarButton>
 
-        <ActionBarButton onClick={() => {game.forward();  setVersion(version + 1);}}>
+        <ActionBarButton onClick={game.forward.bind(game)}>
           <ChevronRight strokeWidth={3} className="scale-110"/>
         </ActionBarButton>
       </ActionBar>

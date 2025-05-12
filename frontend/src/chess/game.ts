@@ -19,6 +19,8 @@ export default class Game {
   evaluation: number;
   mateIn: number | null;
   stockfish?: Worker;
+
+  callback: () =>void;
   
   sound: {
     moveAudio?:        HTMLAudioElement,
@@ -30,7 +32,7 @@ export default class Game {
     promotionAudio?:   HTMLAudioElement,
   } = {};
 
-  constructor(stockfish?: Worker, PGN?: string, white?: string, black?: string) {
+  constructor(callback: () => void, stockfish?: Worker, PGN?: string, white?: string, black?: string) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNo = 0;
@@ -46,6 +48,7 @@ export default class Game {
     if (black) this.blackPlayer = black;
 
     this.metadata = {};
+    this.callback = callback;
 
     if (PGN) {
       const metadata: { White?: string, Black?: string } = {};
@@ -264,7 +267,7 @@ export default class Game {
   }
 
   
-  select(pos: number[]) {
+  select(pos: number[]): Game{
     const [row, col, metadata] = pos;
     const piece = this.board.grid[row][col];
 
@@ -277,7 +280,7 @@ export default class Game {
       'p': this.board.pawnMoves.bind(this.board),
     };
 
-    if (this.state !== "ongoing") return;
+    if (this.state !== "ongoing") return this;
 
     // If already selected a piece, and clicked on a valid move, then perform move
     if (this.validMoves.length > 0 && this.selection !== null) {
@@ -318,11 +321,12 @@ export default class Game {
             else if (moveStatus === "checkmate")       this.sound.gameEndAudio?.play();
             else if (moveStatus.startsWith("draw - ")) this.sound.gameEndAudio?.play();
 
-            if (this.stockfish)
-            {
+            if (this.stockfish) {
               // console.clear();
               this.evaluatePosition();
             }
+
+            this.callback();
           }
           else if (typeof window !== "undefined") this.sound.illegalMoveAudio?.play();
 
@@ -335,25 +339,31 @@ export default class Game {
     if (!piece) {
       this.selection = null;
       this.validMoves = [];
-      return;
+
+      this.callback();
+      return this;
     }
 
     // if selected piece color = player turn color, then get and store all valid moves
     if (this.board.pieceColor(pos) == this.board.turn) {
       this.selection = pos;
       this.validMoves = pieceMoves[`${piece!.toLowerCase()}` as keyof typeof pieceMoves]([row, col]);
-      return;
+      
+      this.callback();
+      return this;
     }
     else {
       this.selection = null;
       this.validMoves = [];
-      return;
+      
+      this.callback();
+      return this;
     }
   }
 
   
-  backward(): void {
-    if (this.moves.length <= 1) return;
+  backward(): Game {
+    if (this.moves.length <= 1) return this;
 
     if (this.moveNo > 0) {
       this.selection = null;
@@ -365,10 +375,13 @@ export default class Game {
       // console.clear();
       this.evaluatePosition();
     }
+
+    this.callback();
+    return this;
   }
 
-  forward(): void {
-    if (this.moves.length <= 1) return;
+  forward(): Game {
+    if (this.moves.length <= 1) return this;
 
     if (this.moveNo < this.moves.length - 1) {
       this.selection = null;
@@ -380,22 +393,28 @@ export default class Game {
       // console.clear();
       this.evaluatePosition();
     }
+
+    this.callback();
+    return this;
   }
 
-  peek(index: number): void {
+  peek(index: number): Game {
+    if (index >= this.moves.length) return this;
+    
     this.selection = null;
     this.validMoves = [];
 
     this.moveNo = index;
     this.board = new Board(this.moves[this.moveNo]);
 
-    // console.clear();
     this.evaluatePosition();
+
+    this.callback();
+    return this;
   }
 
 
   evaluatePosition() {
-    // console.log(this.board.FEN())
     this.stockfish?.postMessage("ucinewgame");
     this.stockfish?.postMessage(`position fen ${this.board.FEN()}`);
     this.stockfish?.postMessage("go depth 10");
@@ -403,27 +422,26 @@ export default class Game {
 
   handleStockfishResponse(event: MessageEvent) {
     const data = event.data;
-    // console.log(data);
 
     // Handle Stockfish evaluation response
     if (data.startsWith("info") && data.includes("score")) {
       const scoreMatch = data.match(/score (cp|mate) (-?\d+)/);
       if (scoreMatch) {
         const [, type, value] = scoreMatch;
-        if (type === "cp") {
-          // Centipawn score (convert to evaluation range)
+        if (type === "cp") { // centipawn score
           this.evaluation = Math.max(-10, Math.min(10, (parseInt(value, 10) / 100))); // Convert centipawns to pawn units
           if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
           this.mateIn = null;
-          // console.log("Evaluation: ", this.evaluation);
-        } else if (type === "mate") {
-          // Mate in X moves (use a very high score to indicate win/loss)
+
+          this.callback();
+        } else if (type === "mate") { // mate in x moves
           const mateIn = parseInt(value, 10);
           this.mateIn = mateIn < 0 ? mateIn * -1 : mateIn;
-          // console.log("Mate in ", mateIn);
+          
           this.evaluation = mateIn > 0 ? 10 : -10; // Positive for White, negative for Black
           if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
-          // console.log("Evaluation: ", this.evaluation);
+
+          this.callback();
         }
       }
     }
