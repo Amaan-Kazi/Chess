@@ -11,11 +11,15 @@ import Navbar from "@/components/navbar";
 import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
-  const [game, setGame] = useState(new Game(undefined));
+  const [version, setversion] = useState(0);
+
+  const update = () => {
+    setversion(version)
+  }
+
+  const [game, setGame] = useState(new Game(update, undefined));
   const [selected, setSelected] = useState(0);
   const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
-
-  const [version, setversion] = useState(0);
 
   const [turnedOver, setTurnedOver] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
@@ -51,12 +55,13 @@ export default function Home() {
         return response.text();
       })
       .then((PGN) => {
-        setGame(new Game(undefined, PGN));
+        setGame(new Game(update, undefined, PGN));
         console.log(`Loaded game from file: /chess/games/${gameNo}.pgn\n\n` + PGN)
       })
       .catch((error) => {
         console.error("Error loading FEN array:", error);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

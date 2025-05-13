@@ -35,7 +35,7 @@ export function HorizontalMoveNotations({notations, moveNo, peek, className}: Mo
   });
   
   return (
-    <div ref={ref} className={`bg-navbar h-[40px] w-full flex items-center overflow-x-scroll flex-nowrap ${className}`} style={{overflow:"auto", scrollbarGutter:"stable overlay"}}>
+    <div ref={ref} className={`bg-navbar h-[40px] md:h-[45px] w-full flex items-center overflow-x-scroll flex-nowrap ${className}`} style={{overflow:"auto", scrollbarGutter:"stable overlay"}}>
       {moves.map((obj, index) => {
         return (
           <div className="flex mx-2 font-robotoMono flex-shrink-0" key={`move-${index+1}`}>

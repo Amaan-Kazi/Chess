@@ -119,7 +119,7 @@ export default function PlayerDetails({variant, name, grid, color, isActive, cla
   }
 
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={`flex items-center ${className} sm:-ml-3 lg:ml-2`}>
       
       {/* Left Image */}
       <div className="h-full aspect-square flex items-center justify-center rounded-md mr-2">
@@ -147,7 +147,7 @@ export default function PlayerDetails({variant, name, grid, color, isActive, cla
             if (key[1] <= 0) return null;
             return <div
               key={`${key[0]}`}
-              className="flex -ml-1 first:ml-0"
+              className="flex -ml-1 first:-ml-2"
             >
               {Array.from({length:key[1]}).map((value, index) => {
                 return <img
