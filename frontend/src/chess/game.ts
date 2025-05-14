@@ -20,7 +20,7 @@ export default class Game {
   mateIn: number | null;
   stockfish?: Worker;
 
-  callback: () =>void;
+  callback: () => void;
   
   sound: {
     moveAudio?:        HTMLAudioElement,
@@ -32,7 +32,7 @@ export default class Game {
     promotionAudio?:   HTMLAudioElement,
   } = {};
 
-  constructor(callback: () => void, stockfish?: Worker, PGN?: string, white?: string, black?: string) {
+  constructor(callback: () => void, stockfish?: Worker, PGN?: string) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNo = 0;
@@ -43,9 +43,6 @@ export default class Game {
 
     this.state = "ongoing";
     this.stateDescription = "";
-
-    if (white) this.whitePlayer = white;
-    if (black) this.blackPlayer = black;
 
     this.metadata = {};
     this.callback = callback;

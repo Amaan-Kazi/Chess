@@ -1,7 +1,10 @@
 "use client";
-import { useState, useEffect, useRef }             from "react";
-import { ChevronLeft, ChevronRight, Share2, Flag } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronLeft, ChevronRight, Share2, Flag }  from "lucide-react";
+
 import Game from "@/chess/game";
+
+import useSettings from "@/hooks/use-settings";
 
 import Navbar        from "@/components/navbar";
 import ChessBoard    from "@/components/chessBoard";
@@ -12,40 +15,22 @@ import { PromotionModal, GameEndModal, GameShareModal }  from "@/components/moda
 import { Panel, PanelContent, PanelBottom, PanelButton } from "@/components/panel";
 import { HorizontalMoveNotations, TabularMoveNotaions }  from "@/components/moveNotations";
 
-import { useMediaQuery } from "react-responsive";
-
 
 export default function PassAndPlay() {
   const [, setVersion] = useState(0); // manually trigger re renders
 
-  const update = () => {
+  const update = useCallback(() => {
     setVersion(v => v + 1);
-  }
-  
-  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
-  const [game, setGame] = useState(new Game(update, undefined));
-  const [settings, setSettings] = useState({white: 'White', black: 'Black', boardRotates: isSmallScreen, flipPiece: false, allowUndo: true});
+  }, []);
+
+  const gameRef = useRef<Game>(new Game(update, undefined));
   
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
   const [gameEndModalClosed, setGameEndModalClosed] = useState(false);
   const [gameShareModalOpen, setGameShareModalOpen] = useState(false);
-  
-  const [evaluation, setEvaluation] = useState(game.evaluation);
-  const [mateIn, setMateIn] = useState(game.mateIn);
 
   const lastPeek = useRef(0);
-  
-
-  // Update evaluation whenever game updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setEvaluation(game.evaluation);
-      setMateIn(game.mateIn);
-    }, 100); // Re render every 100ms
-
-    return () => clearInterval(interval);
-  }, [game]);
 
   // add stockfish to game for evaluation only when loaded client side
   useEffect(() => {
@@ -61,29 +46,15 @@ export default function PassAndPlay() {
       }
 
       const gameInstance = new Game(update, worker);
-      setGame(gameInstance);
+      gameRef.current = gameInstance;
 
       return () => {
         worker?.terminate(); // Clean up worker on unmount
       };
     }
-  }, []);
+  }, [update]);
 
-  // load game settings from local storage
-  useEffect(() => {
-    const savedSettings = JSON.parse(localStorage.getItem("PassAndPlay") || "{}").settings;
-    
-    if (savedSettings !== undefined) setSettings(savedSettings);
-    else setSettings({white: 'White', black: 'Black', boardRotates: isSmallScreen, flipPiece: false, allowUndo: true});
-
-    game.whitePlayer = savedSettings.white;
-    game.blackPlayer = savedSettings.black;
-
-    console.log(settings);
-    setGame(game);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [settings] = useSettings("pass_and_play", gameRef);
 
   // forward or backward moves using arrow keys
   useEffect(() => {
@@ -93,8 +64,8 @@ export default function PassAndPlay() {
       const now = Date.now();
       if (now - lastPeek.current < 60) return; // Enforce cooldown
 
-      if      (event.key === "ArrowLeft")  game.backward();
-      else if (event.key === "ArrowRight") game.forward();
+      if      (event.key === "ArrowLeft")  gameRef.current.backward();
+      else if (event.key === "ArrowRight") gameRef.current.forward();
 
       lastPeek.current = now;
     };
@@ -106,6 +77,9 @@ export default function PassAndPlay() {
     return () => window.removeEventListener("keydown", handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const game = gameRef.current;
+
 
   const click = (row: number, col: number) => {
     // Pawn Promotion
@@ -153,8 +127,8 @@ export default function PassAndPlay() {
         visible={game.state !== "ongoing"}
         variant="horizontal"
         className="lg:hidden w-full border-0 border-b-2 border-border"
-        evaluation={evaluation}
-        mateIn={mateIn}
+        evaluation={game.evaluation}
+        mateIn={game.mateIn}
       />
 
 
@@ -168,8 +142,8 @@ export default function PassAndPlay() {
             h-[min(100vw,calc(81/100*(100vh-60px-40px-60px)))]
             lg:h-[min(100vw,calc(81/100*(100vh-60px)))]
           "
-          evaluation={evaluation}
-          mateIn={mateIn}
+          evaluation={game.evaluation}
+          mateIn={game.mateIn}
         />
         
         <div className="
