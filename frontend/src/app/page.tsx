@@ -155,8 +155,9 @@ export default function Home() {
             }}
             
             className="shadow-2xl"
+            disabled={true}
           >
-            <div className="cursor-default">
+            <div className="cursor-default h-full flex flex-col justify-center">
               {selected === 3 && <PassAndPlayForm redirect="/pass-and-play" />}
               <Sheet open={selected === 3 && isSmallScreen} onOpenChange={() => { handleSelection(0) }} >
                 <SheetContent className="w-full border-0">

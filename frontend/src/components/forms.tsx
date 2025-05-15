@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useMediaQuery } from "react-responsive";
+import useSettings from "@/hooks/use-settings";
 
 import {
   Form,
@@ -24,44 +24,28 @@ import { Switch } from "@/components/ui/switch";
 const passAndPlaySchema = z.object({
   white: z.string().min(2, {message: "Name must be atleast 2 characters"}).max(50, {message: "Name can be 50 characters at most"}),
   black: z.string().min(2, {message: "Name must be atleast 2 characters"}).max(50, {message: "Name can be 50 characters at most"}),
+  
   boardRotates: z.boolean(),
-  flipPiece: z.boolean(),
-  allowUndo: z.boolean(),
+  boardFlips:   z.boolean(),
+  allowUndo:    z.boolean(),
 });
 
 export function PassAndPlayForm({ redirect }: { redirect?: string }) { 
   const router = useRouter();
-  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
+  const [settings, setSettings] = useSettings("pass_and_play");
 
   const form = useForm<z.infer<typeof passAndPlaySchema>>({
     resolver: zodResolver(passAndPlaySchema),
-    defaultValues: {
-      white: "White",
-      black: "Black",
-      boardRotates: isSmallScreen,
-      flipPiece: false,
-      allowUndo: true,
-    },
+    defaultValues: settings
   });
+
+  useEffect(() => {form.reset(settings)}, [form, settings]);
   
   function onSubmit(values: z.infer<typeof passAndPlaySchema>) {
     // ✅ type-safe and validated.
-    console.log(values);
-    localStorage.setItem("PassAndPlay", JSON.stringify({ settings: values }));
-    
+    setSettings(values);    
     if (redirect) router.push(redirect);
   }
-
-  // Load saved settings from localStorage after component mounts
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedSettings = JSON.parse(localStorage.getItem("PassAndPlay") || "{}").settings;
-      if (savedSettings) {
-        form.reset(savedSettings); // Update form with saved values
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Form {...form}>
@@ -119,13 +103,13 @@ export function PassAndPlayForm({ redirect }: { redirect?: string }) {
 
           <FormField
             control={form.control}
-            name="flipPiece"
+            name="boardFlips"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between">
                 <div className="space-y-0.5">
-                  <FormLabel>Flip One Side</FormLabel>
+                  <FormLabel>Board Flips</FormLabel>
                   <FormDescription>
-                    Flip the pieces and UI of one side
+                    Flip the board on each turn
                   </FormDescription>
                 </div>
                 <FormControl>

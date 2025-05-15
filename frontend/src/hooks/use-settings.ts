@@ -6,7 +6,7 @@ import type { Settings } from "@/lib/types/settings";
 
 // page is used as a key of Settings to decide which type to return
 export default function useSettings<Page extends keyof Settings>(page: Page, gameRef?: RefObject<Game>): [Settings[Page], (newSettings: Settings[Page]) => void] {
-  const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
+  const isSmallScreen = useMediaQuery({ maxWidth: 1023 }); // below large breakpoint (1024)
 
   const defaultSettings: Settings = useMemo(() => { return {
     "play_online": {
