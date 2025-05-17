@@ -2,6 +2,8 @@ import React, { ReactElement, useRef, useState, useEffect } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
+import { snapCenterToCursor, restrictToWindowEdges } from "@dnd-kit/modifiers";
+import restrictCenterToParent from "@/lib/dnd-kit-modifiers/restrictCenterToParent";
 
 interface SquareInterface {
   row: number, 
@@ -22,7 +24,7 @@ interface SquareInterface {
 }
 
 function Square({row, col, isRotated, isFlipped, turnedOver, isValidMove, isDarkSquare, backgroundColor, pieceKey, onclick, setIsAnimating}: SquareInterface) {
-  const {setNodeRef} = useDroppable({
+  const {setNodeRef, isOver} = useDroppable({
     id: `square-${row}-${col}`
   });
 
@@ -35,7 +37,7 @@ function Square({row, col, isRotated, isFlipped, turnedOver, isValidMove, isDark
       ref={setNodeRef}
       onClick={() => {if (!turnedOver) onclick(row, col)}}
       className={`
-        relative flex justify-center items-center z-10 ${backgroundColor}
+        relative flex justify-center items-center z-10 border-gray-200 ${isOver && "border-[3px] md:border-[4px]"} ${backgroundColor}
         ${(row == 0 && col == 0) ? isFlipped ? "rounded-br-sm" : "rounded-tl-sm" : ""}
         ${(row == 0 && col == 7) ? isFlipped ? "rounded-bl-sm" : "rounded-tr-sm" : ""}
         ${(row == 7 && col == 0) ? isFlipped ? "rounded-tr-sm" : "rounded-bl-sm" : ""}
@@ -245,6 +247,7 @@ export default function ChessBoard({ grid, idGrid, turn, prevMove, selection, va
   
   return (
     <DndContext
+      modifiers={[ snapCenterToCursor, restrictToWindowEdges, restrictCenterToParent ]}
       onDragStart={(event) => {
         const [, row, col] = String(event.active.id).split("-");
         isDragRef.current = true;
