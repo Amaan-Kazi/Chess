@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useMediaQuery } from 'react-responsive';
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,20 +11,51 @@ import Navbar from "@/components/navbar";
 import { PassAndPlayForm } from "@/components/forms"
 
 export default function Home() {
-  const [version, setversion] = useState(0);
+  const [, setversion] = useState(0);
 
-  const update = () => {
-    setversion(version)
-  }
+  const update = useCallback(() => {
+    setversion(v => v + 1);
+  }, []);
 
-  const [game, setGame] = useState(new Game(update, undefined));
-  const [selected, setSelected] = useState(0);
+  const gameRef = useRef<Game>(new Game(update, false));
+  const game = gameRef.current;
+
   const isSmallScreen = useMediaQuery({ maxWidth: 1279 });
-
+  const [selected, setSelected] = useState(0);
   const [turnedOver, setTurnedOver] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
 
   const { toast } = useToast()
+  
+  useEffect(() => {
+    const gameNo = Math.floor(Math.random() * 9) + 1;
+    
+    // Fetch the JSON file from the public folder
+    fetch(`/chess/games/${gameNo}.pgn`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load file: /chess/games/${gameNo}.pgn`);
+        }
+        return response.text();
+      })
+      .then((PGN) => {
+        gameRef.current = new Game(update, false, PGN);
+        console.log(`Loaded game from file: /chess/games/${gameNo}.pgn\n\n` + PGN)
+      })
+      .catch((error) => {
+        console.error("Error loading FEN array:", error);
+      });
+  }, [update]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      gameRef.current.forward();
+    }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
+
+    // Cleanup on unmount
+    return () => clearInterval(interval);
+  }, []);
+
 
   function handleSelection(selection: number) {
     if (!isAnimating || isSmallScreen) {
@@ -41,41 +72,6 @@ export default function Home() {
       setSelected(selection);
     }
   }
-
-  
-  useEffect(() => {
-    const gameNo = Math.floor(Math.random() * 9) + 1;
-    
-    // Fetch the JSON file from the public folder
-    fetch(`/chess/games/${gameNo}.pgn`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load file: /chess/games/${gameNo}.pgn`);
-        }
-        return response.text();
-      })
-      .then((PGN) => {
-        setGame(new Game(update, undefined, PGN));
-        console.log(`Loaded game from file: /chess/games/${gameNo}.pgn\n\n` + PGN)
-      })
-      .catch((error) => {
-        console.error("Error loading FEN array:", error);
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      game.forward();
-      setGame(game);
-      setversion(version + 1);
-    }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
-
-    // Cleanup on unmount
-    return () => clearInterval(interval);
-  }, [game, version]);
-
   
   const click = (row: number, col: number) => {
     console.log(`clicked ${row}, ${col}`);
@@ -95,6 +91,7 @@ export default function Home() {
       }),
     });
   }
+
 
   return (
     <div className="flex flex-col min-h-screen justify-between">
