@@ -1,4 +1,5 @@
 import Board from "@/chess/board";
+import Engine from "@/chess/engine";
 
 export default class Game {
   board: Board;
@@ -13,12 +14,11 @@ export default class Game {
   selection: number[] | null;
   validMoves: number[][];
 
-  state: "ongoing" | "checkmate" | "stalemate" | "draw";
+  state: "ongoing" | "checkmate" | "stalemate" | "draw" | "resigned";
   stateDescription: string;
 
-  evaluation: number;
-  mateIn: number | null;
-  stockfish?: Worker;
+  activeAnalysis: boolean;
+  engine?: Engine;
 
   callback: () => void;
   
@@ -32,7 +32,7 @@ export default class Game {
     promotionAudio?:   HTMLAudioElement,
   } = {};
 
-  constructor(callback: () => void, stockfish?: Worker, PGN?: string) {
+  constructor(callback: () => void, activeAnalysis: boolean, PGN?: string) {
     this.board = new Board(undefined, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     this.moves = [new Board(this.board)]; // stores copy of board instead of reference
     this.moveNo = 0;
@@ -46,6 +46,8 @@ export default class Game {
 
     this.metadata = {};
     this.callback = callback;
+
+    this.activeAnalysis = activeAnalysis;
 
     if (PGN) {
       const metadata: { White?: string, Black?: string } = {};
@@ -252,15 +254,7 @@ export default class Game {
       }
     }
 
-    this.evaluation = 0;
-    this.mateIn = null;
-
-    this.stockfish = stockfish;
-    if (this.stockfish) {
-      this.stockfish.onmessage = this.handleStockfishResponse.bind(this);
-      this.stockfish.postMessage("uci");
-      this.evaluatePosition();
-    }
+    this.engine?.evaluate(this.board.FEN());
   }
 
   
@@ -318,9 +312,9 @@ export default class Game {
             else if (moveStatus === "checkmate")       this.sound.gameEndAudio?.play();
             else if (moveStatus.startsWith("draw - ")) this.sound.gameEndAudio?.play();
 
-            if (this.stockfish) {
+            if (this.activeAnalysis || this.state !== "ongoing") {
               // console.clear();
-              this.evaluatePosition();
+              this.engine?.evaluate(this.board.FEN());
             }
 
             this.callback();
@@ -369,8 +363,9 @@ export default class Game {
       this.moveNo--;
       this.board = new Board(this.moves[this.moveNo]);
 
-      // console.clear();
-      this.evaluatePosition();
+      if (this.activeAnalysis || this.state !== "ongoing") {
+        this.engine?.evaluate(this.board.FEN());
+      }
     }
 
     this.callback();
@@ -387,8 +382,9 @@ export default class Game {
       this.moveNo++;
       this.board = new Board(this.moves[this.moveNo]);
       
-      // console.clear();
-      this.evaluatePosition();
+      if (this.activeAnalysis || this.state !== "ongoing") {
+        this.engine?.evaluate(this.board.FEN());
+      }
     }
 
     this.callback();
@@ -404,44 +400,12 @@ export default class Game {
     this.moveNo = index;
     this.board = new Board(this.moves[this.moveNo]);
 
-    this.evaluatePosition();
+    if (this.activeAnalysis || this.state !== "ongoing") {
+      this.engine?.evaluate(this.board.FEN());
+    }
 
     this.callback();
     return this;
-  }
-
-
-  evaluatePosition() {
-    this.stockfish?.postMessage("ucinewgame");
-    this.stockfish?.postMessage(`position fen ${this.board.FEN()}`);
-    this.stockfish?.postMessage("go depth 10");
-  }
-
-  handleStockfishResponse(event: MessageEvent) {
-    const data = event.data;
-
-    // Handle Stockfish evaluation response
-    if (data.startsWith("info") && data.includes("score")) {
-      const scoreMatch = data.match(/score (cp|mate) (-?\d+)/);
-      if (scoreMatch) {
-        const [, type, value] = scoreMatch;
-        if (type === "cp") { // centipawn score
-          this.evaluation = Math.max(-10, Math.min(10, (parseInt(value, 10) / 100))); // Convert centipawns to pawn units
-          if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
-          this.mateIn = null;
-
-          this.callback();
-        } else if (type === "mate") { // mate in x moves
-          const mateIn = parseInt(value, 10);
-          this.mateIn = mateIn < 0 ? mateIn * -1 : mateIn;
-          
-          this.evaluation = mateIn > 0 ? 10 : -10; // Positive for White, negative for Black
-          if(this.board.turn === 'b') this.evaluation = this.evaluation * -1;
-
-          this.callback();
-        }
-      }
-    }
   }
 
 

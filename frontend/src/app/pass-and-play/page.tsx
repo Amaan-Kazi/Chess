@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Share2, Flag }  from "lucide-react";
 
 import Game from "@/chess/game";
+import Engine from "@/chess/engine";
 
 import useSettings from "@/hooks/use-settings";
 
@@ -23,7 +24,9 @@ export default function PassAndPlay() {
     setVersion(v => v + 1);
   }, []);
 
-  const gameRef = useRef<Game>(new Game(update, undefined));
+  const gameRef    = useRef<Game>(new Game(update, false));
+  const [settings] = useSettings("pass_and_play", gameRef);
+  const game: Game = gameRef.current;
   
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [promotionTarget, setPromotionTarget] = useState<number[] | null>(null);
@@ -37,24 +40,30 @@ export default function PassAndPlay() {
     if (typeof window !== "undefined") {
       let worker: Worker | undefined;
 
-      try {
-        worker = new Worker("/stockfish.js");
-      }
-      catch (error) {
-        console.log(error);
-        worker = undefined;
+      async function initEngine() {
+        try {
+          worker = new Worker("/stockfish-2.js");
+          game.engine = new Engine(worker, 10, 1, () => {
+            game.engine?.print();
+            update();
+          });
+          await game.engine.init();
+        }
+        catch (error) {
+          console.log(error);
+          worker = undefined;
+        }
       }
 
-      const gameInstance = new Game(update, worker);
-      gameRef.current = gameInstance;
+      initEngine();
 
       return () => {
-        worker?.terminate(); // Clean up worker on unmount
+        // Cleanup worker and engine on unmount
+        game.engine = undefined;
+        worker?.terminate();
       };
     }
-  }, [update]);
-
-  const [settings] = useSettings("pass_and_play", gameRef);
+  }, [update, game]);
 
   // forward or backward moves using arrow keys
   useEffect(() => {
@@ -77,8 +86,6 @@ export default function PassAndPlay() {
     return () => window.removeEventListener("keydown", handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const game = gameRef.current;
 
 
   const click = (row: number, col: number) => {
@@ -127,13 +134,21 @@ export default function PassAndPlay() {
         visible={game.state !== "ongoing"}
         variant="horizontal"
         className="lg:hidden w-full border-0 border-b-2 border-border"
-        evaluation={game.evaluation}
-        mateIn={game.mateIn}
+        evaluation={game.engine?.evaluation[0]}
+        mateIn={game.engine?.mateIn[0]}
       />
 
 
       {/* Main */}
-      <main className="flex min-h-[calc(100vh-60px-40px-60px)] max-h-[calc(100vh-60px-40px-60px)] lg:min-h-[calc(100vh-60px)] lg:max-h-[calc(100vh-60px)] justify-center items-center">
+      <main
+        className="
+          flex min-h-[calc(100vh-60px-40px-60px)]
+          max-h-[calc(100vh-60px-40px-60px)]
+          lg:min-h-[calc(100vh-60px)]
+          lg:max-h-[calc(100vh-60px)]
+          justify-center items-center
+        "
+      >
         <EvaluationBar
           visible={game.state !== "ongoing"}
           variant="vertical"
@@ -142,8 +157,8 @@ export default function PassAndPlay() {
             h-[min(100vw,calc(81/100*(100vh-60px-40px-60px)))]
             lg:h-[min(100vw,calc(81/100*(100vh-60px)))]
           "
-          evaluation={game.evaluation}
-          mateIn={game.mateIn}
+          evaluation={game.engine?.evaluation[0]}
+          mateIn={game.engine?.mateIn[0]}
         />
         
         <div className="

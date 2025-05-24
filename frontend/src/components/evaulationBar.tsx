@@ -1,4 +1,7 @@
-export default function EvaluationBar({ visible, variant, evaluation, mateIn, className }: { visible: boolean, variant: "vertical" | "horizontal", evaluation: number, mateIn: number | null, className?: string }) {
+export default function EvaluationBar({ visible, variant, evaluation, mateIn, className }: { visible: boolean, variant: "vertical" | "horizontal", evaluation?: number, mateIn?: number | null, className?: string }) {
+  evaluation = evaluation === undefined ? 0 : evaluation;
+  mateIn     = mateIn     === undefined ? null : mateIn;
+  
   const whitePercentage = Math.trunc((evaluation + 10) / 20 * 100); 
   const blackPercentage = 100 - whitePercentage;
   
@@ -26,7 +29,7 @@ export default function EvaluationBar({ visible, variant, evaluation, mateIn, cl
         {evaluation < 0 && (
           mateIn !== null ?
             mateIn === 0 ? <p className={`${variant==="horizontal" && "px-2"}`}>0-1</p>
-            : <p className={`${variant==="horizontal" && "px-2"}`}>{`M${mateIn}`}</p>
+            : <p className={`${variant==="horizontal" && "px-2"}`}>{`M${Math.abs(mateIn)}`}</p>
           : <p className={`${variant==="horizontal" && "px-2"}`}>{`${Math.abs(evaluation).toFixed(1)}`}</p>
         )}
       </div>
@@ -49,7 +52,7 @@ export default function EvaluationBar({ visible, variant, evaluation, mateIn, cl
         {evaluation > 0 && (
           mateIn !== null ?
             mateIn === 0 ? <p className={`${variant==="horizontal" && "px-2"}`}>1-0</p>
-            : <p className={`${variant==="horizontal" && "px-2"}`}>{`M${mateIn}`}</p>
+            : <p className={`${variant==="horizontal" && "px-2"}`}>{`M${Math.abs(mateIn)}`}</p>
           : <p className={`${variant==="horizontal" && "px-2"}`}>{`${Math.abs(evaluation).toFixed(1)}`}</p>
         )}
       </div>

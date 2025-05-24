@@ -14,9 +14,9 @@ export default class Engine {
   /** Number of full moves until closest forced mate, null if no forced mate */
   mateIn: (number | null)[];
   /** Best move in form of [row, col] */
-  bestMove: string;
+  bestMove: string | null;
   /** The move most likely to be played by the opponent */
-  ponder: string;
+  ponder: string | null;
   /** Principal Variations */
   principalVariations: string[][]
   /** Current depth the engine has evlauted till */
@@ -45,8 +45,8 @@ export default class Engine {
 
     this.evaluation = [ 0 ];
     this.mateIn     = [ null ];
-    this.ponder     = "";
-    this.bestMove   = "";
+    this.ponder     = null;
+    this.bestMove   = null;
     this.principalVariations = [ [] ];
     this.currentDepth = 0;
 
@@ -88,6 +88,9 @@ export default class Engine {
     return new Promise(resolve => {
       this.turn = FEN.split(" ")[1] === "w" ? "white" : "black";
 
+      this.bestMove = null;
+      this.ponder   = null;
+
       this.engine.postMessage("stop");
       this.engine.postMessage(`position fen ${FEN}`);
 
@@ -98,7 +101,6 @@ export default class Engine {
 
   onmessage(e: MessageEvent) {
     const data = e.data;
-    console.log(data);
 
     if (data === "readyok") this.pendingResolvers.readyok();
 
@@ -112,9 +114,9 @@ export default class Engine {
       const scoreIndex   = tokens.indexOf("score");
       const pvIndex      = tokens.indexOf("pv");
 
-      if (depthIndex!== -1 && multiPVIndex !== -1 && scoreIndex !== -1) {
+      if (depthIndex!== -1 && scoreIndex !== -1) {
         this.currentDepth = Number(tokens[depthIndex + 1]);
-        const index = Number(tokens[multiPVIndex + 1]);
+        const index = multiPVIndex === -1 ? 0 : Number(tokens[multiPVIndex + 1]) - 1;
 
         if (tokens[scoreIndex + 1] === "cp") {
           const centipawns = Number(tokens[scoreIndex + 2]);
@@ -130,7 +132,7 @@ export default class Engine {
         else if (tokens[scoreIndex + 1] === "mate") {
           const mateIn = Number(tokens[scoreIndex + 2]);
           this.mateIn[index] = mateIn * (this.turn === "white" ? 1 : -1);
-          this.evaluation[index] = 10 * (this.turn === "white" ? 1 : -1);
+          this.evaluation[index] = 10 * (this.turn === "white" ? 1 : -1) * (mateIn === 0 ? -1 : 1);
         }
 
         if (pvIndex !== -1) {
@@ -138,6 +140,7 @@ export default class Engine {
           let variationsIndex = 0;
 
           for (let i = pvIndex + 1; i < tokens.length; i++) {
+            if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(tokens[i])) break;
             this.principalVariations[index][variationsIndex] = tokens[i];
             variationsIndex++;
           }
@@ -155,7 +158,11 @@ export default class Engine {
       const ponderIndex   = tokens.indexOf("ponder");
 
       if (bestMoveIndex !== -1) this.bestMove = tokens[bestMoveIndex + 1];
-      if (ponderIndex   !== -1) this.ponder   = tokens[ponderIndex   + 1];
+      else                      this.bestMove = null;
+      if (this.bestMove === "(none)") this.bestMove = null;
+
+      if (ponderIndex !== -1) this.ponder = tokens[ponderIndex + 1];
+      else                    this.ponder = null;
       
       this.pendingResolvers.evaluated();
       this.update?.();
@@ -168,5 +175,41 @@ export default class Engine {
       this.pendingResolvers.readyok = resolve;
       this.engine.postMessage("isready");
     });
+  }
+
+
+  print() {
+    console.clear();
+    let index = 0;
+    const variations: string[] = [];
+
+    // MultiPV
+    for (const multiPV of this.principalVariations) {
+      variations[index] = "";
+
+      for (const pv of multiPV) {
+        variations[index] += ` ${pv}`;
+      }
+
+      let score: string = "" + this.evaluation[index];
+      
+      if (this.evaluation[index] > 0) {
+        if      (this.mateIn[index] === null) score = "+" + this.evaluation[index];
+        else if (this.mateIn[index] === 0)    score = "1-0";
+        else                                  score = "M" + this.mateIn[index];
+      }
+      else if (this.evaluation[index] < 0) {
+        if      (this.mateIn[index] === null) score = "" + this.evaluation[index];
+        else if (this.mateIn[index] === 0)    score = "0-1";
+        else                                  score = "-M" + Math.abs(this.mateIn[index]!);
+      }
+
+      console.log(score + (variations[index] === "" ? "" : " |" + variations[index]));
+      index++;
+    }
+
+    const bestMove = this.bestMove === null ? "" : " | Best Move: " + this.bestMove;
+    const ponder = this.ponder === null ? "" : " | Ponder: " + this.ponder;
+    console.log("Depth: " + this.currentDepth + bestMove + ponder);
   }
 }
